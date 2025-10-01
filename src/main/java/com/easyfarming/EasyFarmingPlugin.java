@@ -192,13 +192,8 @@ public class EasyFarmingPlugin extends Plugin
 			var inventory = client.getItemContainer(93); // 93 is the inventory container ID
 			if (inventory == null)
 			{
-				log.debug("Inventory container is null, trying alternative container IDs");
-				// Try alternative container IDs if 93 doesn't work
-				inventory = client.getItemContainer(93);
-				if (inventory == null)
-				{
-					return;
-				}
+				log.debug("Inventory container is null");
+				return;
 			}
 			
 			// Clear previous inventory counts

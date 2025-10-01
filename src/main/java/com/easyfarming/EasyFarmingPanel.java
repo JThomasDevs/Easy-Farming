@@ -11,7 +11,6 @@ public class EasyFarmingPanel extends PluginPanel
 	private final HerbRunManager herbRunManager;
 
     private JButton startHerbRunButton;
-	private JButton stopHerbRunButton;
 	private JLabel statusLabel;
 	
 	public EasyFarmingPanel(EasyFarmingPlugin plugin, HerbRunManager herbRunManager)
@@ -114,14 +113,6 @@ public class EasyFarmingPanel extends PluginPanel
             updatePanel();
         });
 		
-		stopHerbRunButton = new JButton("Stop Herb Run");
-		stopHerbRunButton.setBackground(new Color(200, 0, 0));
-		stopHerbRunButton.setForeground(Color.WHITE);
-		stopHerbRunButton.addActionListener(e -> {
-            herbRunManager.stopHerbRun();
-            updatePanel();
-        });
-		
 		// Add refresh button
 		JButton refreshButton = new JButton("🔄 Refresh");
 		refreshButton.setBackground(new Color(70, 70, 150));
@@ -132,8 +123,7 @@ public class EasyFarmingPanel extends PluginPanel
         });
 		
 		buttonContainer.add(startHerbRunButton);
-		buttonContainer.add(stopHerbRunButton);
-		buttonContainer.add(refreshButton); // Add refresh button to the container
+		buttonContainer.add(refreshButton);
 		panel.add(buttonContainer);
 		
 		return panel;
@@ -161,9 +151,6 @@ public class EasyFarmingPanel extends PluginPanel
 			startHerbRunButton.setBackground(new Color(0, 150, 0)); // Green for start
         }
         startHerbRunButton.setEnabled(true);
-        stopHerbRunButton.setEnabled(false);
-
-
     }
 	
 

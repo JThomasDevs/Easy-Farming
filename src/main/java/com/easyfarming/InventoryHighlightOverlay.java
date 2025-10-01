@@ -3,9 +3,6 @@ package com.easyfarming;
 import net.runelite.api.Client;
 import net.runelite.api.Item;
 import net.runelite.api.ItemContainer;
-import net.runelite.api.Perspective;
-import net.runelite.api.Point;
-import net.runelite.api.coords.LocalPoint;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
@@ -90,31 +87,19 @@ public class InventoryHighlightOverlay extends Overlay
 		int slotX = startX + (col * slotSize);
 		int slotY = startY + (row * slotSize);
 		
-		// Convert to screen coordinates
-		LocalPoint localPoint = LocalPoint.fromWorld(client.getWorldView(-1), slotX, slotY);
-		if (localPoint == null)
-		{
-			return;
-		}
-		
-		Point screenPoint = Perspective.localToCanvas(client, localPoint, 0);
-		if (screenPoint == null)
-		{
-			return;
-		}
-		
+		// Use screen coordinates directly - no world conversion needed
 		// Draw highlight rectangle around the slot
 		graphics.setColor(new Color(255, 255, 0, 150)); // Semi-transparent yellow
 		graphics.setStroke(new BasicStroke(3.0f));
-		graphics.drawRect(screenPoint.getX() - slotSize/2, screenPoint.getY() - slotSize/2, slotSize, slotSize);
+		graphics.drawRect(slotX, slotY, slotSize, slotSize);
 		
 		// Add a pulsing effect with multiple rectangles
 		graphics.setColor(new Color(255, 255, 0, 80));
 		graphics.setStroke(new BasicStroke(2.0f));
-		graphics.drawRect(screenPoint.getX() - slotSize/2 - 2, screenPoint.getY() - slotSize/2 - 2, slotSize + 4, slotSize + 4);
+		graphics.drawRect(slotX - 2, slotY - 2, slotSize + 4, slotSize + 4);
 		
 		graphics.setColor(new Color(255, 255, 0, 40));
 		graphics.setStroke(new BasicStroke(1.0f));
-		graphics.drawRect(screenPoint.getX() - slotSize/2 - 4, screenPoint.getY() - slotSize/2 - 4, slotSize + 8, slotSize + 8);
+		graphics.drawRect(slotX - 4, slotY - 4, slotSize + 8, slotSize + 8);
 	}
 }

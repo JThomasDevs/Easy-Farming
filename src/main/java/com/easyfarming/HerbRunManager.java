@@ -91,12 +91,10 @@ public class HerbRunManager
 		return herbRunActive;
 	}
 
-	public Map<Integer, Integer> getRequiredItems()
-	{
-		return requiredItems;
-	}
-
-	public Map<Integer, Integer> getInventoryCounts()
+    public Map<Integer, Integer> getRequiredItems()
+    {
+       return new HashMap<>(requiredItems);
+    }	public Map<Integer, Integer> getInventoryCounts()
 	{
 		return new HashMap<>(inventoryCounts);
 	}
@@ -106,29 +104,35 @@ public class HerbRunManager
 	 */
 	public String getNextPatchLocation()
 	{
-		if (!herbRunActive)
+		if (!herbRunActive || patchOrder.length == 0)
 		{
 			return null;
 		}
 		
-            // Find the next enabled patch
-            for (String location : patchOrder) {
-                if (isLocationEnabled(location))
-                {
-                    return location;
-                }
-            }
+		// Start from currentPatchIndex and scan forward
+		for (int i = 0; i < patchOrder.length; i++)
+		{
+			int index = (currentPatchIndex + i) % patchOrder.length;
+			String location = patchOrder[index];
+			
+			if (isLocationEnabled(location))
+			{
+				return location;
+			}
+		}
+		
+		// No enabled patches found
 		return null;
 	}
 	
 	/**
 	 * Get coordinates for a specific patch location
 	 */
-	public int[] getPatchCoordinates(String location)
-	{
-		return patchCoordinates.get(location);
-	}
-	
+public int[] getPatchCoordinates(String location)
+{
+    int[] coords = patchCoordinates.get(location);
+    return coords != null ? coords.clone() : null;
+}	
 	/**
 	 * Check if a location is enabled in config
 	 */
@@ -163,28 +167,23 @@ public class HerbRunManager
 		Map<Integer, Integer> teleports = LOCATION_TELEPORTS.get(nextLocation);
 		if (teleports != null && !teleports.isEmpty())
 		{
-			// Return the first teleport item (most locations only have one)
 			return teleports.keySet().iterator().next();
 		}
 		return null;
 	}
 	
-	/**
-	 * Mark the current patch as completed and move to the next one
-	 */
 	public void completeCurrentPatch()
 	{
 		if (!herbRunActive)
 		{
 			return;
 		}
-		
-		// Find the current patch and mark it as completed
+ 	
+		// Get the current patch location
 		String currentLocation = getNextPatchLocation();
 		if (currentLocation != null)
 		{
-			// For now, we'll just remove the teleport requirements for this location
-			// In a more advanced version, you could track individual patch completion
+			// Remove the teleport requirements for this location
 			Map<Integer, Integer> teleports = LOCATION_TELEPORTS.get(currentLocation);
 			if (teleports != null)
 			{
@@ -193,6 +192,9 @@ public class HerbRunManager
 					requiredItems.remove(itemId);
 				}
 			}
+			
+			// Increment to next patch, wrapping around if necessary
+			currentPatchIndex = (currentPatchIndex + 1) % patchOrder.length;
 		}
 	}
 
@@ -287,14 +289,13 @@ public class HerbRunManager
 	public void stopHerbRun()
 	{
 		herbRunActive = false;
+		currentPatchIndex = 0;
 		requiredItems.clear();
 		inventoryCounts.clear();
 	}
-
+	
 	private void calculateRequiredItems()
 	{
-		requiredItems.clear();
-		
 		// Count enabled herb patches and add location-specific teleports
 		int patchCount = 0;
 		if (config.ardougne())
