@@ -145,7 +145,8 @@ public class ItemRequirement
             variants.add(ItemID.JEWL_BRACELET_OF_COMBAT_4); // Bracelet 4
             variants.add(ItemID.JEWL_BRACELET_OF_COMBAT_5); // Bracelet 5
             variants.add(ItemID.JEWL_BRACELET_OF_COMBAT_6); // Bracelet 6
-        }        else
+        }        
+        else
         {
             // Default: just the base item
             variants.add(baseItemId);

@@ -15,6 +15,7 @@ public class Location
     private final String name;
     private final WorldPoint patchPoint;
     private final boolean farmLimps;
+    private final boolean enabled;
     private final List<Teleport> teleportOptions;
     private final Function<Object, String> selectedTeleportFunction; // Will be replaced with proper config function
     private final Set<PatchType> patchTypes;
@@ -24,6 +25,7 @@ public class Location
         this.name = name;
         this.patchPoint = patchPoint;
         this.farmLimps = farmLimps;
+        this.enabled = true; // Default to enabled
         this.teleportOptions = new ArrayList<>();
         this.selectedTeleportFunction = null; // Will be set by config system
         this.patchTypes = new HashSet<>();
@@ -34,6 +36,29 @@ public class Location
         this.name = name;
         this.patchPoint = patchPoint;
         this.farmLimps = farmLimps;
+        this.enabled = true; // Default to enabled
+        this.teleportOptions = new ArrayList<>();
+        this.selectedTeleportFunction = null; // Will be set by config system
+        this.patchTypes = new HashSet<>(patchTypes);
+    }
+    
+    public Location(String name, WorldPoint patchPoint, boolean farmLimps, boolean enabled)
+    {
+        this.name = name;
+        this.patchPoint = patchPoint;
+        this.farmLimps = farmLimps;
+        this.enabled = enabled;
+        this.teleportOptions = new ArrayList<>();
+        this.selectedTeleportFunction = null; // Will be set by config system
+        this.patchTypes = new HashSet<>();
+    }
+    
+    public Location(String name, WorldPoint patchPoint, boolean farmLimps, boolean enabled, Set<PatchType> patchTypes)
+    {
+        this.name = name;
+        this.patchPoint = patchPoint;
+        this.farmLimps = farmLimps;
+        this.enabled = enabled;
         this.teleportOptions = new ArrayList<>();
         this.selectedTeleportFunction = null; // Will be set by config system
         this.patchTypes = new HashSet<>(patchTypes);
@@ -96,6 +121,7 @@ public class Location
     public String getName() { return name; }
     public WorldPoint getPatchPoint() { return patchPoint; }
     public boolean getFarmLimps() { return farmLimps; }
+    public boolean isEnabled() { return enabled; }
     public Set<PatchType> getPatchTypes() { return new HashSet<>(patchTypes); }
     
     @Override

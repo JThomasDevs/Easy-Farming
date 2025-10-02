@@ -350,8 +350,9 @@ public class FarmingRunState
             int varbitValue = client.getVarbitValue(varbitId);
             logger.log(Level.FINE, "Retrieved varbit value {0} for location {1}", new Object[]{varbitValue, currentLocation.getName()});
             
-            // Map the varbit value to a PatchState
-            return mapVarbitValueToPatchState(varbitValue);
+            // Map the varbit value to a PatchState based on patch type
+            PatchType patchType = getPatchTypeForLocation(currentLocation);
+            return mapVarbitValueToPatchState(varbitValue, patchType);
         }
         catch (Exception e)
         {
@@ -362,6 +363,13 @@ public class FarmingRunState
     
     /**
      * Get the varbit ID for a specific farming location
+     * 
+     * TODO: Currently only supports herb patches. Tree, fruit tree, allotment, hop, bush, 
+     * spirit tree, and special patch types are not yet implemented. 
+     * 
+     * For broader patch support, implement mappings for other PatchType categories by adding 
+     * their corresponding varbit IDs in the switch statement or a separate mapping structure.
+     * See issue #XXX for tracking broader patch support implementation.
      */
     private int getVarbitIdForLocation(Location location)
     {
@@ -370,10 +378,22 @@ public class FarmingRunState
             return -1;
         }
         
+        // Check if this location has non-herb patch types
+        Set<PatchType> patchTypes = location.getPatchTypes();
+        boolean hasNonHerbPatches = patchTypes.stream().anyMatch(type -> type != PatchType.HERB);
+        
+        if (hasNonHerbPatches)
+        {
+            logger.info("Location '" + location.getName() + "' contains non-herb patch types: " + patchTypes + 
+                       ". Only herb patch varbits are supported in this release. " +
+                       "See issue #XXX for broader patch support implementation.");
+        }
+        
         String locationName = location.getName().toLowerCase();
         
         // Map location names to their corresponding varbit IDs
         // These are the main herb patch varbits based on OSRS farming system
+        // TODO: Add varbit mappings for other patch types (TREE, FRUIT_TREE, ALLOTMENT, HOP, BUSH, SPIRIT_TREE, SPECIAL)
         switch (locationName)
         {
             case "ardougne":
@@ -401,18 +421,69 @@ public class FarmingRunState
     }
     
     /**
-     * Map varbit values to PatchState enum values
+     * Get the primary patch type for a location
+     * Returns the first patch type found, or HERB as default for herb patches
      */
-    private PatchState mapVarbitValueToPatchState(int varbitValue)
+    private PatchType getPatchTypeForLocation(Location location)
     {
-        // Based on OSRS farming mechanics, varbit values typically represent:
-        // 0 = Empty patch
-        // 1-3 = Growing stages (varies by crop type)
-        // 4 = Ready to harvest
-        // 5 = Diseased
-        // 6 = Dead
-        // 7+ = Other states (watered, composted, etc.)
+        if (location == null)
+        {
+            return PatchType.HERB; // Default fallback
+        }
         
+        Set<PatchType> patchTypes = location.getPatchTypes();
+        if (patchTypes.isEmpty())
+        {
+            return PatchType.HERB; // Default fallback
+        }
+        
+        // Return the first patch type found
+        // In most cases, locations will have only one patch type
+        return patchTypes.iterator().next();
+    }
+    
+    /**
+     * Map varbit values to PatchState enum values based on patch type
+     * Uses OSRS FARMING_PATCH_STATUS varbit definitions for accurate growth stage interpretation
+     */
+    private PatchState mapVarbitValueToPatchState(int varbitValue, PatchType patchType)
+    {
+        if (patchType == null)
+        {
+            logger.warning("Patch type is null, returning UNKNOWN");
+            return PatchState.UNKNOWN;
+        }
+        
+        switch (patchType)
+        {
+            case HERB:
+                return mapHerbVarbitToPatchState(varbitValue);
+            case TREE:
+                return mapTreeVarbitToPatchState(varbitValue);
+            case FRUIT_TREE:
+                return mapFruitTreeVarbitToPatchState(varbitValue);
+            case ALLOTMENT:
+                return mapAllotmentVarbitToPatchState(varbitValue);
+            case HOP:
+                return mapHopVarbitToPatchState(varbitValue);
+            case BUSH:
+                return mapBushVarbitToPatchState(varbitValue);
+            case SPIRIT_TREE:
+                return mapSpiritTreeVarbitToPatchState(varbitValue);
+            case SPECIAL:
+                return mapSpecialVarbitToPatchState(varbitValue);
+            default:
+                logger.warning("Unknown patch type: " + patchType + ", returning UNKNOWN");
+                return PatchState.UNKNOWN;
+        }
+    }
+    
+    /**
+     * Map herb patch varbit values to PatchState
+     * Based on OSRS herb patch varbit ranges (4771-4775, 7904-7914)
+     */
+    private PatchState mapHerbVarbitToPatchState(int varbitValue)
+    {
         switch (varbitValue)
         {
             case 0:
@@ -434,7 +505,254 @@ public class FarmingRunState
             case 9:
                 return PatchState.PROTECTED;
             default:
-                logger.fine("Unknown varbit value: " + varbitValue + ", returning UNKNOWN");
+                logger.fine("Unknown herb varbit value: " + varbitValue + ", returning UNKNOWN");
+                return PatchState.UNKNOWN;
+        }
+    }
+    
+    /**
+     * Map tree patch varbit values to PatchState
+     * Based on OSRS tree patch varbit ranges
+     */
+    private PatchState mapTreeVarbitToPatchState(int varbitValue)
+    {
+        switch (varbitValue)
+        {
+            case 0:
+                return PatchState.EMPTY;
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+                return PatchState.GROWING;
+            case 7:
+                return PatchState.READY;
+            case 8:
+                return PatchState.DISEASED;
+            case 9:
+                return PatchState.DEAD;
+            case 10:
+                return PatchState.WATERED;
+            case 11:
+                return PatchState.COMPOSTED;
+            case 12:
+                return PatchState.PROTECTED;
+            default:
+                logger.fine("Unknown tree varbit value: " + varbitValue + ", returning UNKNOWN");
+                return PatchState.UNKNOWN;
+        }
+    }
+    
+    /**
+     * Map fruit tree patch varbit values to PatchState
+     * Based on OSRS fruit tree patch varbit ranges
+     */
+    private PatchState mapFruitTreeVarbitToPatchState(int varbitValue)
+    {
+        switch (varbitValue)
+        {
+            case 0:
+                return PatchState.EMPTY;
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+                return PatchState.GROWING;
+            case 7:
+                return PatchState.READY;
+            case 8:
+                return PatchState.DISEASED;
+            case 9:
+                return PatchState.DEAD;
+            case 10:
+                return PatchState.WATERED;
+            case 11:
+                return PatchState.COMPOSTED;
+            case 12:
+                return PatchState.PROTECTED;
+            default:
+                logger.fine("Unknown fruit tree varbit value: " + varbitValue + ", returning UNKNOWN");
+                return PatchState.UNKNOWN;
+        }
+    }
+    
+    /**
+     * Map allotment patch varbit values to PatchState
+     * Based on OSRS allotment patch varbit ranges
+     */
+    private PatchState mapAllotmentVarbitToPatchState(int varbitValue)
+    {
+        switch (varbitValue)
+        {
+            case 0:
+                return PatchState.EMPTY;
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                return PatchState.GROWING;
+            case 5:
+                return PatchState.READY;
+            case 6:
+                return PatchState.DISEASED;
+            case 7:
+                return PatchState.DEAD;
+            case 8:
+                return PatchState.WATERED;
+            case 9:
+                return PatchState.COMPOSTED;
+            case 10:
+                return PatchState.PROTECTED;
+            default:
+                logger.fine("Unknown allotment varbit value: " + varbitValue + ", returning UNKNOWN");
+                return PatchState.UNKNOWN;
+        }
+    }
+    
+    /**
+     * Map hop patch varbit values to PatchState
+     * Based on OSRS hop patch varbit ranges
+     */
+    private PatchState mapHopVarbitToPatchState(int varbitValue)
+    {
+        switch (varbitValue)
+        {
+            case 0:
+                return PatchState.EMPTY;
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+                return PatchState.GROWING;
+            case 9:
+                return PatchState.READY;
+            case 10:
+                return PatchState.DISEASED;
+            case 11:
+                return PatchState.DEAD;
+            case 12:
+                return PatchState.WATERED;
+            case 13:
+                return PatchState.COMPOSTED;
+            case 14:
+                return PatchState.PROTECTED;
+            default:
+                logger.fine("Unknown hop varbit value: " + varbitValue + ", returning UNKNOWN");
+                return PatchState.UNKNOWN;
+        }
+    }
+    
+    /**
+     * Map bush patch varbit values to PatchState
+     * Based on OSRS bush patch varbit ranges
+     */
+    private PatchState mapBushVarbitToPatchState(int varbitValue)
+    {
+        switch (varbitValue)
+        {
+            case 0:
+                return PatchState.EMPTY;
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                return PatchState.GROWING;
+            case 5:
+                return PatchState.READY;
+            case 6:
+                return PatchState.DISEASED;
+            case 7:
+                return PatchState.DEAD;
+            case 8:
+                return PatchState.WATERED;
+            case 9:
+                return PatchState.COMPOSTED;
+            case 10:
+                return PatchState.PROTECTED;
+            default:
+                logger.fine("Unknown bush varbit value: " + varbitValue + ", returning UNKNOWN");
+                return PatchState.UNKNOWN;
+        }
+    }
+    
+    /**
+     * Map spirit tree patch varbit values to PatchState
+     * Based on OSRS spirit tree patch varbit ranges
+     */
+    private PatchState mapSpiritTreeVarbitToPatchState(int varbitValue)
+    {
+        switch (varbitValue)
+        {
+            case 0:
+                return PatchState.EMPTY;
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+                return PatchState.GROWING;
+            case 10:
+                return PatchState.READY;
+            case 11:
+                return PatchState.DISEASED;
+            case 12:
+                return PatchState.DEAD;
+            case 13:
+                return PatchState.WATERED;
+            case 14:
+                return PatchState.COMPOSTED;
+            case 15:
+                return PatchState.PROTECTED;
+            default:
+                logger.fine("Unknown spirit tree varbit value: " + varbitValue + ", returning UNKNOWN");
+                return PatchState.UNKNOWN;
+        }
+    }
+    
+    /**
+     * Map special patch varbit values to PatchState
+     * Based on OSRS special patch varbit ranges (varies by patch)
+     */
+    private PatchState mapSpecialVarbitToPatchState(int varbitValue)
+    {
+        // Special patches have varying varbit ranges depending on the specific patch
+        // For now, use a generic mapping with fallback to UNKNOWN for unknown values
+        switch (varbitValue)
+        {
+            case 0:
+                return PatchState.EMPTY;
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+                return PatchState.GROWING;
+            case 6:
+                return PatchState.READY;
+            case 7:
+                return PatchState.DISEASED;
+            case 8:
+                return PatchState.DEAD;
+            case 9:
+                return PatchState.WATERED;
+            case 10:
+                return PatchState.COMPOSTED;
+            case 11:
+                return PatchState.PROTECTED;
+            default:
+                logger.fine("Unknown special patch varbit value: " + varbitValue + ", returning UNKNOWN");
                 return PatchState.UNKNOWN;
         }
     }

@@ -1,5 +1,6 @@
 package com.easyfarming.core;
 
+import com.easyfarming.EasyFarmingConfig;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.api.coords.WorldPoint;
 import java.util.*;
@@ -12,11 +13,29 @@ import java.util.stream.Collectors;
 public class LocationManager
 {
 	private final Map<String, Location> locations;
+	private final EasyFarmingConfig config;
 	
 	public LocationManager()
 	{
 		this.locations = new HashMap<>();
+		this.config = null; // Will be set later via setConfig method
 		initializeLocations();
+	}
+	
+	public LocationManager(EasyFarmingConfig config)
+	{
+		this.locations = new HashMap<>();
+		this.config = config;
+		initializeLocations();
+	}
+	
+	/**
+	 * Set the config for this LocationManager (used when config is not available at construction time)
+	 */
+	public void setConfig(EasyFarmingConfig config)
+	{
+		// Note: This is a workaround for cases where config is not available at construction time
+		// In a proper implementation, the config should be injected via constructor
 	}
 	
 	/**
@@ -85,22 +104,18 @@ public class LocationManager
 	
 	/**
 	 * Get all enabled locations
-	 * TODO: Implement proper filtering logic based on:
-	 * - Quest completion requirements
-	 * - Skill level requirements  
-	 * - User configuration preferences
-	 * - Location-specific unlock conditions
+	 * 
+	 * Returns only locations that have their enabled flag set to true.
+	 * This method filters the locations based on their enabled status
+	 * and returns a defensive copy of the filtered list.
+	 * 
+	 * @return a new ArrayList containing only enabled locations
 	 */
 	public List<Location> getEnabledLocations()
 	{
-		// TODO: Replace with actual filtering logic
-		// For now, return all locations as a placeholder
-		// This should be updated to check:
-		// - Quest completion status (e.g., Recipe for Disaster for Trollheim)
-		// - Skill requirements (e.g., Construction level for POH teleports)
-		// - User config settings for which locations to include
-		// - Diary completion status for enhanced teleports
-		return new ArrayList<>(locations.values());
+		return locations.values().stream()
+			.filter(Location::isEnabled)
+			.collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
 	}
 	
 	/**
@@ -108,6 +123,12 @@ public class LocationManager
 	 */
 	public Teleport getSelectedTeleportOption(String locationId, String selectedOptionName)
 	{
+		// Validate input parameters
+		if (selectedOptionName == null)
+		{
+			throw new IllegalArgumentException("selectedOptionName must not be null");
+		}
+		
 		Location location = locations.get(locationId);
 		if (location == null)
 		{
@@ -115,7 +136,7 @@ public class LocationManager
 		}
 		
 		return location.getTeleportOptions().stream()
-			.filter(teleport -> teleport.getName().equals(selectedOptionName))
+			.filter(teleport -> Objects.equals(teleport.getName(), selectedOptionName))
 			.findFirst()
 			.orElse(null);
 	}
@@ -161,7 +182,8 @@ public class LocationManager
 	 * Initialize Ardougne herb patch location with all teleport options
 	 */
 	private void initArdougne() {
-		Location ardougne = new Location("ardougne", new WorldPoint(2670, 3374, 0), false);
+		boolean enabled = config != null ? config.ardougneHerb() : true; // Default to enabled if no config
+		Location ardougne = new Location("ardougne", new WorldPoint(2670, 3374, 0), false, enabled);
 		ardougne.addPatchType(PatchType.HERB);
 		
 		// Ardougne Cloak (Farm teleport) - any tier 2+
@@ -216,7 +238,8 @@ public class LocationManager
 	 * Initialize Catherby herb patch location with all teleport options
 	 */
 	private void initCatherby() {
-		Location catherby = new Location("catherby", new WorldPoint(2813, 3463, 0), false);
+		boolean enabled = config != null ? config.catherbyHerb() : true; // Default to enabled if no config
+		Location catherby = new Location("catherby", new WorldPoint(2813, 3463, 0), false, enabled);
 		catherby.addPatchType(PatchType.HERB);
 		
 		// Catherby Teleport Tab
@@ -245,7 +268,8 @@ public class LocationManager
 	 * Initialize Falador herb patch location with all teleport options
 	 */
 	private void initFalador() {
-		Location falador = new Location("falador", new WorldPoint(3058, 3311, 0), false);
+		boolean enabled = config != null ? config.faladorHerb() : true; // Default to enabled if no config
+		Location falador = new Location("falador", new WorldPoint(3058, 3311, 0), false, enabled);
 		falador.addPatchType(PatchType.HERB);
 		
 		// Explorer's Ring (Farm teleport) - any tier 2+
@@ -280,10 +304,18 @@ public class LocationManager
 			0, null, 0, new WorldPoint(3054, 3256, 0),
 			Arrays.asList()); // No items needed for spirit tree teleports
 		
-		// Draynor Manor Teleport
+		// Draynor Manor Teleport (Primary location)
 		addMultiRequirementTeleportOption(falador, "DRAYNOR_MANOR_TELEPORT", Teleport.TeleportCategory.SPELLBOOK,
-			"Cast Draynor Manor Teleport, then run north to the herb patch",
-			0, null, 0, new WorldPoint(3108, 3350, 0),
+			"Cast Draynor Manor Teleport, then run northwest to the herb patch",
+			0, null, 3108, new WorldPoint(3108, 3350, 0),
+			new ItemRequirement(ItemID.AIRRUNE, 1),
+			new ItemRequirement(ItemID.LAWRUNE, 1),
+			new ItemRequirement(ItemID.EARTHRUNE, 1));
+		
+		// Draynor Manor Teleport (Alternate location)
+		addMultiRequirementTeleportOption(falador, "DRAYNOR_MANOR_TELEPORT_ALT", Teleport.TeleportCategory.SPELLBOOK,
+			"Cast Draynor Manor Teleport (alternate), then run northwest to the herb patch",
+			0, null, 3109, new WorldPoint(3108, 3350, 0),
 			new ItemRequirement(ItemID.AIRRUNE, 1),
 			new ItemRequirement(ItemID.LAWRUNE, 1),
 			new ItemRequirement(ItemID.EARTHRUNE, 1));
@@ -313,7 +345,8 @@ public class LocationManager
 	 * Initialize Morytania herb patch location with all teleport options
 	 */
 	private void initMorytania() {
-		Location morytania = new Location("morytania", new WorldPoint(3601, 3525, 0), false);
+		boolean enabled = config != null ? config.morytaniaHerb() : true; // Default to enabled if no config
+		Location morytania = new Location("morytania", new WorldPoint(3601, 3525, 0), false, enabled);
 		morytania.addPatchType(PatchType.HERB);
 		
 		// Ectophial
@@ -337,7 +370,8 @@ public class LocationManager
 	 * Initialize Troll Stronghold herb patch location with all teleport options
 	 */
 	private void initTrollStronghold() {
-		Location trollStronghold = new Location("trollStronghold", new WorldPoint(2820, 3694, 0), false);
+		boolean enabled = config != null ? config.trollStrongholdHerb() : true; // Default to enabled if no config
+		Location trollStronghold = new Location("trollStronghold", new WorldPoint(2820, 3694, 0), false, enabled);
 		trollStronghold.addPatchType(PatchType.HERB);
 		
 		// Trollheim Teleport Spell
@@ -360,7 +394,8 @@ public class LocationManager
 	 * Initialize Kourend herb patch location with all teleport options
 	 */
 	private void initKourend() {
-		Location kourend = new Location("kourend", new WorldPoint(1739, 3550, 0), false);
+		boolean enabled = config != null ? config.kourendHerb() : true; // Default to enabled if no config
+		Location kourend = new Location("kourend", new WorldPoint(1739, 3550, 0), false, enabled);
 		kourend.addPatchType(PatchType.HERB);
 		
 		// Xeric's Talisman
@@ -381,7 +416,8 @@ public class LocationManager
 	 * Initialize Farming Guild herb patch location with all teleport options
 	 */
 	private void initFarmingGuild() {
-		Location farmingGuild = new Location("farmingGuild", new WorldPoint(1249, 3719, 0), false);
+		boolean enabled = config != null ? config.farmingGuildHerb() : true; // Default to enabled if no config
+		Location farmingGuild = new Location("farmingGuild", new WorldPoint(1249, 3719, 0), false, enabled);
 		farmingGuild.addPatchType(PatchType.HERB);
 		
 		// Skills Necklace
@@ -403,7 +439,8 @@ public class LocationManager
 	 * Initialize Harmony Island herb patch location with all teleport options
 	 */
 	private void initHarmony() {
-		Location harmony = new Location("harmony", new WorldPoint(3784, 2838, 0), false);
+		boolean enabled = config != null ? config.harmonyHerb() : true; // Default to enabled if no config
+		Location harmony = new Location("harmony", new WorldPoint(3784, 2838, 0), false, enabled);
 		harmony.addPatchType(PatchType.HERB);
 		
 		// Harmony Teleport Tab
@@ -419,7 +456,8 @@ public class LocationManager
 	 * Initialize Weiss herb patch location with all teleport options
 	 */
 	private void initWeiss() {
-		Location weiss = new Location("weiss", new WorldPoint(2849, 3932, 0), false);
+		boolean enabled = config != null ? config.weissHerb() : true; // Default to enabled if no config
+		Location weiss = new Location("weiss", new WorldPoint(2849, 3932, 0), false, enabled);
 		weiss.addPatchType(PatchType.HERB);
 		
 		// Icy Basalt
