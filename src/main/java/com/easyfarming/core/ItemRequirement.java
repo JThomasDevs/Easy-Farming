@@ -18,6 +18,7 @@ public class ItemRequirement
     private final boolean isPohRequirement;
     private final int constructionLevel;
     private final String pohFurnitureName;
+    private final boolean allowDiaryCompletion;
     
     /**
      * Create a simple item requirement
@@ -31,6 +32,7 @@ public class ItemRequirement
         this.isPohRequirement = false;
         this.constructionLevel = 0;
         this.pohFurnitureName = null;
+        this.allowDiaryCompletion = false;
     }
     
     /**
@@ -45,6 +47,7 @@ public class ItemRequirement
         this.isPohRequirement = false;
         this.constructionLevel = 0;
         this.pohFurnitureName = null;
+        this.allowDiaryCompletion = false;
         
         if (tierAgnostic)
         {
@@ -64,6 +67,7 @@ public class ItemRequirement
         this.isPohRequirement = false;
         this.constructionLevel = 0;
         this.pohFurnitureName = null;
+        this.allowDiaryCompletion = false;
     }
     
     /**
@@ -78,6 +82,7 @@ public class ItemRequirement
         this.isPohRequirement = true;
         this.constructionLevel = constructionLevel;
         this.pohFurnitureName = pohFurnitureName;
+        this.allowDiaryCompletion = false;
     }
     
     /**
@@ -85,6 +90,10 @@ public class ItemRequirement
      */
     public ItemRequirement(List<Integer> itemIds, int quantity, boolean allowDiaryCompletion)
     {
+        if (itemIds == null) {
+            throw new IllegalArgumentException("itemIds cannot be null");
+        }
+        
         this.itemId = itemIds.isEmpty() ? 0 : itemIds.get(0);
         this.quantity = quantity;
         this.tierAgnostic = false;
@@ -92,6 +101,7 @@ public class ItemRequirement
         this.isPohRequirement = false;
         this.constructionLevel = 0;
         this.pohFurnitureName = null;
+        this.allowDiaryCompletion = allowDiaryCompletion;
         // Note: Diary completion logic would need to be implemented in the requirement checking system
     }
     
@@ -126,7 +136,7 @@ public class ItemRequirement
             variants.add(ItemID.JEWL_NECKLACE_OF_SKILLS_5); // Necklace 5
             variants.add(ItemID.JEWL_NECKLACE_OF_SKILLS_6); // Necklace 6
         }
-        // Combat Bracelet variants (1-8)
+        // Combat Bracelet variants (1-6)
         else if (baseItemId == ItemID.JEWL_BRACELET_OF_COMBAT_1) // Combat Bracelet 1
         {
             variants.add(ItemID.JEWL_BRACELET_OF_COMBAT_1); // Bracelet 1
@@ -135,8 +145,7 @@ public class ItemRequirement
             variants.add(ItemID.JEWL_BRACELET_OF_COMBAT_4); // Bracelet 4
             variants.add(ItemID.JEWL_BRACELET_OF_COMBAT_5); // Bracelet 5
             variants.add(ItemID.JEWL_BRACELET_OF_COMBAT_6); // Bracelet 6
-        }
-        else
+        }        else
         {
             // Default: just the base item
             variants.add(baseItemId);
@@ -153,6 +162,7 @@ public class ItemRequirement
     public boolean isPohRequirement() { return isPohRequirement; }
     public int getConstructionLevel() { return constructionLevel; }
     public String getPohFurnitureName() { return pohFurnitureName; }
+    public boolean isAllowDiaryCompletion() { return allowDiaryCompletion; }
     
     /**
      * Get all possible item IDs for this requirement

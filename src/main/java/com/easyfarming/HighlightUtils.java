@@ -1,7 +1,6 @@
 package com.easyfarming;
 
 import java.awt.*;
-import java.awt.Shape;
 
 public class HighlightUtils
 {

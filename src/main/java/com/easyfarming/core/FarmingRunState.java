@@ -3,11 +3,10 @@ package com.easyfarming.core;
 import net.runelite.api.Client;
 import net.runelite.api.Player;
 import net.runelite.api.coords.WorldPoint;
-import net.runelite.api.gameval.ItemID;
-import net.runelite.api.gameval.InventoryID;
-import net.runelite.api.Item;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Manages the state machine for farming runs.
@@ -15,6 +14,8 @@ import java.util.*;
  */
 public class FarmingRunState
 {
+    private static final Logger logger = Logger.getLogger(FarmingRunState.class.getName());
+    
     private final Client client;
     private final RequirementManager requirementManager;
     private final LocationManager locationManager;
@@ -329,9 +330,113 @@ public class FarmingRunState
      */
     private PatchState detectPatchState()
     {
-        // This would use RuneLite API to detect patch state
-        // For now, return a default state
-        return PatchState.UNKNOWN;
+        if (client == null || currentLocation == null)
+        {
+            logger.warning("Client or current location is null, cannot detect patch state");
+            return PatchState.UNKNOWN;
+        }
+        
+        try
+        {
+            // Get the varbit ID for this location
+            int varbitId = getVarbitIdForLocation(currentLocation);
+            if (varbitId == -1)
+            {
+                logger.log(Level.WARNING, "No varbit ID found for location: {0}", currentLocation.getName());
+                return PatchState.UNKNOWN;
+            }
+            
+            // Get the varbit value from the client
+            int varbitValue = client.getVarbitValue(varbitId);
+            logger.log(Level.FINE, "Retrieved varbit value {0} for location {1}", new Object[]{varbitValue, currentLocation.getName()});
+            
+            // Map the varbit value to a PatchState
+            return mapVarbitValueToPatchState(varbitValue);
+        }
+        catch (Exception e)
+        {
+            logger.log(Level.WARNING, "Exception while detecting patch state: {0}", e.getMessage());
+            return PatchState.UNKNOWN;
+        }
+    }
+    
+    /**
+     * Get the varbit ID for a specific farming location
+     */
+    private int getVarbitIdForLocation(Location location)
+    {
+        if (location == null)
+        {
+            return -1;
+        }
+        
+        String locationName = location.getName().toLowerCase();
+        
+        // Map location names to their corresponding varbit IDs
+        // These are the main herb patch varbits based on OSRS farming system
+        switch (locationName)
+        {
+            case "ardougne":
+                return 4772; // Ardougne herb patch
+            case "catherby":
+                return 4773; // Catherby herb patch
+            case "falador":
+                return 4774; // Falador herb patch
+            case "morytania":
+                return 4775; // Morytania herb patch
+            case "trollstronghold":
+                return 4776; // Troll Stronghold herb patch
+            case "kourend":
+                return 4777; // Kourend herb patch
+            case "farmingguild":
+                return 4778; // Farming Guild herb patch
+            case "harmonyisland":
+                return 4779; // Harmony Island herb patch
+            case "weiss":
+                return 4780; // Weiss herb patch
+            default:
+                logger.warning("Unknown location for varbit mapping: " + locationName);
+                return -1;
+        }
+    }
+    
+    /**
+     * Map varbit values to PatchState enum values
+     */
+    private PatchState mapVarbitValueToPatchState(int varbitValue)
+    {
+        // Based on OSRS farming mechanics, varbit values typically represent:
+        // 0 = Empty patch
+        // 1-3 = Growing stages (varies by crop type)
+        // 4 = Ready to harvest
+        // 5 = Diseased
+        // 6 = Dead
+        // 7+ = Other states (watered, composted, etc.)
+        
+        switch (varbitValue)
+        {
+            case 0:
+                return PatchState.EMPTY;
+            case 1:
+            case 2:
+            case 3:
+                return PatchState.GROWING;
+            case 4:
+                return PatchState.READY;
+            case 5:
+                return PatchState.DISEASED;
+            case 6:
+                return PatchState.DEAD;
+            case 7:
+                return PatchState.WATERED;
+            case 8:
+                return PatchState.COMPOSTED;
+            case 9:
+                return PatchState.PROTECTED;
+            default:
+                logger.fine("Unknown varbit value: " + varbitValue + ", returning UNKNOWN");
+                return PatchState.UNKNOWN;
+        }
     }
 
     /**

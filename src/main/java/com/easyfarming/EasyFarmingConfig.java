@@ -196,7 +196,7 @@ public interface EasyFarmingConfig extends Config
 		description = "Choose teleport method for Farming Guild",
 		section = teleportSection
 	)
-	default FarmingGuildTeleportOption farmingGuildTeleport() { return FarmingGuildTeleportOption.JEWL_NECKLACE_OF_SKILLS_1; }
+	default FarmingGuildTeleportOption farmingGuildTeleport() { return FarmingGuildTeleportOption.JEWL_NECKLACE_OF_SKILLS; }
 
 	@ConfigItem(
 		keyName = "harmonyTeleport",
@@ -416,7 +416,7 @@ public interface EasyFarmingConfig extends Config
 
 	enum FarmingGuildTeleportOption
 	{
-		JEWL_NECKLACE_OF_SKILLS_1("Skills Necklace"),
+		JEWL_NECKLACE_OF_SKILLS("Skills Necklace"),
 		SKILLCAPE_FARMING("Farming Cape");
 
 		private final String displayName;
@@ -432,7 +432,6 @@ public interface EasyFarmingConfig extends Config
 			return displayName;
 		}
 	}
-
 	enum HarmonyTeleportOption
 	{
 		HARMONY_TELE_TAB("Harmony Teleport Tab");

@@ -3,8 +3,9 @@ package com.easyfarming.core;
 import net.runelite.api.coords.WorldPoint;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.function.Function;
-import java.util.Collections;
 
 /**
  * Represents a farming location with its patch coordinates and teleport options
@@ -16,6 +17,7 @@ public class Location
     private final boolean farmLimps;
     private final List<Teleport> teleportOptions;
     private final Function<Object, String> selectedTeleportFunction; // Will be replaced with proper config function
+    private final Set<PatchType> patchTypes;
     
     public Location(String name, WorldPoint patchPoint, boolean farmLimps)
     {
@@ -24,6 +26,17 @@ public class Location
         this.farmLimps = farmLimps;
         this.teleportOptions = new ArrayList<>();
         this.selectedTeleportFunction = null; // Will be set by config system
+        this.patchTypes = new HashSet<>();
+    }
+    
+    public Location(String name, WorldPoint patchPoint, boolean farmLimps, Set<PatchType> patchTypes)
+    {
+        this.name = name;
+        this.patchPoint = patchPoint;
+        this.farmLimps = farmLimps;
+        this.teleportOptions = new ArrayList<>();
+        this.selectedTeleportFunction = null; // Will be set by config system
+        this.patchTypes = new HashSet<>(patchTypes);
     }
     
     /**
@@ -32,6 +45,22 @@ public class Location
     public void addTeleportOption(Teleport teleport)
     {
         teleportOptions.add(teleport);
+    }
+    
+    /**
+     * Add a patch type to this location
+     */
+    public void addPatchType(PatchType patchType)
+    {
+        patchTypes.add(patchType);
+    }
+    
+    /**
+     * Check if this location has a specific patch type
+     */
+    public boolean hasPatchType(PatchType patchType)
+    {
+        return patchTypes.contains(patchType);
     }
     
     /**
@@ -67,6 +96,7 @@ public class Location
     public String getName() { return name; }
     public WorldPoint getPatchPoint() { return patchPoint; }
     public boolean getFarmLimps() { return farmLimps; }
+    public Set<PatchType> getPatchTypes() { return new HashSet<>(patchTypes); }
     
     @Override
     public String toString()

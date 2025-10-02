@@ -3,6 +3,7 @@ package com.easyfarming.core;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.api.coords.WorldPoint;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Manages all farming locations and their teleport options
@@ -21,339 +22,53 @@ public class LocationManager
 	/**
 	 * Initialize all farming locations with their teleport options
 	 */
+	
+	/**
+	 * Helper method to add a teleport option to a location
+	 */
+	private void addTeleportOption(Location location, String id, Teleport.TeleportCategory category, 
+						  String description, int itemId, String action, int spellId, 
+						  WorldPoint destination, List<ItemRequirement> requirements) {
+		location.addTeleportOption(new Teleport(id, category, description, itemId, action, spellId, destination, requirements));
+	}
+	
+	/**
+	 * Helper method to create a teleport with a single item requirement
+	 */
+	private void addSimpleTeleportOption(Location location, String id, Teleport.TeleportCategory category, 
+										String description, int itemId, String action, int spellId, 
+										WorldPoint destination, int requiredItemId, int quantity, boolean isAny) {
+		List<ItemRequirement> requirements = Arrays.asList(new ItemRequirement(requiredItemId, quantity, isAny));
+		addTeleportOption(location, id, category, description, itemId, action, spellId, destination, requirements);
+	}
+	
+	/**
+	 * Helper method to create a teleport with multiple item requirements
+	 */
+	private void addMultiRequirementTeleportOption(Location location, String id, Teleport.TeleportCategory category, 
+												  String description, int itemId, String action, int spellId, 
+												  WorldPoint destination, ItemRequirement... requirements) {
+		addTeleportOption(location, id, category, description, itemId, action, spellId, destination, Arrays.asList(requirements));
+	}
+
 	private void initializeLocations()
 	{
-		// Ardougne Herb Patch
-		Location ardougne = new Location("ardougne", new WorldPoint(2670, 3374, 0), false);
-		
-		// Ardougne Cloak (Farm teleport) - any tier 2+
-		ardougne.addTeleportOption(new Teleport(
-			"ARDOUGNE_CLOAK", Teleport.TeleportCategory.ITEM,
-			"Use Ardougne cloak Farm teleport to go directly to the herb patch",
-			ItemID.ARDY_CAPE_MEDIUM, "Farm Teleport", 0,
-			new WorldPoint(2667, 3375, 0),
-			Arrays.asList(new ItemRequirement(ItemID.ARDY_CAPE_MEDIUM, 1, true))
-		));
-		
-		// Ardougne Teleport Spell
-		ardougne.addTeleportOption(new Teleport(
-			"ARDOUGNE_TELEPORT", Teleport.TeleportCategory.SPELLBOOK,
-			"Cast Ardougne Teleport, then run north to the herb patch",
-			0, null, 30, // Spell ID 30 for Ardougne Teleport
-			new WorldPoint(2662, 3305, 0),
-			Arrays.asList(
-				new ItemRequirement(ItemID.LAWRUNE, 2),
-				new ItemRequirement(ItemID.WATERRUNE, 2)
-			)
-		));
-		
-		// Ardougne Teleport Tab
-		ardougne.addTeleportOption(new Teleport(
-			"ARDOUGNE_TELE_TAB", Teleport.TeleportCategory.ITEM,
-			"Use Ardougne teleport tab, then run north to the herb patch",
-			ItemID._51_ARDOUGNE_TELEPORT, null, 0,
-			new WorldPoint(2662, 3305, 0),
-			Arrays.asList(new ItemRequirement(ItemID._51_ARDOUGNE_TELEPORT, 1))
-		));
-		
-		// Skills Necklace (Fishing Guild)
-		ardougne.addTeleportOption(new Teleport(
-			"JEWL_NECKLACE_OF_SKILLS_1_FISHING", Teleport.TeleportCategory.ITEM,
-			"Use Skills necklace to Fishing Guild, then run north to the herb patch",
-			ItemID.JEWL_NECKLACE_OF_SKILLS_1, "Fishing Guild", 0,
-			new WorldPoint(2611, 3391, 0),
-			Arrays.asList(new ItemRequirement(ItemID.JEWL_NECKLACE_OF_SKILLS_1, 1))
-		));
-		
-		// Combat Bracelet (Ranging Guild)
-		ardougne.addTeleportOption(new Teleport(
-			"COMBAT_BRACELET_RANGING", Teleport.TeleportCategory.ITEM,
-			"Use Combat bracelet to Ranging Guild, then run north to the herb patch",
-			ItemID.JEWL_BRACELET_OF_COMBAT_1, "Ranging Guild", 0,
-			new WorldPoint(2657, 3439, 0),
-			Arrays.asList(new ItemRequirement(ItemID.JEWL_BRACELET_OF_COMBAT_1, 1))
-		));
-		
-		// Quest Point Cape
-		ardougne.addTeleportOption(new Teleport(
-			"QUEST_POINT_CAPE", Teleport.TeleportCategory.ITEM,
-			"Use Quest point cape teleport, then run north to the herb patch",
-			ItemID.SKILLCAPE_QP, null, 0,
-			new WorldPoint(2662, 3305, 0),
-			Arrays.asList(new ItemRequirement(ItemID.SKILLCAPE_QP, 1))
-		));
-		
-		// Fairy Ring BLR
-		List<Integer> fairyRingStaffs = Arrays.asList(ItemID.DRAMEN_STAFF, ItemID.LUNAR_MOONCLAN_LIMINAL_STAFF);
-		ardougne.addTeleportOption(new Teleport(
-			"FAIRY_RING_BLR", Teleport.TeleportCategory.ITEM,
-			"Use Fairy ring code BLR, then run north to the herb patch",
-			ItemID.DRAMEN_STAFF, null, 0,
-			new WorldPoint(2650, 3230, 0),
-			Arrays.asList(new ItemRequirement(fairyRingStaffs, 1, true))
-		));
-		
-		locations.put("ardougne", ardougne);
-		
-		// Catherby Herb Patch
-		Location catherby = new Location("catherby", new WorldPoint(2813, 3463, 0), false);
-		
-		// Catherby Teleport Tab
-		catherby.addTeleportOption(new Teleport(
-			"CATHERBY_TELE_TAB", Teleport.TeleportCategory.ITEM,
-			"Use Catherby teleport tab to go directly to the herb patch",
-			ItemID.LUNAR_TABLET_CATHERBY_TELEPORT, null, 0,
-			new WorldPoint(2808, 3451, 0),
-			Arrays.asList(new ItemRequirement(ItemID.LUNAR_TABLET_CATHERBY_TELEPORT, 1))
-		));
-		
-		// Camelot Teleport Spell
-		catherby.addTeleportOption(new Teleport(
-			"CAMELOT_TELEPORT", Teleport.TeleportCategory.SPELLBOOK,
-			"Cast Camelot Teleport, then run south to the herb patch",
-			0, null, 29, // Spell ID 29 for Camelot Teleport
-			new WorldPoint(2757, 3478, 0),
-			Arrays.asList(
-				new ItemRequirement(ItemID.LAWRUNE, 1),
-				new ItemRequirement(ItemID.AIRRUNE, 5)
-			)
-		));
-		
-		// Camelot Teleport Tab
-		catherby.addTeleportOption(new Teleport(
-			"CAMELOT_TELE_TAB", Teleport.TeleportCategory.ITEM,
-			"Use Camelot teleport tab, then run south to the herb patch",
-			ItemID.POH_TABLET_CAMELOTTELEPORT, null, 0,
-			new WorldPoint(2757, 3478, 0),
-			Arrays.asList(new ItemRequirement(ItemID.POH_TABLET_CAMELOTTELEPORT, 1))
-		));
-		
-		locations.put("catherby", catherby);
-		
-		// Falador Herb Patch
-		Location falador = new Location("falador", new WorldPoint(3058, 3311, 0), false);
-		
-		// Explorer's Ring (Farm teleport) - any tier 2+
-		falador.addTeleportOption(new Teleport(
-			"EXPLORERS_RING", Teleport.TeleportCategory.ITEM,
-			"Use Explorer's ring teleport to go directly to the Falador herb patch",
-			ItemID.LUMBRIDGE_RING_MEDIUM, "Teleport", 0,
-			new WorldPoint(3055, 3308, 0),
-			Arrays.asList(new ItemRequirement(ItemID.LUMBRIDGE_RING_MEDIUM, 1, true))
-		));
-		
-		// Falador Teleport Spell
-		falador.addTeleportOption(new Teleport(
-			"FALADOR_TELEPORT", Teleport.TeleportCategory.SPELLBOOK,
-			"Cast Falador Teleport, then run south to the herb patch",
-			0, null, 28, // Spell ID 28 for Falador Teleport
-			new WorldPoint(2966, 3403, 0),
-			Arrays.asList(
-				new ItemRequirement(ItemID.LAWRUNE, 1),
-				new ItemRequirement(ItemID.AIRRUNE, 3),
-				new ItemRequirement(ItemID.WATERRUNE, 1)
-			)
-		));
-		
-		// Falador Teleport Tab
-		falador.addTeleportOption(new Teleport(
-			"FALADOR_TELE_TAB", Teleport.TeleportCategory.ITEM,
-			"Use Falador teleport tab, then run south to the herb patch",
-			ItemID.POH_TABLET_FALADORTELEPORT, null, 0,
-			new WorldPoint(2966, 3403, 0),
-			Arrays.asList(new ItemRequirement(ItemID.POH_TABLET_FALADORTELEPORT, 1))
-		));
-		
-		// Ring of Elements (Air Altar)
-		falador.addTeleportOption(new Teleport(
-			"RING_OF_ELEMENTS_AIR", Teleport.TeleportCategory.ITEM,
-			"Use Ring of the elements to Air Altar, then run south to the herb patch",
-			ItemID.RING_OF_ELEMENTS, null, 0,
-			new WorldPoint(2983, 3296, 0),
-			Arrays.asList(new ItemRequirement(ItemID.RING_OF_ELEMENTS, 1))
-		));
-		
-		// Spirit Tree (Port Sarim)
-		falador.addTeleportOption(new Teleport(
-			"SPIRIT_TREE_PORT_SARIM", Teleport.TeleportCategory.SPIRIT_TREE,
-			"Use Spirit tree to Port Sarim, then run north to the herb patch",
-			0, null, 0,
-			new WorldPoint(3054, 3256, 0),
-			Arrays.asList() // No items needed for spirit tree teleports
-		));
-		
-		// Draynor Manor Teleport
-		falador.addTeleportOption(new Teleport(
-			"DRAYNOR_MANOR_TELEPORT", Teleport.TeleportCategory.SPELLBOOK,
-			"Cast Draynor Manor Teleport, then run north to the herb patch",
-			0, null, 0, // Custom spell ID needed
-			new WorldPoint(3108, 3350, 0),
-			Arrays.asList(
-				new ItemRequirement(ItemID.AIRRUNE, 1),
-				new ItemRequirement(ItemID.LAWRUNE, 1),
-				new ItemRequirement(ItemID.EARTHRUNE, 1)
-			)
-		));
-		
-		// Amulet of Glory (Draynor)
-		falador.addTeleportOption(new Teleport(
-			"AMULET_OF_GLORY_DRAYNOR", Teleport.TeleportCategory.ITEM,
-			"Use Amulet of glory to Draynor Village, then run north to the herb patch",
-			ItemID.AMULET_OF_GLORY, "Draynor Village", 0,
-			new WorldPoint(3105, 3251, 0),
-			Arrays.asList(new ItemRequirement(ItemID.AMULET_OF_GLORY, 1))
-		));
-		
-		// Skills Necklace (Mining Guild)
-		falador.addTeleportOption(new Teleport(
-			"JEWL_NECKLACE_OF_SKILLS_1_MINING", Teleport.TeleportCategory.ITEM,
-			"Use Skills necklace to Mining Guild, then run north to the herb patch",
-			ItemID.JEWL_NECKLACE_OF_SKILLS_1, "Mining Guild", 0,
-			new WorldPoint(3046, 9756, 0),
-			Arrays.asList(new ItemRequirement(ItemID.JEWL_NECKLACE_OF_SKILLS_1, 1))
-		));
-		
-		// Ring of Wealth (Falador Park)
-		falador.addTeleportOption(new Teleport(
-			"RING_OF_WEALTH_FALADOR", Teleport.TeleportCategory.ITEM,
-			"Use Ring of Wealth to Falador Park, then run south to the herb patch",
-			ItemID.RING_OF_WEALTH, "Falador Park", 0,
-			new WorldPoint(2994, 3375, 0),
-			Arrays.asList(new ItemRequirement(ItemID.RING_OF_WEALTH, 1))
-		));
-		
-		locations.put("falador", falador);
-		
-		// Morytania Herb Patch
-		Location morytania = new Location("morytania", new WorldPoint(3601, 3525, 0), false);
-		
-		// Ectophial
-		morytania.addTeleportOption(new Teleport(
-			"ECTOPHIAL", Teleport.TeleportCategory.ITEM,
-			"Use Ectophial to go directly to the herb patch",
-			ItemID.ECTOPHIAL, null, 0,
-			new WorldPoint(3659, 3524, 0),
-			Arrays.asList(new ItemRequirement(ItemID.ECTOPHIAL, 1))
-		));
-		
-		// Burgh de Rott Teleport
-		morytania.addTeleportOption(new Teleport(
-			"BURGH_DE_ROTT_TELEPORT", Teleport.TeleportCategory.SPELLBOOK,
-			"Cast Burgh de Rott Teleport, then run north to the herb patch",
-			0, null, 0, // Custom spell ID needed
-			new WorldPoint(3488, 3181, 0),
-			Arrays.asList(
-				new ItemRequirement(ItemID.LAWRUNE, 2),
-				new ItemRequirement(ItemID.SOULRUNE, 2),
-				new ItemRequirement(ItemID.EARTHRUNE, 2)
-			)
-		));
-		
-		locations.put("morytania", morytania);
-		
-		// Troll Stronghold Herb Patch
-		Location trollStronghold = new Location("trollStronghold", new WorldPoint(2820, 3694, 0), false);
-		
-		// Trollheim Teleport Spell
-		trollStronghold.addTeleportOption(new Teleport(
-			"TROLLHEIM_TELEPORT", Teleport.TeleportCategory.SPELLBOOK,
-			"Cast Trollheim Teleport, then run north to the herb patch",
-			0, null, 31, // Spell ID 31 for Trollheim Teleport
-			new WorldPoint(2893, 3678, 0),
-			Arrays.asList(
-				new ItemRequirement(ItemID.LAWRUNE, 2),
-				new ItemRequirement(ItemID.FIRERUNE, 2)
-			)
-		));
-		
-		// Stony Basalt
-		trollStronghold.addTeleportOption(new Teleport(
-			"STRONGHOLD_TELEPORT_BASALT", Teleport.TeleportCategory.ITEM,
-			"Use Stony basalt to go directly to the herb patch",
-			ItemID.STRONGHOLD_TELEPORT_BASALT, null, 0,
-			new WorldPoint(2820, 3694, 0),
-			Arrays.asList(new ItemRequirement(ItemID.STRONGHOLD_TELEPORT_BASALT, 1))
-		));
-		
-		locations.put("trollStronghold", trollStronghold);
-		
-		// Kourend Herb Patch
-		Location kourend = new Location("kourend", new WorldPoint(1739, 3550, 0), false);
-		
-		// Xeric's Talisman
-		kourend.addTeleportOption(new Teleport(
-			"XERICS_TALISMAN", Teleport.TeleportCategory.ITEM,
-			"Teleport to Hosidius with Xeric's talisman.",
-			ItemID.XERIC_TALISMAN, null, 0,
-			new WorldPoint(1739, 3550, 0),
-			Arrays.asList(new ItemRequirement(ItemID.XERIC_TALISMAN, 1))
-		));
-		
-		// Mounted Xeric's (POH)
-		kourend.addTeleportOption(new Teleport(
-			"MOUNTED_XERICS", Teleport.TeleportCategory.PORTAL_NEXUS,
-			"Use Mounted Xeric's talisman in your POH, then run to the herb patch",
-			0, null, 0,
-			new WorldPoint(1739, 3550, 0),
-			Arrays.asList(new ItemRequirement(0, 0)) // Requires 75 Construction and built furniture
-		));
-		
-		locations.put("kourend", kourend);
-		
-		// Farming Guild Herb Patch
-		Location farmingGuild = new Location("farmingGuild", new WorldPoint(1249, 3719, 0), false);
-		
-		// Skills Necklace
-		farmingGuild.addTeleportOption(new Teleport(
-			"JEWL_NECKLACE_OF_SKILLS_1", Teleport.TeleportCategory.ITEM,
-			"Use Skills necklace to Farming Guild, then run to the herb patch",
-			ItemID.JEWL_NECKLACE_OF_SKILLS_1, "Farming Guild", 0,
-			new WorldPoint(1248, 3721, 0),
-			Arrays.asList(new ItemRequirement(ItemID.JEWL_NECKLACE_OF_SKILLS_1, 1))
-		));
-		
-		// Farming Cape
-		farmingGuild.addTeleportOption(new Teleport(
-			"SKILLCAPE_FARMING", Teleport.TeleportCategory.ITEM,
-			"Use Farming cape to go directly to the herb patch",
-			ItemID.SKILLCAPE_FARMING, null, 0,
-			new WorldPoint(1249, 3719, 0),
-			Arrays.asList(new ItemRequirement(ItemID.SKILLCAPE_FARMING, 1))
-		));
-		
-		locations.put("farmingGuild", farmingGuild);
-		
-		// Harmony Island Herb Patch
-		Location harmony = new Location("harmony", new WorldPoint(3784, 2838, 0), false);
-		
-		// Harmony Teleport Tab
-		harmony.addTeleportOption(new Teleport(
-			"HARMONY_TELE_TAB", Teleport.TeleportCategory.ITEM,
-			"Use Harmony teleport tab to go directly to the herb patch",
-			ItemID.TELETAB_HARMONY, null, 0,
-			new WorldPoint(3784, 2838, 0),
-			Arrays.asList(new ItemRequirement(ItemID.TELETAB_HARMONY, 1))
-		));
-		
-		locations.put("harmony", harmony);
-		
-		// Weiss Herb Patch
-		Location weiss = new Location("weiss", new WorldPoint(2849, 3932, 0), false);
-		
-		// Icy Basalt
-		weiss.addTeleportOption(new Teleport(
-			"WEISS_TELEPORT_BASALT", Teleport.TeleportCategory.ITEM,
-			"Use Icy basalt to go directly to the herb patch",
-			ItemID.WEISS_TELEPORT_BASALT, null, 0,
-			new WorldPoint(2849, 3932, 0),
-			Arrays.asList(new ItemRequirement(ItemID.WEISS_TELEPORT_BASALT, 1))
-		));
-		
-		locations.put("weiss", weiss);
+		initArdougne();
+		initCatherby();
+		initFalador();
+		initMorytania();
+		initTrollStronghold();
+		initKourend();
+		initFarmingGuild();
+		initHarmony();
+		initWeiss();
 	}
 	
 	/**
 	 * Get a location by its ID
+	 * 
+	 * @param locationId the unique identifier of the location to retrieve
+	 * @return the Location object if found, or null if no location exists with the given ID
 	 */
 	public Location getLocation(String locationId)
 	{
@@ -410,22 +125,9 @@ public class LocationManager
 	 */
 	public List<Location> getHerbLocations()
 	{
-		List<Location> herbLocations = new ArrayList<>();
-		// Add all herb patch locations
-		String[] herbLocationIds = {"ardougne", "catherby", "falador", "morytania", 
-								   "trollStronghold", "kourend", "farmingGuild", 
-								   "harmonyIsland", "weiss"};
-		
-		for (String locationId : herbLocationIds)
-		{
-			Location location = locations.get(locationId);
-			if (location != null)
-			{
-				herbLocations.add(location);
-			}
-		}
-		
-		return herbLocations;
+		return locations.values().stream()
+			.filter(loc -> loc.hasPatchType(PatchType.HERB))
+			.collect(Collectors.toList());
 	}
 	
 	/**
@@ -453,5 +155,279 @@ public class LocationManager
 	{
 		// TODO: Implement allotment locations when allotment farming is added
 		return new ArrayList<>();
+	}
+	
+	/**
+	 * Initialize Ardougne herb patch location with all teleport options
+	 */
+	private void initArdougne() {
+		Location ardougne = new Location("ardougne", new WorldPoint(2670, 3374, 0), false);
+		ardougne.addPatchType(PatchType.HERB);
+		
+		// Ardougne Cloak (Farm teleport) - any tier 2+
+		addSimpleTeleportOption(ardougne, "ARDOUGNE_CLOAK", Teleport.TeleportCategory.ITEM,
+			"Use Ardougne cloak Farm teleport to go directly to the herb patch",
+			ItemID.ARDY_CAPE_MEDIUM, "Farm Teleport", 0,
+			new WorldPoint(2667, 3375, 0), ItemID.ARDY_CAPE_MEDIUM, 1, true);
+		
+		// Ardougne Teleport Spell
+		addMultiRequirementTeleportOption(ardougne, "ARDOUGNE_TELEPORT", Teleport.TeleportCategory.SPELLBOOK,
+			"Cast Ardougne Teleport, then run north to the herb patch",
+			0, null, 30, new WorldPoint(2662, 3305, 0),
+			new ItemRequirement(ItemID.LAWRUNE, 2),
+			new ItemRequirement(ItemID.WATERRUNE, 2));
+		
+		// Ardougne Teleport Tab
+		addSimpleTeleportOption(ardougne, "ARDOUGNE_TELE_TAB", Teleport.TeleportCategory.ITEM,
+			"Use Ardougne teleport tab, then run north to the herb patch",
+			ItemID._51_ARDOUGNE_TELEPORT, null, 0,
+			new WorldPoint(2662, 3305, 0), ItemID._51_ARDOUGNE_TELEPORT, 1, false);
+		
+		// Skills Necklace (Fishing Guild)
+		addSimpleTeleportOption(ardougne, "JEWL_NECKLACE_OF_SKILLS_1_FISHING", Teleport.TeleportCategory.ITEM,
+			"Use Skills necklace to Fishing Guild, then run north to the herb patch",
+			ItemID.JEWL_NECKLACE_OF_SKILLS_1, "Fishing Guild", 0,
+			new WorldPoint(2611, 3391, 0), ItemID.JEWL_NECKLACE_OF_SKILLS_1, 1, false);
+		
+		// Combat Bracelet (Ranging Guild)
+		addSimpleTeleportOption(ardougne, "COMBAT_BRACELET_RANGING", Teleport.TeleportCategory.ITEM,
+			"Use Combat bracelet to Ranging Guild, then run north to the herb patch",
+			ItemID.JEWL_BRACELET_OF_COMBAT_1, "Ranging Guild", 0,
+			new WorldPoint(2657, 3439, 0), ItemID.JEWL_BRACELET_OF_COMBAT_1, 1, false);
+		
+		// Quest Point Cape
+		addSimpleTeleportOption(ardougne, "QUEST_POINT_CAPE", Teleport.TeleportCategory.ITEM,
+			"Use Quest point cape teleport, then run north to the herb patch",
+			ItemID.SKILLCAPE_QP, null, 0,
+			new WorldPoint(2662, 3305, 0), ItemID.SKILLCAPE_QP, 1, false);
+		
+		// Fairy Ring BLR
+		List<Integer> fairyRingStaffs = Arrays.asList(ItemID.DRAMEN_STAFF, ItemID.LUNAR_MOONCLAN_LIMINAL_STAFF);
+		addTeleportOption(ardougne, "FAIRY_RING_BLR", Teleport.TeleportCategory.ITEM,
+			"Use Fairy ring code BLR, then run north to the herb patch",
+			ItemID.DRAMEN_STAFF, null, 0,
+			new WorldPoint(2650, 3230, 0),
+			Collections.singletonList(new ItemRequirement(fairyRingStaffs, 1, true)));
+		
+		locations.put("ardougne", ardougne);
+	}
+	
+	/**
+	 * Initialize Catherby herb patch location with all teleport options
+	 */
+	private void initCatherby() {
+		Location catherby = new Location("catherby", new WorldPoint(2813, 3463, 0), false);
+		catherby.addPatchType(PatchType.HERB);
+		
+		// Catherby Teleport Tab
+		addSimpleTeleportOption(catherby, "CATHERBY_TELE_TAB", Teleport.TeleportCategory.ITEM,
+			"Use Catherby teleport tab to go directly to the herb patch",
+			ItemID.LUNAR_TABLET_CATHERBY_TELEPORT, null, 0,
+			new WorldPoint(2808, 3451, 0), ItemID.LUNAR_TABLET_CATHERBY_TELEPORT, 1, false);
+		
+		// Camelot Teleport Spell
+		addMultiRequirementTeleportOption(catherby, "CAMELOT_TELEPORT", Teleport.TeleportCategory.SPELLBOOK,
+			"Cast Camelot Teleport, then run south to the herb patch",
+			0, null, 29, new WorldPoint(2757, 3478, 0),
+			new ItemRequirement(ItemID.LAWRUNE, 1),
+			new ItemRequirement(ItemID.AIRRUNE, 5));
+		
+		// Camelot Teleport Tab
+		addSimpleTeleportOption(catherby, "CAMELOT_TELE_TAB", Teleport.TeleportCategory.ITEM,
+			"Use Camelot teleport tab, then run south to the herb patch",
+			ItemID.POH_TABLET_CAMELOTTELEPORT, null, 0,
+			new WorldPoint(2757, 3478, 0), ItemID.POH_TABLET_CAMELOTTELEPORT, 1, false);
+		
+		locations.put("catherby", catherby);
+	}
+	
+	/**
+	 * Initialize Falador herb patch location with all teleport options
+	 */
+	private void initFalador() {
+		Location falador = new Location("falador", new WorldPoint(3058, 3311, 0), false);
+		falador.addPatchType(PatchType.HERB);
+		
+		// Explorer's Ring (Farm teleport) - any tier 2+
+		addSimpleTeleportOption(falador, "EXPLORERS_RING", Teleport.TeleportCategory.ITEM,
+			"Use Explorer's ring teleport to go directly to the Falador herb patch",
+			ItemID.LUMBRIDGE_RING_MEDIUM, "Teleport", 0,
+			new WorldPoint(3055, 3308, 0), ItemID.LUMBRIDGE_RING_MEDIUM, 1, true);
+		
+		// Falador Teleport Spell
+		addMultiRequirementTeleportOption(falador, "FALADOR_TELEPORT", Teleport.TeleportCategory.SPELLBOOK,
+			"Cast Falador Teleport, then run south to the herb patch",
+			0, null, 28, new WorldPoint(2966, 3403, 0),
+			new ItemRequirement(ItemID.LAWRUNE, 1),
+			new ItemRequirement(ItemID.AIRRUNE, 3),
+			new ItemRequirement(ItemID.WATERRUNE, 1));
+		
+		// Falador Teleport Tab
+		addSimpleTeleportOption(falador, "FALADOR_TELE_TAB", Teleport.TeleportCategory.ITEM,
+			"Use Falador teleport tab, then run south to the herb patch",
+			ItemID.POH_TABLET_FALADORTELEPORT, null, 0,
+			new WorldPoint(2966, 3403, 0), ItemID.POH_TABLET_FALADORTELEPORT, 1, false);
+		
+		// Ring of Elements (Air Altar)
+		addSimpleTeleportOption(falador, "RING_OF_ELEMENTS_AIR", Teleport.TeleportCategory.ITEM,
+			"Use Ring of the elements to Air Altar, then run south to the herb patch",
+			ItemID.RING_OF_ELEMENTS, null, 0,
+			new WorldPoint(2983, 3296, 0), ItemID.RING_OF_ELEMENTS, 1, false);
+		
+		// Spirit Tree (Port Sarim)
+		addTeleportOption(falador, "SPIRIT_TREE_PORT_SARIM", Teleport.TeleportCategory.SPIRIT_TREE,
+			"Use Spirit tree to Port Sarim, then run north to the herb patch",
+			0, null, 0, new WorldPoint(3054, 3256, 0),
+			Arrays.asList()); // No items needed for spirit tree teleports
+		
+		// Draynor Manor Teleport
+		addMultiRequirementTeleportOption(falador, "DRAYNOR_MANOR_TELEPORT", Teleport.TeleportCategory.SPELLBOOK,
+			"Cast Draynor Manor Teleport, then run north to the herb patch",
+			0, null, 0, new WorldPoint(3108, 3350, 0),
+			new ItemRequirement(ItemID.AIRRUNE, 1),
+			new ItemRequirement(ItemID.LAWRUNE, 1),
+			new ItemRequirement(ItemID.EARTHRUNE, 1));
+		
+		// Amulet of Glory (Draynor)
+		addSimpleTeleportOption(falador, "AMULET_OF_GLORY_DRAYNOR", Teleport.TeleportCategory.ITEM,
+			"Use Amulet of glory to Draynor Village, then run north to the herb patch",
+			ItemID.AMULET_OF_GLORY, "Draynor Village", 0,
+			new WorldPoint(3105, 3251, 0), ItemID.AMULET_OF_GLORY, 1, false);
+		
+		// Skills Necklace (Mining Guild)
+		addSimpleTeleportOption(falador, "JEWL_NECKLACE_OF_SKILLS_1_MINING", Teleport.TeleportCategory.ITEM,
+			"Use Skills necklace to Mining Guild, then run north to the herb patch",
+			ItemID.JEWL_NECKLACE_OF_SKILLS_1, "Mining Guild", 0,
+			new WorldPoint(3046, 9756, 0), ItemID.JEWL_NECKLACE_OF_SKILLS_1, 1, false);
+		
+		// Ring of Wealth (Falador Park)
+		addSimpleTeleportOption(falador, "RING_OF_WEALTH_FALADOR", Teleport.TeleportCategory.ITEM,
+			"Use Ring of Wealth to Falador Park, then run south to the herb patch",
+			ItemID.RING_OF_WEALTH, "Falador Park", 0,
+			new WorldPoint(2994, 3375, 0), ItemID.RING_OF_WEALTH, 1, false);
+		
+		locations.put("falador", falador);
+	}
+	
+	/**
+	 * Initialize Morytania herb patch location with all teleport options
+	 */
+	private void initMorytania() {
+		Location morytania = new Location("morytania", new WorldPoint(3601, 3525, 0), false);
+		morytania.addPatchType(PatchType.HERB);
+		
+		// Ectophial
+		addSimpleTeleportOption(morytania, "ECTOPHIAL", Teleport.TeleportCategory.ITEM,
+			"Use Ectophial to go directly to the herb patch",
+			ItemID.ECTOPHIAL, null, 0,
+			new WorldPoint(3659, 3524, 0), ItemID.ECTOPHIAL, 1, false);
+		
+		// Burgh de Rott Teleport
+		addMultiRequirementTeleportOption(morytania, "BURGH_DE_ROTT_TELEPORT", Teleport.TeleportCategory.SPELLBOOK,
+			"Cast Burgh de Rott Teleport, then run north to the herb patch",
+			0, null, 0, new WorldPoint(3488, 3181, 0),
+			new ItemRequirement(ItemID.LAWRUNE, 2),
+			new ItemRequirement(ItemID.SOULRUNE, 2),
+			new ItemRequirement(ItemID.EARTHRUNE, 2));
+		
+		locations.put("morytania", morytania);
+	}
+	
+	/**
+	 * Initialize Troll Stronghold herb patch location with all teleport options
+	 */
+	private void initTrollStronghold() {
+		Location trollStronghold = new Location("trollStronghold", new WorldPoint(2820, 3694, 0), false);
+		trollStronghold.addPatchType(PatchType.HERB);
+		
+		// Trollheim Teleport Spell
+		addMultiRequirementTeleportOption(trollStronghold, "TROLLHEIM_TELEPORT", Teleport.TeleportCategory.SPELLBOOK,
+			"Cast Trollheim Teleport, then run north to the herb patch",
+			0, null, 31, new WorldPoint(2893, 3678, 0),
+			new ItemRequirement(ItemID.LAWRUNE, 2),
+			new ItemRequirement(ItemID.FIRERUNE, 2));
+		
+		// Stony Basalt
+		addSimpleTeleportOption(trollStronghold, "STRONGHOLD_TELEPORT_BASALT", Teleport.TeleportCategory.ITEM,
+			"Use Stony basalt to go directly to the herb patch",
+			ItemID.STRONGHOLD_TELEPORT_BASALT, null, 0,
+			new WorldPoint(2820, 3694, 0), ItemID.STRONGHOLD_TELEPORT_BASALT, 1, false);
+		
+		locations.put("trollStronghold", trollStronghold);
+	}
+	
+	/**
+	 * Initialize Kourend herb patch location with all teleport options
+	 */
+	private void initKourend() {
+		Location kourend = new Location("kourend", new WorldPoint(1739, 3550, 0), false);
+		kourend.addPatchType(PatchType.HERB);
+		
+		// Xeric's Talisman
+		addSimpleTeleportOption(kourend, "XERICS_TALISMAN", Teleport.TeleportCategory.ITEM,
+			"Teleport to Hosidius with Xeric's talisman.",
+			ItemID.XERIC_TALISMAN, null, 0,
+			new WorldPoint(1739, 3550, 0), ItemID.XERIC_TALISMAN, 1, false);
+		
+		// Mounted Xeric's (POH)
+		addSimpleTeleportOption(kourend, "MOUNTED_XERICS", Teleport.TeleportCategory.PORTAL_NEXUS,
+			"Use Mounted Xeric's talisman in your POH, then run to the herb patch",
+			0, null, 0, new WorldPoint(1739, 3550, 0), 0, 0, false); // Requires 75 Construction and built furniture
+		
+		locations.put("kourend", kourend);
+	}
+	
+	/**
+	 * Initialize Farming Guild herb patch location with all teleport options
+	 */
+	private void initFarmingGuild() {
+		Location farmingGuild = new Location("farmingGuild", new WorldPoint(1249, 3719, 0), false);
+		farmingGuild.addPatchType(PatchType.HERB);
+		
+		// Skills Necklace
+		addSimpleTeleportOption(farmingGuild, "JEWL_NECKLACE_OF_SKILLS_1", Teleport.TeleportCategory.ITEM,
+			"Use Skills necklace to Farming Guild, then run to the herb patch",
+			ItemID.JEWL_NECKLACE_OF_SKILLS_1, "Farming Guild", 0,
+			new WorldPoint(1248, 3721, 0), ItemID.JEWL_NECKLACE_OF_SKILLS_1, 1, false);
+		
+		// Farming Cape
+		addSimpleTeleportOption(farmingGuild, "SKILLCAPE_FARMING", Teleport.TeleportCategory.ITEM,
+			"Use Farming cape to go directly to the herb patch",
+			ItemID.SKILLCAPE_FARMING, null, 0,
+			new WorldPoint(1249, 3719, 0), ItemID.SKILLCAPE_FARMING, 1, false);
+		
+		locations.put("farmingGuild", farmingGuild);
+	}
+	
+	/**
+	 * Initialize Harmony Island herb patch location with all teleport options
+	 */
+	private void initHarmony() {
+		Location harmony = new Location("harmony", new WorldPoint(3784, 2838, 0), false);
+		harmony.addPatchType(PatchType.HERB);
+		
+		// Harmony Teleport Tab
+		addSimpleTeleportOption(harmony, "HARMONY_TELE_TAB", Teleport.TeleportCategory.ITEM,
+			"Use Harmony teleport tab to go directly to the herb patch",
+			ItemID.TELETAB_HARMONY, null, 0,
+			new WorldPoint(3784, 2838, 0), ItemID.TELETAB_HARMONY, 1, false);
+		
+		locations.put("harmony", harmony);
+	}
+	
+	/**
+	 * Initialize Weiss herb patch location with all teleport options
+	 */
+	private void initWeiss() {
+		Location weiss = new Location("weiss", new WorldPoint(2849, 3932, 0), false);
+		weiss.addPatchType(PatchType.HERB);
+		
+		// Icy Basalt
+		addSimpleTeleportOption(weiss, "WEISS_TELEPORT_BASALT", Teleport.TeleportCategory.ITEM,
+			"Use Icy basalt to go directly to the herb patch",
+			ItemID.WEISS_TELEPORT_BASALT, null, 0,
+			new WorldPoint(2849, 3932, 0), ItemID.WEISS_TELEPORT_BASALT, 1, false);
+		
+		locations.put("weiss", weiss);
 	}
 }
