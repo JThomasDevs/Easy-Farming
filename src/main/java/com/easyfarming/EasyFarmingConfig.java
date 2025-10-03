@@ -282,6 +282,30 @@ public interface EasyFarmingConfig extends Config
 	)
 	default boolean highlightNextAction() { return true; }
 
+	@ConfigItem(
+		keyName = "showFarmingOverlay",
+		name = "Show Status Overlay",
+		description = "Display the compact status overlay",
+		section = displaySection
+	)
+	default boolean showFarmingOverlay() { return true; }
+
+	@ConfigItem(
+		keyName = "highlightInventory",
+		name = "Highlight Inventory",
+		description = "Highlight required items in inventory",
+		section = displaySection
+	)
+	default boolean highlightInventory() { return false; }
+
+	@ConfigItem(
+		keyName = "highlightPatches",
+		name = "Highlight Patches",
+		description = "Highlight farming patches when nearby",
+		section = displaySection
+	)
+	default boolean highlightPatches() { return true; }
+
 	// ============================================================================
 	// TELEPORT OPTION ENUMS
 	// ============================================================================

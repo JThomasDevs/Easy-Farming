@@ -46,16 +46,16 @@ public class InventoryHighlightOverlay extends Overlay
     @Override
     public Dimension render(Graphics2D graphics)
     {
-        // Only show highlights if farming run is active and highlighting is enabled
-        if (!runState.isRunActive() || !config.highlightNextAction())
+        // Only show highlights if farming run is active and inventory highlighting is enabled
+        if (!runState.isRunActive() || !config.highlightInventory())
         {
             return null;
         }
         
         FarmingState currentState = runState.getCurrentState();
         
-        // Highlight items when gathering or when items are needed
-        if (currentState == FarmingState.GATHERING_ITEMS || currentState == FarmingState.READY_TO_TELEPORT)
+        // Only highlight during item gathering phase
+        if (currentState == FarmingState.GATHERING_ITEMS)
         {
             highlightRequiredItems(graphics);
         }

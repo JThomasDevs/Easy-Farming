@@ -48,37 +48,37 @@ public class FarmingOverlay extends Overlay
     @Override
     public Dimension render(Graphics2D graphics)
     {
-        // Only show overlay if farming run is active and instructions are enabled
-        if (!runState.isRunActive() || !config.showInstructions())
+        // Only show overlay if farming run is active
+        if (!runState.isRunActive())
         {
             return null;
         }
         
         panelComponent.getChildren().clear();
         
-        // Add title
+        // Add title with state color
+        FarmingState currentState = runState.getCurrentState();
         panelComponent.getChildren().add(TitleComponent.builder()
             .text("Easy Farming")
-            .color(Color.CYAN)
+            .color(getStateColor(currentState))
             .build());
         
-        // Add current state information
-        addStateInformation();
+        // Add current state (compact)
+        panelComponent.getChildren().add(LineComponent.builder()
+            .left("State:")
+            .right(currentState.getDisplayName())
+            .rightColor(getStateColor(currentState))
+            .build());
         
-        // Add current location information
-        addLocationInformation();
-        
-        // Add instructions based on current state
-        addStateInstructions();
-        
-        // Add item requirements if gathering items
-        if (runState.getCurrentState() == FarmingState.GATHERING_ITEMS)
+        // Only show location if actively working on one
+        Location currentLocation = runState.getCurrentLocation();
+        if (currentLocation != null && currentState != FarmingState.GATHERING_ITEMS)
         {
-            addItemRequirements();
+            panelComponent.getChildren().add(LineComponent.builder()
+                .left("Location:")
+                .right(currentLocation.getName())
+                .build());
         }
-        
-        // Add progress information
-        addProgressInformation();
         
         return panelComponent.render(graphics);
     }

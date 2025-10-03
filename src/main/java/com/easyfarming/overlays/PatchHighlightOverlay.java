@@ -44,18 +44,24 @@ public class PatchHighlightOverlay extends Overlay
     @Override
     public Dimension render(Graphics2D graphics)
     {
-        // Only show highlights if farming run is active and highlighting is enabled
-        if (!runState.isRunActive() || !config.highlightNextAction())
+        // Only show highlights if farming run is active and patch highlighting is enabled
+        if (!runState.isRunActive() || !config.highlightPatches())
         {
             return null;
         }
         
         FarmingState currentState = runState.getCurrentState();
         
-        // Highlight patch when navigating, at patch, or performing patch actions
+        // Only highlight patch when player needs to click on it
+        // This includes: harvesting, planting, treating disease, removing dead, composting, watering
         if (currentState == FarmingState.NAVIGATING || 
             currentState == FarmingState.AT_PATCH ||
-            currentState.isAtPatch())
+            currentState == FarmingState.HARVESTING ||
+            currentState == FarmingState.PLANTING ||
+            currentState == FarmingState.TREATING_DISEASE ||
+            currentState == FarmingState.REMOVING_DEAD ||
+            currentState == FarmingState.COMPOSTING ||
+            currentState == FarmingState.WATERING)
         {
             highlightCurrentPatch(graphics);
         }

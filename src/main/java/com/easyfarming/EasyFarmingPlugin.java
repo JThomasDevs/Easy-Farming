@@ -3,6 +3,7 @@ package com.easyfarming;
 import com.easyfarming.core.*;
 import com.easyfarming.runs.HerbRun;
 import com.easyfarming.overlays.*;
+import com.easyfarming.ui.FarmingPanel;
 import com.google.inject.Provides;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,7 @@ public class EasyFarmingPlugin extends Plugin
 	private EventBus eventBus;
 
 	private NavigationButton navButton;
+	private FarmingPanel farmingPanel;
 	
 	// Core farming system components
 	private LocationManager locationManager;
@@ -98,13 +100,45 @@ public class EasyFarmingPlugin extends Plugin
 		inventoryHighlightOverlay = new InventoryHighlightOverlay(client, config, runState, herbRun, requirementManager);
 		patchHighlightOverlay = new PatchHighlightOverlay(client, config, runState);
 		
-		// Register overlays
-		overlayManager.add(farmingOverlay);
-		overlayManager.add(instructionOverlay);
-		overlayManager.add(itemCountOverlay);
-		overlayManager.add(highlightOverlay);
-		overlayManager.add(inventoryHighlightOverlay);
-		overlayManager.add(patchHighlightOverlay);
+		// Register overlays based on config
+		if (config.showFarmingOverlay())
+		{
+			overlayManager.add(farmingOverlay);
+		}
+		if (config.showInstructions())
+		{
+			overlayManager.add(instructionOverlay);
+		}
+		if (config.showItemCounts())
+		{
+			overlayManager.add(itemCountOverlay);
+		}
+		if (config.highlightNextAction())
+		{
+			overlayManager.add(highlightOverlay);
+		}
+		if (config.highlightInventory())
+		{
+			overlayManager.add(inventoryHighlightOverlay);
+		}
+		if (config.highlightPatches())
+		{
+			overlayManager.add(patchHighlightOverlay);
+		}
+		
+		// Create and add side panel
+		farmingPanel = new FarmingPanel(this, config, runState, herbRun);
+		
+		// Create navigation button
+		final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "/icon.png");
+		navButton = NavigationButton.builder()
+			.tooltip("Easy Farming")
+			.icon(icon)
+			.priority(5)
+			.panel(farmingPanel)
+			.build();
+		
+		clientToolbar.addNavigation(navButton);
 	}
 
 	@Override
@@ -200,6 +234,7 @@ public class EasyFarmingPlugin extends Plugin
 		requirementManager = null;
 		herbRun = null;
 		navButton = null;
+		farmingPanel = null;
 		farmingOverlay = null;
 		instructionOverlay = null;
 		itemCountOverlay = null;

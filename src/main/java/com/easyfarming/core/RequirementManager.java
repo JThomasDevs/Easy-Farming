@@ -19,7 +19,8 @@ public class RequirementManager
     {
         this.client = client;
         this.inventoryCounts = new HashMap<>();
-        updateInventoryCounts();
+        // Don't call updateInventoryCounts() here - it must be called on client thread
+        // Will be updated automatically when requirements are checked
     }
     
     /**

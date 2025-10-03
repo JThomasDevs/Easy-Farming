@@ -4,9 +4,11 @@ import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.HighlightUtils;
 import com.easyfarming.core.*;
 import net.runelite.api.Client;
+import net.runelite.api.Item;
+import net.runelite.api.ItemContainer;
 import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.widgets.Widget;
-import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
@@ -15,8 +17,8 @@ import javax.inject.Inject;
 import java.awt.*;
 
 /**
- * Highlights teleport items, spellbook icons, and spells based on the current farming state.
- * This overlay helps guide the player to the next action they need to take.
+ * Action-driven highlighting overlay.
+ * Only highlights what the player needs to click for the CURRENT step.
  */
 public class HighlightOverlay extends Overlay
 {
@@ -38,7 +40,7 @@ public class HighlightOverlay extends Overlay
     @Override
     public Dimension render(Graphics2D graphics)
     {
-        // Only show highlights if farming run is active and highlighting is enabled
+        // Only highlight if run is active and highlighting is enabled
         if (!runState.isRunActive() || !config.highlightNextAction())
         {
             return null;
@@ -46,27 +48,30 @@ public class HighlightOverlay extends Overlay
         
         FarmingState currentState = runState.getCurrentState();
         
-        // Highlight based on current state
+        // Highlight based on what action needs to be taken
         switch (currentState)
         {
             case READY_TO_TELEPORT:
-                highlightTeleportMethod(graphics);
+                // Highlight teleport method (spell/item/etc)
+                highlightTeleportAction(graphics);
                 break;
                 
-            case GATHERING_ITEMS:
-                // Could highlight missing items in bank/inventory
-                break;
-                
-            case AT_PATCH:
-            case HARVESTING:
             case PLANTING:
-            case TREATING_DISEASE:
-            case REMOVING_DEAD:
-            case COMPOSTING:
-            case WATERING:
-                // Could highlight farming patch
+                // Highlight seed in inventory (player should use on patch)
+                highlightSeedForPlanting(graphics);
                 break;
                 
+            case COMPOSTING:
+                // Highlight compost in inventory
+                highlightCompostInInventory(graphics);
+                break;
+                
+            case TREATING_DISEASE:
+                // Highlight plant cure in inventory
+                highlightPlantCureInInventory(graphics);
+                break;
+                
+            // For other states, patches/NPCs are highlighted by PatchHighlightOverlay
             default:
                 break;
         }
@@ -75,9 +80,9 @@ public class HighlightOverlay extends Overlay
     }
     
     /**
-     * Highlight the teleport method the player should use
+     * Highlight the teleport action (spell, item, etc)
      */
-    private void highlightTeleportMethod(Graphics2D graphics)
+    private void highlightTeleportAction(Graphics2D graphics)
     {
         Location currentLocation = runState.getCurrentLocation();
         if (currentLocation == null)
@@ -95,27 +100,82 @@ public class HighlightOverlay extends Overlay
         switch (selectedTeleport.getCategory())
         {
             case SPELLBOOK:
+                // First highlight spellbook icon, then spell
                 highlightSpellbookIcon(graphics);
                 highlightTeleportSpell(graphics, selectedTeleport.getSpellId());
                 break;
                 
             case ITEM:
-                highlightTeleportItem(graphics, selectedTeleport.getItemId());
+                // Highlight teleport item in inventory
+                highlightItemInInventory(graphics, selectedTeleport.getItemId(), Color.YELLOW);
                 break;
                 
-            case PORTAL_NEXUS:
-            case JEWELLERY_BOX:
-                highlightPOHTeleport(graphics, selectedTeleport);
-                break;
-                
-            case SPIRIT_TREE:
-                highlightSpiritTree(graphics);
-                break;
-                
-            case MOUNTED_XERICS:
-                highlightMountedXerics(graphics);
+            // TODO: Add POH, Spirit Tree, etc when implemented
+            default:
                 break;
         }
+    }
+    
+    /**
+     * Highlight seed in inventory for planting
+     */
+    private void highlightSeedForPlanting(Graphics2D graphics)
+    {
+        // Highlight any herb seed (seed-agnostic)
+        // Get first available herb seed
+        ItemContainer inventory = client.getItemContainer(InventoryID.INV);
+        if (inventory == null)
+        {
+            return;
+        }
+        
+        for (Item item : inventory.getItems())
+        {
+            if (item != null && isHerbSeed(item.getId()))
+            {
+                highlightItemInInventory(graphics, item.getId(), Color.GREEN);
+                break; // Only highlight first one
+            }
+        }
+    }
+    
+    /**
+     * Highlight compost in inventory
+     */
+    private void highlightCompostInInventory(Graphics2D graphics)
+    {
+        // Highlight ultracompost/supercompost
+        highlightItemInInventory(graphics, net.runelite.api.gameval.ItemID.BUCKET_ULTRACOMPOST, Color.ORANGE);
+    }
+    
+    /**
+     * Highlight plant cure in inventory
+     */
+    private void highlightPlantCureInInventory(Graphics2D graphics)
+    {
+        highlightItemInInventory(graphics, net.runelite.api.gameval.ItemID.PLANT_CURE, Color.MAGENTA);
+    }
+    
+    /**
+     * Check if an item ID is a herb seed
+     */
+    private boolean isHerbSeed(int itemId)
+    {
+        // Add all herb seed IDs
+        return itemId == net.runelite.api.gameval.ItemID.GUAM_SEED ||
+               itemId == net.runelite.api.gameval.ItemID.MARRENTILL_SEED ||
+               itemId == net.runelite.api.gameval.ItemID.TARROMIN_SEED ||
+               itemId == net.runelite.api.gameval.ItemID.HARRALANDER_SEED ||
+               itemId == net.runelite.api.gameval.ItemID.RANARR_SEED ||
+               itemId == net.runelite.api.gameval.ItemID.TOADFLAX_SEED ||
+               itemId == net.runelite.api.gameval.ItemID.IRIT_SEED ||
+               itemId == net.runelite.api.gameval.ItemID.AVANTOE_SEED ||
+               itemId == net.runelite.api.gameval.ItemID.KWUARM_SEED ||
+               itemId == net.runelite.api.gameval.ItemID.SNAPDRAGON_SEED ||
+               itemId == net.runelite.api.gameval.ItemID.CADANTINE_SEED ||
+               itemId == net.runelite.api.gameval.ItemID.LANTADYME_SEED ||
+               itemId == net.runelite.api.gameval.ItemID.DWARF_WEED_SEED ||
+               itemId == net.runelite.api.gameval.ItemID.TORSTOL_SEED;
     }
     
     /**
@@ -123,7 +183,7 @@ public class HighlightOverlay extends Overlay
      */
     private void highlightSpellbookIcon(Graphics2D graphics)
     {
-        Widget spellbookWidget = getSpellbookWidget();
+        Widget spellbookWidget = client.getWidget(InterfaceID.Toplevel.STONE6);
         if (spellbookWidget != null && !spellbookWidget.isHidden())
         {
             Rectangle bounds = spellbookWidget.getBounds();
@@ -132,32 +192,16 @@ public class HighlightOverlay extends Overlay
     }
     
     /**
-     * Get the spellbook widget based on current viewport mode
-     * The spellbook icon (STONE6) appears in different top-level interfaces depending on viewport mode
-     */
-    private Widget getSpellbookWidget()
-    {
-        // Try fixed viewport
-        Widget spellBookWidget = client.getWidget(InterfaceID.Toplevel.STONE6);
-        if (spellBookWidget != null && !spellBookWidget.isHidden())
-        {
-            return spellBookWidget;
-        }
-        return null;
-    }
-    
-    /**
      * Highlight a specific teleport spell
      */
-    private void highlightTeleportSpell(Graphics2D graphics, int spellId)
+    private void highlightTeleportSpell(Graphics2D graphics, int spellWidgetId)
     {
-        if (spellId == 0)
+        if (spellWidgetId == 0)
         {
             return;
         }
         
-        // Get the spell widget from the spellbook
-        Widget spellWidget = getSpellWidget(spellId);
+        Widget spellWidget = client.getWidget(spellWidgetId);
         if (spellWidget != null && !spellWidget.isHidden())
         {
             Rectangle bounds = spellWidget.getBounds();
@@ -166,177 +210,55 @@ public class HighlightOverlay extends Overlay
     }
     
     /**
-     * Get the spell widget for a specific spell ID
-     * Maps spell IDs to their corresponding widget child indices in the spellbook
+     * Highlight an item in the inventory
      */
-    private Widget getSpellWidget(int spellId)
-    {
-        if (spellId == 0)
-        {
-            return null;
-        }
-        
-        // Get the child widget index for this spell ID
-        Integer childIndex = getSpellWidgetChildIndex(spellId);
-        if (childIndex == null)
-        {
-            // Log missing mapping for debugging
-            System.out.println("HighlightOverlay: No widget mapping found for spell ID: " + spellId);
-            return null;
-        }
-        
-        // Try to get the spellbook widget container
-        Widget spellbookContainer = client.getWidget(InterfaceID.MagicSpellbook, 0);
-        if (spellbookContainer == null)
-        {
-            return null;
-        }
-        
-        // Get the specific spell child widget
-        Widget spellWidget = client.getWidget(InterfaceID.MagicSpellbook, childIndex);
-        if (spellWidget == null || spellWidget.isHidden())
-        {
-            // Fallback: scan children for matching spell ID
-            return scanSpellbookForSpell(spellId);
-        }
-        
-        return spellWidget;
-    }
-    
-    /**
-     * Maps spell IDs to their spellbook widget child indices
-     * Based on standard spellbook layout (widget group 218)
-     * Uses InterfaceID.MagicSpellbook constants for spell widget child IDs
-     */
-    private Integer getSpellWidgetChildIndex(int spellId)
-    {
-        // Spell widget child IDs are defined in InterfaceID.MagicSpellbook
-        // These constants represent the child widget index in the spellbook interface
-        
-        switch (spellId)
-        {
-            // Standard teleport spells (widget group 218 - Standard Spellbook)
-            case InterfaceID.MagicSpellbook.FALADOR_TELEPORT:
-                return InterfaceID.MagicSpellbook.FALADOR_TELEPORT;
-            case InterfaceID.MagicSpellbook.CAMELOT_TELEPORT:
-                return InterfaceID.MagicSpellbook.CAMELOT_TELEPORT;
-            case InterfaceID.MagicSpellbook.ARDOUGNE_TELEPORT:
-                return InterfaceID.MagicSpellbook.ARDOUGNE_TELEPORT;
-            case InterfaceID.MagicSpellbook.TROLLHEIM_TELEPORT:
-                return InterfaceID.MagicSpellbook.TROLLHEIM_TELEPORT;
-            
-            // Arceuus spellbook spells (widget group 218 - Arceuus Spellbook)
-            case InterfaceID.MagicSpellbook.TELEPORT_DRAYNOR_MANOR:
-                return InterfaceID.MagicSpellbook.TELEPORT_DRAYNOR_MANOR;
-            
-            default:
-                // For unmapped spells, use the spell ID directly as child index
-                // This assumes the spell ID is already the correct child widget index
-                return spellId;
-        }
-    }
-    
-    /**
-     * Fallback method: scan spellbook children for a spell matching the given ID
-     * This handles cases where the spell layout might be dynamic or different from expected
-     */
-    private Widget scanSpellbookForSpell(int spellId)
-    {
-        Widget spellbookContainer = client.getWidget(InterfaceID.SPELLBOOK, 0);
-        if (spellbookContainer == null)
-        {
-            return null;
-        }
-        
-        Widget[] children = spellbookContainer.getChildren();
-        if (children == null)
-        {
-            return null;
-        }
-        
-        // Scan through children looking for matching spell ID
-        for (Widget child : children)
-        {
-            if (child == null || child.isHidden())
-            {
-                continue;
-            }
-            
-            // Check if this child represents the spell we're looking for
-            // The spell ID might be stored in the child's itemId or other properties
-            if (child.getId() == spellId || child.getItemId() == spellId)
-            {
-                return child;
-            }
-        }
-        
-        return null;
-    }
-    
-    /**
-     * Highlight a teleport item in the inventory
-     */
-    private void highlightTeleportItem(Graphics2D graphics, int itemId)
+    private void highlightItemInInventory(Graphics2D graphics, int itemId, Color color)
     {
         if (itemId == 0)
         {
             return;
         }
         
-        // Get inventory widget
-        Widget inventoryWidget = client.getWidget(WidgetInfo.INVENTORY);
-        if (inventoryWidget == null || inventoryWidget.isHidden())
+        // Get inventory container
+        ItemContainer inventoryContainer = client.getItemContainer(InventoryID.INV);
+        if (inventoryContainer == null)
         {
             return;
         }
         
-        // Search for the item in inventory
-        Widget[] inventoryItems = inventoryWidget.getDynamicChildren();
-        if (inventoryItems == null)
+        // Get inventory items
+        Item[] items = inventoryContainer.getItems();
+        if (items == null)
         {
             return;
         }
         
-        for (Widget item : inventoryItems)
+        // Get inventory widget for bounds
+        Widget inventoryWidget = client.getWidget(InterfaceID.INVENTORY, 0);
+        if (inventoryWidget == null)
         {
-            if (item != null && item.getItemId() == itemId)
+            return;
+        }
+        
+        Widget[] children = inventoryWidget.getChildren();
+        if (children == null)
+        {
+            return;
+        }
+        
+        // Find and highlight the item
+        for (int i = 0; i < items.length && i < children.length; i++)
+        {
+            if (items[i] != null && items[i].getId() == itemId)
             {
-                Rectangle bounds = item.getBounds();
-                HighlightUtils.highlightWidget(graphics, bounds, Color.YELLOW);
-                break; // Only highlight first instance
+                Widget itemWidget = children[i];
+                if (itemWidget != null && !itemWidget.isHidden())
+                {
+                    Rectangle bounds = itemWidget.getBounds();
+                    HighlightUtils.highlightWidget(graphics, bounds, color);
+                    break; // Only highlight first instance
+                }
             }
         }
-    }
-    
-    /**
-     * Highlight POH teleport options (portal nexus or jewellery box)
-     */
-    private void highlightPOHTeleport(Graphics2D graphics, Teleport teleport)
-    {
-        // First, highlight the POH teleport spell/item to enter the house
-        // This would typically be the "Home Teleport" spell or a teleport to house tablet
-        
-        // For now, we can highlight a generic POH teleport item
-        // TODO: Implement POH portal nexus and jewellery box highlighting
-    }
-    
-    /**
-     * Highlight spirit tree
-     */
-    private void highlightSpiritTree(Graphics2D graphics)
-    {
-        // Highlight the spirit tree in the world
-        // This would require NPC highlighting logic
-        // TODO: Implement spirit tree highlighting
-    }
-    
-    /**
-     * Highlight mounted Xeric's talisman in POH
-     */
-    private void highlightMountedXerics(Graphics2D graphics)
-    {
-        // Highlight the mounted Xeric's talisman in POH
-        // This would require object highlighting logic
-        // TODO: Implement mounted Xeric's highlighting
     }
 }
