@@ -53,7 +53,7 @@ public class VarbitMapper
             case "weiss":
                 return 7907;
             default:
-                log.warn("Unknown location for varbit mapping: " + locationName);
+                log.warn("Unknown location for varbit mapping: {}", locationName);
                 return -1;
         }
     }
@@ -74,14 +74,14 @@ public class VarbitMapper
         Set<PatchType> patchTypes = location.getPatchTypes();
         if (patchTypes.isEmpty())
         {
-            log.debug("No patch types found for location: " + location.getName() + ", returning HERB as default");
+            log.debug("No patch types found for location: {}, returning HERB as default", location.getName());
             return PatchType.HERB;
         }
         
         // Return the first patch type found
         // In most cases, locations will have only one patch type
         PatchType primaryType = patchTypes.iterator().next();
-        log.debug("Primary patch type for " + location.getName() + ": " + primaryType);
+        log.debug("Primary patch type for {}: {}", location.getName(), primaryType);
         return primaryType;
     }
     
@@ -120,7 +120,7 @@ public class VarbitMapper
             case FLOWER:
                 return mapFlowerVarbitToPatchState(varbitValue);
             default:
-                log.warn("Unknown patch type: " + patchType + ", returning UNKNOWN");
+                log.warn("Unknown patch type: {}, returning UNKNOWN", patchType);
                 return PatchState.UNKNOWN;
         }
     }
@@ -166,7 +166,7 @@ public class VarbitMapper
             case 9:
                 return PatchState.PROTECTED;
             default:
-                log.debug("Unknown herb varbit value: " + varbitValue + ", returning UNKNOWN");
+                log.debug("Unknown herb varbit value: {}, returning UNKNOWN", varbitValue);
                 return PatchState.UNKNOWN;
         }
     }
@@ -207,7 +207,7 @@ public class VarbitMapper
             case 12:
                 return PatchState.PROTECTED;
             default:
-                log.debug("Unknown tree varbit value: " + varbitValue + ", returning UNKNOWN");
+                log.debug("Unknown tree varbit value: {}, returning UNKNOWN", varbitValue);
                 return PatchState.UNKNOWN;
         }
     }
@@ -248,7 +248,7 @@ public class VarbitMapper
             case 12:
                 return PatchState.PROTECTED;
             default:
-                log.debug("Unknown fruit tree varbit value: " + varbitValue + ", returning UNKNOWN");
+                log.debug("Unknown fruit tree varbit value: {}, returning UNKNOWN", varbitValue);
                 return PatchState.UNKNOWN;
         }
     }
@@ -281,7 +281,7 @@ public class VarbitMapper
             case 10:
                 return PatchState.PROTECTED;
             default:
-                log.debug("Unknown allotment varbit value: " + varbitValue + ", returning UNKNOWN");
+                log.debug("Unknown allotment varbit value: {}, returning UNKNOWN", varbitValue);
                 return PatchState.UNKNOWN;
         }
     }
@@ -318,7 +318,7 @@ public class VarbitMapper
             case 14:
                 return PatchState.PROTECTED;
             default:
-                log.debug("Unknown hop varbit value: " + varbitValue + ", returning UNKNOWN");
+                log.debug("Unknown hop varbit value: {}, returning UNKNOWN", varbitValue);
                 return PatchState.UNKNOWN;
         }
     }
@@ -351,7 +351,7 @@ public class VarbitMapper
             case 10:
                 return PatchState.PROTECTED;
             default:
-                log.debug("Unknown bush varbit value: " + varbitValue + ", returning UNKNOWN");
+                log.debug("Unknown bush varbit value: {}, returning UNKNOWN", varbitValue);
                 return PatchState.UNKNOWN;
         }
     }
@@ -389,7 +389,7 @@ public class VarbitMapper
             case 15:
                 return PatchState.PROTECTED;
             default:
-                log.debug("Unknown spirit tree varbit value: " + varbitValue + ", returning UNKNOWN");
+                log.debug("Unknown spirit tree varbit value: {}, returning UNKNOWN", varbitValue);
                 return PatchState.UNKNOWN;
         }
     }
@@ -425,7 +425,7 @@ public class VarbitMapper
             case 11:
                 return PatchState.PROTECTED;
             default:
-                log.debug("Unknown special patch varbit value: " + varbitValue + ", returning UNKNOWN");
+                log.debug("Unknown special patch varbit value: {}, returning UNKNOWN", varbitValue);
                 return PatchState.UNKNOWN;
         }
     }
@@ -457,7 +457,7 @@ public class VarbitMapper
             case 9:
                 return PatchState.PROTECTED;
             default:
-                log.debug("Unknown flower varbit value: " + varbitValue + ", returning UNKNOWN");
+                log.debug("Unknown flower varbit value: {}, returning UNKNOWN", varbitValue);
                 return PatchState.UNKNOWN;
         }
     }
