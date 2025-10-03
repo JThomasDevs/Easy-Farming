@@ -138,26 +138,11 @@ public class HighlightOverlay extends Overlay
     private Widget getSpellbookWidget()
     {
         // Try fixed viewport
-        Widget fixedWidget = client.getWidget(InterfaceID.Toplevel.FIXED_VIEWPORT, InterfaceID.Toplevel.STONE6);
-        if (fixedWidget != null && !fixedWidget.isHidden())
+        Widget spellBookWidget = client.getWidget(InterfaceID.Toplevel.STONE6);
+        if (spellBookWidget != null && !spellBookWidget.isHidden())
         {
-            return fixedWidget;
+            return spellBookWidget;
         }
-        
-        // Try resizable classic (bottom line)
-        Widget resizableClassicWidget = client.getWidget(InterfaceID.Toplevel.RESIZABLE_VIEWPORT_BOTTOM_LINE, InterfaceID.Toplevel.STONE6);
-        if (resizableClassicWidget != null && !resizableClassicWidget.isHidden())
-        {
-            return resizableClassicWidget;
-        }
-        
-        // Try resizable modern
-        Widget resizableModernWidget = client.getWidget(InterfaceID.Toplevel.RESIZABLE_VIEWPORT, InterfaceID.Toplevel.STONE6);
-        if (resizableModernWidget != null && !resizableModernWidget.isHidden())
-        {
-            return resizableModernWidget;
-        }
-        
         return null;
     }
     
@@ -201,14 +186,14 @@ public class HighlightOverlay extends Overlay
         }
         
         // Try to get the spellbook widget container
-        Widget spellbookContainer = client.getWidget(InterfaceID.SPELLBOOK, 0);
+        Widget spellbookContainer = client.getWidget(InterfaceID.MagicSpellbook, 0);
         if (spellbookContainer == null)
         {
             return null;
         }
         
         // Get the specific spell child widget
-        Widget spellWidget = client.getWidget(InterfaceID.SPELLBOOK, childIndex);
+        Widget spellWidget = client.getWidget(InterfaceID.MagicSpellbook, childIndex);
         if (spellWidget == null || spellWidget.isHidden())
         {
             // Fallback: scan children for matching spell ID

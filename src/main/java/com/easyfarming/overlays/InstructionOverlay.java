@@ -326,69 +326,18 @@ public class InstructionOverlay extends Overlay
         
         switch (locationName)
         {
-            case "ardougne":
-                return List.of(
-                    "Use Ardougne cloak for direct farm teleport",
-                    "Run north from Ardougne city center",
-                    "Watch out for aggressive guards"
-                );
-                
-            case "catherby":
-                return List.of(
-                    "Use Catherby teleport tab for convenience",
-                    "Patch is just north of the bank",
-                    "Great for banking between runs"
-                );
-                
-            case "falador":
-                return List.of(
-                    "Use Explorer's ring for direct farm teleport",
-                    "Run north from Falador city center",
-                    "Close to the Falador bank"
-                );
-                
-            case "morytania":
-                return List.of(
-                    "Use Ectophial for quick access",
-                    "Run north from the Ectofuntus",
-                    "Watch out for aggressive monsters"
-                );
-                
-            case "trollstronghold":
-                return List.of(
-                    "Use Trollheim teleport spell",
-                    "Run south to the patch",
-                    "Requires completion of Eadgar's Ruse quest"
-                );
-                
-            case "kourend":
-                return List.of(
-                    "Use Xeric's talisman for teleport",
-                    "Run north from the teleport spot",
-                    "Close to the Kourend Castle"
-                );
-                
-            case "farmingguild":
-                return List.of(
-                    "Use Skills necklace to Farming Guild",
-                    "Patch is inside the guild",
-                    "Access to farming tools and supplies"
-                );
-                
-            case "harmonyisland":
+            case "harmony":
                 return List.of(
                     "Use Harmony teleport tab",
                     "Patch is on the island",
                     "Requires completion of The Great Brain Robbery quest"
                 );
-                
             case "weiss":
                 return List.of(
-                    "Use Icy basalt for teleport",
-                    "Patch is in the Weiss area",
+                    "Use Weiss teleport basalt",
+                    "Patch is in the snow area",
                     "Requires completion of Making Friends with My Arm quest"
                 );
-                
             default:
                 return List.of();
         }

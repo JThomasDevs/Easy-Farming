@@ -463,9 +463,10 @@ public class FarmingOverlay extends Overlay
             boolean hasSecateurs = false;
             
             // Check inventory for all farming supplies
-            if (client.getItemContainer(net.runelite.api.gameval.InventoryID.INV) != null)
+            net.runelite.api.ItemContainer inventory = client.getItemContainer(net.runelite.api.gameval.InventoryID.INV);
+            if (inventory != null)
             {
-                for (net.runelite.api.Item item : client.getItemContainer(net.runelite.api.gameval.InventoryID.INV).getItems())
+                for (net.runelite.api.Item item : inventory.getItems())
                 {
                     if (item.getId() == -1) continue; // Skip empty slots
                     
