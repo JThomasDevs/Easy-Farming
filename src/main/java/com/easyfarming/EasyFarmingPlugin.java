@@ -2,6 +2,7 @@ package com.easyfarming;
 
 import com.easyfarming.core.*;
 import com.easyfarming.runs.HerbRun;
+import com.easyfarming.overlays.*;
 import com.google.inject.Provides;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -50,11 +51,25 @@ public class EasyFarmingPlugin extends Plugin
 	private FarmingRunState runState;
 	private FarmingEventHandler eventHandler;
 	private HerbRun herbRun;
+	
+	// Overlays
+	private FarmingOverlay farmingOverlay;
+	private InstructionOverlay instructionOverlay;
+	private ItemCountOverlay itemCountOverlay;
+	private HighlightOverlay highlightOverlay;
+	private InventoryHighlightOverlay inventoryHighlightOverlay;
+	private PatchHighlightOverlay patchHighlightOverlay;
 
 	@Provides
 	EasyFarmingConfig getConfig(ConfigManager configManager)
 	{
 		return configManager.getConfig(EasyFarmingConfig.class);
+	}
+	
+	@Provides
+	RequirementManager getRequirementManager(Client client)
+	{
+		return new RequirementManager(client);
 	}
 
 	@Override
@@ -75,7 +90,21 @@ public class EasyFarmingPlugin extends Plugin
 		herbRun = new HerbRun(client, runState, locationManager);
 		herbRun.initialize();
 		
-		// TODO: Set up overlays and UI
+		// Initialize overlays
+		farmingOverlay = new FarmingOverlay(client, config, runState, herbRun, requirementManager);
+		instructionOverlay = new InstructionOverlay(client, config, runState);
+		itemCountOverlay = new ItemCountOverlay(client, config, runState, herbRun, requirementManager);
+		highlightOverlay = new HighlightOverlay(client, config, runState);
+		inventoryHighlightOverlay = new InventoryHighlightOverlay(client, config, runState, herbRun, requirementManager);
+		patchHighlightOverlay = new PatchHighlightOverlay(client, config, runState);
+		
+		// Register overlays
+		overlayManager.add(farmingOverlay);
+		overlayManager.add(instructionOverlay);
+		overlayManager.add(itemCountOverlay);
+		overlayManager.add(highlightOverlay);
+		overlayManager.add(inventoryHighlightOverlay);
+		overlayManager.add(patchHighlightOverlay);
 	}
 
 	@Override
@@ -125,8 +154,44 @@ public class EasyFarmingPlugin extends Plugin
 			log.warn("Failed to remove navigation button: {}", e.getMessage());
 		}
 		
-		// Note: No overlays or UI elements to clean up currently
-		// No scheduled tasks or executors to shutdown currently
+		try
+		{
+			// Remove overlays
+			if (farmingOverlay != null)
+			{
+				overlayManager.remove(farmingOverlay);
+				log.debug("Removed farming overlay");
+			}
+			if (instructionOverlay != null)
+			{
+				overlayManager.remove(instructionOverlay);
+				log.debug("Removed instruction overlay");
+			}
+			if (itemCountOverlay != null)
+			{
+				overlayManager.remove(itemCountOverlay);
+				log.debug("Removed item count overlay");
+			}
+			if (highlightOverlay != null)
+			{
+				overlayManager.remove(highlightOverlay);
+				log.debug("Removed highlight overlay");
+			}
+			if (inventoryHighlightOverlay != null)
+			{
+				overlayManager.remove(inventoryHighlightOverlay);
+				log.debug("Removed inventory highlight overlay");
+			}
+			if (patchHighlightOverlay != null)
+			{
+				overlayManager.remove(patchHighlightOverlay);
+				log.debug("Removed patch highlight overlay");
+			}
+		}
+		catch (Exception e)
+		{
+			log.warn("Failed to remove overlays: {}", e.getMessage());
+		}
 		
 		// Null out references to help garbage collection
 		runState = null;
@@ -135,6 +200,12 @@ public class EasyFarmingPlugin extends Plugin
 		requirementManager = null;
 		herbRun = null;
 		navButton = null;
+		farmingOverlay = null;
+		instructionOverlay = null;
+		itemCountOverlay = null;
+		highlightOverlay = null;
+		inventoryHighlightOverlay = null;
+		patchHighlightOverlay = null;
 		
 		log.debug("Cleaned up all component references");
 	}

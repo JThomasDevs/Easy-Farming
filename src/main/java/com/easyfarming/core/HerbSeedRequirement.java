@@ -38,7 +38,7 @@ public class HerbSeedRequirement
             ItemID.LANTADYME_SEED,      // 5302 - Lantadyme seed
             ItemID.DWARF_WEED_SEED,     // 5303 - Dwarf weed seed
             ItemID.TORSTOL_SEED,        // 5304 - Torstol seed
-            ItemID.HUASCA_SEED          // 30088 - Huascas seed
+            ItemID.HUASCA_SEED          // 30088 - Huasca seed
         );
     }
     

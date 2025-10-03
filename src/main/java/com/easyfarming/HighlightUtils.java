@@ -86,4 +86,25 @@ public class HighlightUtils
 		// Fill the shape
 		graphics.fill(shape);
 	}
+	
+	/**
+	 * Highlight a widget with a custom color and border
+	 */
+	public static void highlightWidget(Graphics2D graphics, Rectangle bounds, Color color)
+	{
+		if (bounds == null || color == null)
+		{
+			return;
+		}
+		
+		// Draw filled rectangle with transparency
+		Color fillColor = new Color(color.getRed(), color.getGreen(), color.getBlue(), 50);
+		graphics.setColor(fillColor);
+		graphics.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+		
+		// Draw border
+		graphics.setColor(color);
+		graphics.setStroke(new BasicStroke(STROKE_WIDTH_THICK));
+		graphics.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
+	}
 }

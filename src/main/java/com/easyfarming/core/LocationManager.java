@@ -2,6 +2,7 @@ package com.easyfarming.core;
 
 import com.easyfarming.EasyFarmingConfig;
 import net.runelite.api.gameval.ItemID;
+import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.coords.WorldPoint;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -195,7 +196,7 @@ public class LocationManager
 		// Ardougne Teleport Spell
 		addMultiRequirementTeleportOption(ardougne, "ARDOUGNE_TELEPORT", Teleport.TeleportCategory.SPELLBOOK,
 			"Cast Ardougne Teleport, then run north to the herb patch",
-			0, null, 30, new WorldPoint(2662, 3305, 0),
+			0, null, InterfaceID.MagicSpellbook.ARDOUGNE_TELEPORT, new WorldPoint(2662, 3305, 0),
 			new ItemRequirement(ItemID.LAWRUNE, 2),
 			new ItemRequirement(ItemID.WATERRUNE, 2));
 		
@@ -251,7 +252,7 @@ public class LocationManager
 		// Camelot Teleport Spell
 		addMultiRequirementTeleportOption(catherby, "CAMELOT_TELEPORT", Teleport.TeleportCategory.SPELLBOOK,
 			"Cast Camelot Teleport, then run south to the herb patch",
-			0, null, 29, new WorldPoint(2757, 3478, 0),
+			0, null, InterfaceID.MagicSpellbook.CAMELOT_TELEPORT, new WorldPoint(2757, 3478, 0),
 			new ItemRequirement(ItemID.LAWRUNE, 1),
 			new ItemRequirement(ItemID.AIRRUNE, 5));
 		
@@ -281,7 +282,7 @@ public class LocationManager
 		// Falador Teleport Spell
 		addMultiRequirementTeleportOption(falador, "FALADOR_TELEPORT", Teleport.TeleportCategory.SPELLBOOK,
 			"Cast Falador Teleport, then run south to the herb patch",
-			0, null, 28, new WorldPoint(2966, 3403, 0),
+			0, null, InterfaceID.MagicSpellbook.FALADOR_TELEPORT, new WorldPoint(2966, 3403, 0),
 			new ItemRequirement(ItemID.LAWRUNE, 1),
 			new ItemRequirement(ItemID.AIRRUNE, 3),
 			new ItemRequirement(ItemID.WATERRUNE, 1));
@@ -307,15 +308,7 @@ public class LocationManager
 		// Draynor Manor Teleport (Primary location)
 		addMultiRequirementTeleportOption(falador, "DRAYNOR_MANOR_TELEPORT", Teleport.TeleportCategory.SPELLBOOK,
 			"Cast Draynor Manor Teleport, then run northwest to the herb patch",
-			0, null, 3108, new WorldPoint(3108, 3350, 0),
-			new ItemRequirement(ItemID.AIRRUNE, 1),
-			new ItemRequirement(ItemID.LAWRUNE, 1),
-			new ItemRequirement(ItemID.EARTHRUNE, 1));
-		
-		// Draynor Manor Teleport (Alternate location)
-		addMultiRequirementTeleportOption(falador, "DRAYNOR_MANOR_TELEPORT_ALT", Teleport.TeleportCategory.SPELLBOOK,
-			"Cast Draynor Manor Teleport (alternate), then run northwest to the herb patch",
-			0, null, 3109, new WorldPoint(3108, 3350, 0),
+			0, null, InterfaceID.MagicSpellbook.TELEPORT_DRAYNOR_MANOR, new WorldPoint(3108, 3350, 0),
 			new ItemRequirement(ItemID.AIRRUNE, 1),
 			new ItemRequirement(ItemID.LAWRUNE, 1),
 			new ItemRequirement(ItemID.EARTHRUNE, 1));
@@ -377,7 +370,7 @@ public class LocationManager
 		// Trollheim Teleport Spell
 		addMultiRequirementTeleportOption(trollStronghold, "TROLLHEIM_TELEPORT", Teleport.TeleportCategory.SPELLBOOK,
 			"Cast Trollheim Teleport, then run north to the herb patch",
-			0, null, 31, new WorldPoint(2893, 3678, 0),
+			0, null, InterfaceID.MagicSpellbook.TROLLHEIM_TELEPORT, new WorldPoint(2893, 3678, 0),
 			new ItemRequirement(ItemID.LAWRUNE, 2),
 			new ItemRequirement(ItemID.FIRERUNE, 2));
 		
