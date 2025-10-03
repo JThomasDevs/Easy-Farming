@@ -105,6 +105,14 @@ public class RequirementManager
     }
     
     /**
+     * Get the count of a specific item in the inventory
+     */
+    public int getItemCount(int itemId)
+    {
+        return inventoryCounts.getOrDefault(itemId, 0);
+    }
+    
+    /**
      * Get remaining count for herb seed requirement
      */
     public int getRemainingHerbSeedCount(HerbSeedRequirement requirement)

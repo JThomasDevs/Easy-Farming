@@ -1,5 +1,7 @@
 package com.easyfarming;
 
+import com.easyfarming.core.*;
+import com.easyfarming.runs.HerbRun;
 import com.google.inject.Provides;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +18,6 @@ import net.runelite.client.util.ImageUtil;
 import net.runelite.client.ui.overlay.OverlayManager;
 
 import java.awt.image.BufferedImage;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @PluginDescriptor(
@@ -38,6 +39,13 @@ public class EasyFarmingPlugin extends Plugin
 	private OverlayManager overlayManager;
 
 	private NavigationButton navButton;
+	
+	// Core farming system components
+	private LocationManager locationManager;
+	private RequirementManager requirementManager;
+	private FarmingRunState runState;
+	private FarmingEventHandler eventHandler;
+	private HerbRun herbRun;
 
 	@Provides
 	EasyFarmingConfig getConfig(ConfigManager configManager)
@@ -50,10 +58,17 @@ public class EasyFarmingPlugin extends Plugin
 	{
 		log.info("Easy Farming started!");
 		
-		// TODO: Initialize new farming system
-		// - Create farming runs
-		// - Set up overlays
-		// - Initialize UI
+		// Initialize core farming system components
+		locationManager = new LocationManager();
+		requirementManager = new RequirementManager(client);
+		runState = new FarmingRunState(client, requirementManager, locationManager);
+		eventHandler = new FarmingEventHandler(client, runState);
+		
+		// Initialize herb run
+		herbRun = new HerbRun(client, runState, locationManager);
+		herbRun.initialize();
+		
+		// TODO: Set up overlays and UI
 	}
 
 	@Override
@@ -61,9 +76,13 @@ public class EasyFarmingPlugin extends Plugin
 	{
 		log.info("Easy Farming stopped!");
 		
-		// TODO: Clean up resources
-		// - Remove overlays
-		// - Clean up UI
+		// Clean up resources
+		if (runState != null)
+		{
+			runState.stopRun();
+		}
+		
+		// TODO: Remove overlays and clean up UI
 	}
 
 	@Subscribe
@@ -72,7 +91,33 @@ public class EasyFarmingPlugin extends Plugin
 		if (gameStateChanged.getGameState() == GameState.LOGGED_IN)
 		{
 			log.info("Player logged in");
+			
+			// Start farming runs based on config
+			startFarmingRuns();
 		}
+	}
+	
+	/**
+	 * Start farming runs based on configuration
+	 */
+	private void startFarmingRuns()
+	{
+		if (runState == null)
+		{
+			return;
+		}
+		
+		// Start runs based on config settings
+		runState.startRun(
+			config.enableHerbRuns(),
+			config.enableTreeRuns(),
+			config.enableFruitTreeRuns(),
+			config.enableAllotmentRuns()
+		);
+		
+		log.info("Farming runs started - Herb: {}, Tree: {}, Fruit Tree: {}, Allotment: {}", 
+			config.enableHerbRuns(), config.enableTreeRuns(), 
+			config.enableFruitTreeRuns(), config.enableAllotmentRuns());
 	}
 
 	// Getters for other components
