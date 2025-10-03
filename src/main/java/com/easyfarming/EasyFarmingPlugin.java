@@ -9,6 +9,7 @@ import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -38,6 +39,9 @@ public class EasyFarmingPlugin extends Plugin
 	@Inject
 	private OverlayManager overlayManager;
 
+	@Inject
+	private EventBus eventBus;
+
 	private NavigationButton navButton;
 	
 	// Core farming system components
@@ -64,6 +68,9 @@ public class EasyFarmingPlugin extends Plugin
 		runState = new FarmingRunState(client, requirementManager, locationManager);
 		eventHandler = new FarmingEventHandler(client, runState);
 		
+		// Register event handler with event bus
+		eventBus.register(eventHandler);
+		
 		// Initialize herb run
 		herbRun = new HerbRun(client, runState, locationManager);
 		herbRun.initialize();
@@ -76,13 +83,60 @@ public class EasyFarmingPlugin extends Plugin
 	{
 		log.info("Easy Farming stopped!");
 		
-		// Clean up resources
-		if (runState != null)
+		try
 		{
-			runState.stopRun();
+			// Unregister event handler from event bus
+			if (eventHandler != null)
+			{
+				eventBus.unregister(eventHandler);
+				log.debug("Unregistered FarmingEventHandler from event bus");
+			}
+		}
+		catch (Exception e)
+		{
+			log.warn("Failed to unregister event handler: {}", e.getMessage());
 		}
 		
-		// TODO: Remove overlays and clean up UI
+		try
+		{
+			// Stop farming run state
+			if (runState != null)
+			{
+				runState.stopRun();
+				log.debug("Stopped farming run state");
+			}
+		}
+		catch (Exception e)
+		{
+			log.warn("Failed to stop farming run state: {}", e.getMessage());
+		}
+		
+		try
+		{
+			// Remove navigation button if it exists
+			if (navButton != null)
+			{
+				clientToolbar.removeNavigation(navButton);
+				log.debug("Removed navigation button");
+			}
+		}
+		catch (Exception e)
+		{
+			log.warn("Failed to remove navigation button: {}", e.getMessage());
+		}
+		
+		// Note: No overlays or UI elements to clean up currently
+		// No scheduled tasks or executors to shutdown currently
+		
+		// Null out references to help garbage collection
+		runState = null;
+		eventHandler = null;
+		locationManager = null;
+		requirementManager = null;
+		herbRun = null;
+		navButton = null;
+		
+		log.debug("Cleaned up all component references");
 	}
 
 	@Subscribe

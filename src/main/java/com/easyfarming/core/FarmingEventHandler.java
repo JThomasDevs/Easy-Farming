@@ -56,23 +56,6 @@ public class FarmingEventHandler
         "You remove the dead (.*?)\\."
     );
     
-    // Animation IDs for farming actions
-    private static final int TELEPORT_ANIMATION_ID = 714;
-    private static final int HARVEST_ANIMATION_ID = 830;
-    private static final int PLANT_ANIMATION_ID = 2291;
-    private static final int CURE_ANIMATION_ID = 2288;
-    private static final int COMPOST_ANIMATION_ID = 2283;
-    private static final int WATER_ANIMATION_ID = 2293;
-    private static final int REMOVE_ANIMATION_ID = 2294;
-    
-    // State tracking
-    private boolean isTeleporting = false;
-    private boolean isHarvesting = false;
-    private boolean isPlanting = false;
-    private boolean isCuring = false;
-    private boolean isComposting = false;
-    private boolean isWatering = false;
-    private boolean isRemoving = false;
     
     public FarmingEventHandler(Client client, FarmingRunState runState)
     {
@@ -166,44 +149,6 @@ public class FarmingEventHandler
         }
     }
     
-    /**
-     * Handle animation changes to detect farming actions
-     */
-    @Subscribe
-    public void onAnimationChanged(AnimationChanged event)
-    {
-        if (!runState.isRunActive() || event.getActor() != client.getLocalPlayer())
-        {
-            return;
-        }
-        
-        int animationId = event.getActor().getAnimation();
-        
-        switch (animationId)
-        {
-            case TELEPORT_ANIMATION_ID:
-                handleTeleportAnimation();
-                break;
-            case HARVEST_ANIMATION_ID:
-                handleHarvestAnimation();
-                break;
-            case PLANT_ANIMATION_ID:
-                handlePlantAnimation();
-                break;
-            case CURE_ANIMATION_ID:
-                handleCureAnimation();
-                break;
-            case COMPOST_ANIMATION_ID:
-                handleCompostAnimation();
-                break;
-            case WATER_ANIMATION_ID:
-                handleWaterAnimation();
-                break;
-            case REMOVE_ANIMATION_ID:
-                handleRemoveAnimation();
-                break;
-        }
-    }
     
     /**
      * Handle game state changes
@@ -213,8 +158,8 @@ public class FarmingEventHandler
     {
         if (event.getGameState() == net.runelite.api.GameState.LOGGED_IN)
         {
-            // Reset all action flags when logging in
-            resetActionFlags();
+            // Reset state when logging in
+            log.debug("Player logged in, resetting farming state");
         }
     }
     
@@ -222,136 +167,54 @@ public class FarmingEventHandler
     private void handleTeleportMessage(String destination)
     {
         log.debug("Teleport detected to: {}", destination);
-        isTeleporting = false; // Teleport completed
         // The FarmingRunState will handle location detection
     }
     
     private void handleHarvestMessage(String quantity, String item)
     {
         log.debug("Harvest detected: {} {}", quantity, item);
-        isHarvesting = false; // Harvest completed
-        // Update patch state to empty
+        // Patch state will be updated via varbit detection
     }
     
     private void handlePlantMessage(String quantity, String seed, String patch)
     {
         log.debug("Plant detected: {} {} in {}", quantity, seed, patch);
-        isPlanting = false; // Planting completed
-        // Update patch state to growing
+        // Patch state will be updated via varbit detection
     }
     
     private void handleDiseaseMessage(String crop)
     {
         log.debug("Disease detected: {}", crop);
-        // Update patch state to diseased
+        // Patch state will be updated via varbit detection
     }
     
     private void handleDeadMessage(String crop)
     {
         log.debug("Dead crop detected: {}", crop);
-        // Update patch state to dead
+        // Patch state will be updated via varbit detection
     }
     
     private void handleCureMessage(String crop)
     {
         log.debug("Cure detected: {}", crop);
-        isCuring = false; // Curing completed
-        // Update patch state to growing
+        // Patch state will be updated via varbit detection
     }
     
     private void handleCompostMessage(String patch, String compost)
     {
         log.debug("Compost detected: {} with {}", patch, compost);
-        isComposting = false; // Composting completed
-        // Update patch state to composted
+        // Patch state will be updated via varbit detection
     }
     
     private void handleWaterMessage(String patch)
     {
         log.debug("Water detected: {}", patch);
-        isWatering = false; // Watering completed
-        // Update patch state to watered
+        // Patch state will be updated via varbit detection
     }
     
     private void handleRemoveMessage(String crop)
     {
         log.debug("Remove detected: {}", crop);
-        isRemoving = false; // Removing completed
-        // Update patch state to empty
-    }
-    
-    // Animation handlers
-    private void handleTeleportAnimation()
-    {
-        log.debug("Teleport animation started");
-        isTeleporting = true;
-    }
-    
-    private void handleHarvestAnimation()
-    {
-        log.debug("Harvest animation started");
-        isHarvesting = true;
-    }
-    
-    private void handlePlantAnimation()
-    {
-        log.debug("Plant animation started");
-        isPlanting = true;
-    }
-    
-    private void handleCureAnimation()
-    {
-        log.debug("Cure animation started");
-        isCuring = true;
-    }
-    
-    private void handleCompostAnimation()
-    {
-        log.debug("Compost animation started");
-        isComposting = true;
-    }
-    
-    private void handleWaterAnimation()
-    {
-        log.debug("Water animation started");
-        isWatering = true;
-    }
-    
-    private void handleRemoveAnimation()
-    {
-        log.debug("Remove animation started");
-        isRemoving = true;
-    }
-    
-    /**
-     * Reset all action flags
-     */
-    private void resetActionFlags()
-    {
-        isTeleporting = false;
-        isHarvesting = false;
-        isPlanting = false;
-        isCuring = false;
-        isComposting = false;
-        isWatering = false;
-        isRemoving = false;
-    }
-    
-    // Getters for action states
-    public boolean isTeleporting() { return isTeleporting; }
-    public boolean isHarvesting() { return isHarvesting; }
-    public boolean isPlanting() { return isPlanting; }
-    public boolean isCuring() { return isCuring; }
-    public boolean isComposting() { return isComposting; }
-    public boolean isWatering() { return isWatering; }
-    public boolean isRemoving() { return isRemoving; }
-    
-    /**
-     * Check if any farming action is in progress
-     */
-    public boolean isAnyActionInProgress()
-    {
-        return isTeleporting || isHarvesting || isPlanting || isCuring || 
-               isComposting || isWatering || isRemoving;
+        // Patch state will be updated via varbit detection
     }
 }

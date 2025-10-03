@@ -1,34 +1,37 @@
 package com.easyfarming.core;
 
 import java.util.Set;
-import java.util.logging.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Centralized utility class for mapping varbit IDs and values to patch states.
  * This class consolidates the varbit-to-patch logic that was previously duplicated
  * across FarmingEventDetector and FarmingRunState.
  */
+@Slf4j
 public class VarbitMapper
 {
-    private static final Logger logger = Logger.getLogger(VarbitMapper.class.getName());
     
     /**
-     * Get the varbit ID for a specific farming location
-     * @param location The farming location
-     * @return The varbit ID for the location, or -1 if unknown
+     * Get the varbit ID for herb patches at a specific farming location.
+     * Returns the varbit ID used to track herb patch states in Old School RuneScape.
+     * 
+     * @param location The farming location containing herb patches
+     * @return The varbit ID for the location's herb patches, or -1 if unknown
+     * @see <a href="https://oldschool.runescape.wiki/w/Varbit">OSRS Wiki - Varbit</a>
      */
-    public static int getVarbitIdForLocation(Location location)
+    public static int getHerbPatchVarbitId(Location location)
     {
         if (location == null)
         {
-            logger.warning("Location is null for varbit ID mapping");
+            log.warn("Location is null for varbit ID mapping");
             return -1;
         }
         
         String locationName = location.getName().toLowerCase();
         
-        // Map location names to their corresponding varbit IDs
-        // These are the main herb patch varbits based on OSRS farming system
+        // These varbit IDs correspond specifically to main herb patches per the OSRS Wiki
+        // Source: https://oldschool.runescape.wiki/w/Varbit
         switch (locationName)
         {
             case "ardougne":
@@ -50,7 +53,7 @@ public class VarbitMapper
             case "weiss":
                 return 7907;
             default:
-                logger.warning("Unknown location for varbit mapping: " + locationName);
+                log.warn("Unknown location for varbit mapping: " + locationName);
                 return -1;
         }
     }
@@ -64,21 +67,21 @@ public class VarbitMapper
     {
         if (location == null)
         {
-            logger.warning("Location is null for patch type mapping, returning HERB as default");
+            log.warn("Location is null for patch type mapping, returning HERB as default");
             return PatchType.HERB;
         }
         
         Set<PatchType> patchTypes = location.getPatchTypes();
         if (patchTypes.isEmpty())
         {
-            logger.fine("No patch types found for location: " + location.getName() + ", returning HERB as default");
+            log.debug("No patch types found for location: " + location.getName() + ", returning HERB as default");
             return PatchType.HERB;
         }
         
         // Return the first patch type found
         // In most cases, locations will have only one patch type
         PatchType primaryType = patchTypes.iterator().next();
-        logger.fine("Primary patch type for " + location.getName() + ": " + primaryType);
+        log.debug("Primary patch type for " + location.getName() + ": " + primaryType);
         return primaryType;
     }
     
@@ -92,7 +95,7 @@ public class VarbitMapper
     {
         if (patchType == null)
         {
-            logger.warning("Patch type is null, returning UNKNOWN");
+            log.warn("Patch type is null, returning UNKNOWN");
             return PatchState.UNKNOWN;
         }
         
@@ -117,14 +120,28 @@ public class VarbitMapper
             case FLOWER:
                 return mapFlowerVarbitToPatchState(varbitValue);
             default:
-                logger.warning("Unknown patch type: " + patchType + ", returning UNKNOWN");
+                log.warn("Unknown patch type: " + patchType + ", returning UNKNOWN");
                 return PatchState.UNKNOWN;
         }
     }
     
     /**
-     * Map herb patch varbit values to PatchState
-     * Based on OSRS herb patch varbit ranges (4771-4775, 7904-7914)
+     * Map herb patch varbit values to PatchState.
+     * 
+     * Varbit IDs for herb patches:
+     * - Ardougne: 4771
+     * - Catherby: 4772
+     * - Falador: 4773
+     * - Farming Guild: 4774
+     * - Harmony: 4775
+     * - Kourend: 7904
+     * - Morytania: 7905
+     * - Troll Stronghold: 7906
+     * - Weiss: 7907
+     * 
+     * @param varbitValue The varbit value from the client (0-9)
+     * @return The corresponding PatchState
+     * @see <a href="https://oldschool.runescape.wiki/w/Farming#Herb_patches">OSRS Wiki - Farming Herb Patches</a>
      */
     private static PatchState mapHerbVarbitToPatchState(int varbitValue)
     {
@@ -149,14 +166,20 @@ public class VarbitMapper
             case 9:
                 return PatchState.PROTECTED;
             default:
-                logger.fine("Unknown herb varbit value: " + varbitValue + ", returning UNKNOWN");
+                log.debug("Unknown herb varbit value: " + varbitValue + ", returning UNKNOWN");
                 return PatchState.UNKNOWN;
         }
     }
     
     /**
-     * Map tree patch varbit values to PatchState
-     * Based on OSRS tree patch varbit ranges
+     * Map tree patch varbit values to PatchState.
+     * 
+     * Varbit IDs for tree patches vary by location and are typically in the 7900+ range.
+     * Common tree patch locations include Lumbridge, Varrock, Falador, Taverley, and Gnome Stronghold.
+     * 
+     * @param varbitValue The varbit value from the client (0-12)
+     * @return The corresponding PatchState
+     * @see <a href="https://oldschool.runescape.wiki/w/Farming#Tree_patches">OSRS Wiki - Farming Tree Patches</a>
      */
     private static PatchState mapTreeVarbitToPatchState(int varbitValue)
     {
@@ -184,14 +207,20 @@ public class VarbitMapper
             case 12:
                 return PatchState.PROTECTED;
             default:
-                logger.fine("Unknown tree varbit value: " + varbitValue + ", returning UNKNOWN");
+                log.debug("Unknown tree varbit value: " + varbitValue + ", returning UNKNOWN");
                 return PatchState.UNKNOWN;
         }
     }
     
     /**
-     * Map fruit tree patch varbit values to PatchState
-     * Based on OSRS fruit tree patch varbit ranges
+     * Map fruit tree patch varbit values to PatchState.
+     * 
+     * Varbit IDs for fruit tree patches vary by location and are typically in the 7900+ range.
+     * Common fruit tree patch locations include Gnome Stronghold, Tree Gnome Village, Brimhaven, and Catherby.
+     * 
+     * @param varbitValue The varbit value from the client (0-12)
+     * @return The corresponding PatchState
+     * @see <a href="https://oldschool.runescape.wiki/w/Farming#Fruit_tree_patches">OSRS Wiki - Farming Fruit Tree Patches</a>
      */
     private static PatchState mapFruitTreeVarbitToPatchState(int varbitValue)
     {
@@ -219,7 +248,7 @@ public class VarbitMapper
             case 12:
                 return PatchState.PROTECTED;
             default:
-                logger.fine("Unknown fruit tree varbit value: " + varbitValue + ", returning UNKNOWN");
+                log.debug("Unknown fruit tree varbit value: " + varbitValue + ", returning UNKNOWN");
                 return PatchState.UNKNOWN;
         }
     }
@@ -252,7 +281,7 @@ public class VarbitMapper
             case 10:
                 return PatchState.PROTECTED;
             default:
-                logger.fine("Unknown allotment varbit value: " + varbitValue + ", returning UNKNOWN");
+                log.debug("Unknown allotment varbit value: " + varbitValue + ", returning UNKNOWN");
                 return PatchState.UNKNOWN;
         }
     }
@@ -289,7 +318,7 @@ public class VarbitMapper
             case 14:
                 return PatchState.PROTECTED;
             default:
-                logger.fine("Unknown hop varbit value: " + varbitValue + ", returning UNKNOWN");
+                log.debug("Unknown hop varbit value: " + varbitValue + ", returning UNKNOWN");
                 return PatchState.UNKNOWN;
         }
     }
@@ -322,7 +351,7 @@ public class VarbitMapper
             case 10:
                 return PatchState.PROTECTED;
             default:
-                logger.fine("Unknown bush varbit value: " + varbitValue + ", returning UNKNOWN");
+                log.debug("Unknown bush varbit value: " + varbitValue + ", returning UNKNOWN");
                 return PatchState.UNKNOWN;
         }
     }
@@ -360,7 +389,7 @@ public class VarbitMapper
             case 15:
                 return PatchState.PROTECTED;
             default:
-                logger.fine("Unknown spirit tree varbit value: " + varbitValue + ", returning UNKNOWN");
+                log.debug("Unknown spirit tree varbit value: " + varbitValue + ", returning UNKNOWN");
                 return PatchState.UNKNOWN;
         }
     }
@@ -396,7 +425,7 @@ public class VarbitMapper
             case 11:
                 return PatchState.PROTECTED;
             default:
-                logger.fine("Unknown special patch varbit value: " + varbitValue + ", returning UNKNOWN");
+                log.debug("Unknown special patch varbit value: " + varbitValue + ", returning UNKNOWN");
                 return PatchState.UNKNOWN;
         }
     }
@@ -428,7 +457,7 @@ public class VarbitMapper
             case 9:
                 return PatchState.PROTECTED;
             default:
-                logger.fine("Unknown flower varbit value: " + varbitValue + ", returning UNKNOWN");
+                log.debug("Unknown flower varbit value: " + varbitValue + ", returning UNKNOWN");
                 return PatchState.UNKNOWN;
         }
     }

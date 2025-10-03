@@ -5,16 +5,15 @@ import net.runelite.api.Player;
 import net.runelite.api.coords.WorldPoint;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Manages the state machine for farming runs.
  * This class handles state transitions, patch state detection, and run logic.
  */
+@Slf4j
 public class FarmingRunState
 {
-    private static final Logger logger = Logger.getLogger(FarmingRunState.class.getName());
     
     private final Client client;
     private final RequirementManager requirementManager;
@@ -264,7 +263,7 @@ public class FarmingRunState
                 // TODO: Implement proper action completion detection or timing-based progression
                 // For now, these states would need to be managed by the UI/overlay system
                 // based on patch state detection rather than action completion detection
-                logger.warning("Action state " + currentState + " needs proper completion handling");
+                log.warn("Action state {} needs proper completion handling", currentState);
                 break;
                 
             case MOVING_TO_NEXT:

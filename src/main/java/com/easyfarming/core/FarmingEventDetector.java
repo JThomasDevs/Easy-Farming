@@ -4,19 +4,17 @@ import net.runelite.api.Client;
 import net.runelite.api.Player;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.ItemID;
-import net.runelite.api.Item;
-import net.runelite.api.gameval.InventoryID;
 
 import java.util.*;
-import java.util.logging.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Detects farming-related events and state changes.
  * This class provides methods to detect various farming actions and conditions.
  */
+@Slf4j
 public class FarmingEventDetector
 {
-    private static final Logger logger = Logger.getLogger(FarmingEventDetector.class.getName());
     
     private final Client client;
     private final RequirementManager requirementManager;
@@ -25,9 +23,30 @@ public class FarmingEventDetector
     private static final int PATCH_DETECTION_RADIUS = 5;
     private static final int TELEPORT_DETECTION_RADIUS = 10;
     
+    // Farming region IDs for areas with herb patches
+    private static final Set<Integer> FARMING_REGIONS = Set.of(
+        10033, // Ardougne
+        10029, // Catherby
+        11828, // Falador
+        14388, // Morytania
+        11573, // Troll Stronghold
+        12850, // Kourend
+        14948, // Farming Guild
+        15148, // Harmony Island
+        11325  // Weiss
+    );
+    
     
     public FarmingEventDetector(Client client, RequirementManager requirementManager)
     {
+        if (client == null)
+        {
+            throw new IllegalArgumentException("Client cannot be null");
+        }
+        if (requirementManager == null)
+        {
+            throw new IllegalArgumentException("RequirementManager cannot be null");
+        }
         this.client = client;
         this.requirementManager = requirementManager;
     }
@@ -40,6 +59,12 @@ public class FarmingEventDetector
         if (previousLocation == null || currentLocation == null)
         {
             return false;
+        }
+        
+        // Plane changes indicate teleportation
+        if (previousLocation.getPlane() != currentLocation.getPlane())
+        {
+            return true;
         }
         
         // Check if player moved more than 20 tiles (likely a teleport)
@@ -120,10 +145,19 @@ public class FarmingEventDetector
      */
     public boolean hasAllRequiredItems(List<ItemRequirement> requirements)
     {
+        if (requirements == null)
+        {
+            return false;
+        }
+        
         requirementManager.updateInventoryCounts();
         
         for (ItemRequirement requirement : requirements)
         {
+            if (requirement == null)
+            {
+                return false;
+            }
             if (!requirementManager.isItemRequirementSatisfied(requirement))
             {
                 return false;
@@ -176,28 +210,6 @@ public class FarmingEventDetector
         return requirementManager.getItemCount(ItemID.FAIRY_ENCHANTED_SECATEURS) > 0;
     }
     
-    /**
-     * Detect if the player is currently performing a farming action
-     */
-    public boolean isPlayerPerformingAction()
-    {
-        Player player = client.getLocalPlayer();
-        if (player == null)
-        {
-            return false;
-        }
-        
-        int animationId = player.getAnimation();
-        
-        // Check for farming-related animations
-        return animationId == 714 ||  // Teleport
-               animationId == 830 ||  // Harvest
-               animationId == 2291 || // Plant
-               animationId == 2288 || // Cure
-               animationId == 2283 || // Compost
-               animationId == 2293 || // Water
-               animationId == 2294;   // Remove
-    }
     
     
     /**
@@ -214,21 +226,7 @@ public class FarmingEventDetector
         WorldPoint playerPos = player.getWorldLocation();
         int regionId = playerPos.getRegionID();
         
-        // Check if player is in a region with farming patches
-        // These are the region IDs for areas with herb patches
-        Set<Integer> farmingRegions = Set.of(
-            10033, // Ardougne
-            10029, // Catherby
-            11828, // Falador
-            14388, // Morytania
-            11573, // Troll Stronghold
-            12850, // Kourend
-            14948, // Farming Guild
-            15148, // Harmony Island
-            11325  // Weiss
-        );
-        
-        return farmingRegions.contains(regionId);
+        return FARMING_REGIONS.contains(regionId);
     }
     
     /**
@@ -236,6 +234,11 @@ public class FarmingEventDetector
      */
     public Location detectNearbyPatch(List<Location> locations)
     {
+        if (locations == null || locations.isEmpty())
+        {
+            return null;
+        }
+        
         Player player = client.getLocalPlayer();
         if (player == null)
         {
@@ -246,7 +249,16 @@ public class FarmingEventDetector
         
         for (Location location : locations)
         {
+            if (location == null)
+            {
+                continue;
+            }
+            
             WorldPoint patchPos = location.getPatchPoint();
+            if (patchPos == null)
+            {
+                continue;
+            }
             
             int distance = Math.max(
                 Math.abs(playerPos.getX() - patchPos.getX()),
@@ -271,17 +283,17 @@ public class FarmingEventDetector
     {
         if (location == null)
         {
-            logger.warning("Location is null for patch state detection");
+            log.warn("Location is null for patch state detection");
             return PatchState.UNKNOWN;
         }
         
         try
         {
             // Get the varbit ID for this location
-            int varbitId = VarbitMapper.getVarbitIdForLocation(location);
+            int varbitId = VarbitMapper.getHerbPatchVarbitId(location);
             if (varbitId == -1)
             {
-                logger.warning("No varbit ID found for location: " + location.getName());
+                log.warn("No varbit ID found for location: {}", location.getName());
                 return PatchState.UNKNOWN;
             }
             
@@ -292,12 +304,12 @@ public class FarmingEventDetector
             PatchType patchType = VarbitMapper.getPatchTypeForLocation(location);
             PatchState currentState = VarbitMapper.mapVarbitValueToPatchState(varbitValue, patchType);
             
-            logger.fine("Patch state for " + location.getName() + ": " + currentState + " (varbit: " + varbitValue + ")");
+            log.debug("Patch state for {}: {} (varbit: {})", location.getName(), currentState, varbitValue);
             return currentState;
         }
         catch (Exception e)
         {
-            logger.warning("Exception while detecting patch state: " + e.getMessage());
+            log.warn("Exception while detecting patch state: {}", e.getMessage());
             return PatchState.UNKNOWN;
         }
     }
