@@ -1,288 +1,372 @@
 package com.easyfarming;
 
-import com.easyfarming.core.*;
-import com.easyfarming.runs.HerbRun;
-import com.easyfarming.overlays.*;
-import com.easyfarming.ui.FarmingPanel;
+import com.easyfarming.ItemsAndLocations.HerbRunItemAndLocation;
+import com.easyfarming.ItemsAndLocations.TreeRunItemAndLocation;
+import com.easyfarming.ItemsAndLocations.FruitTreeRunItemAndLocation;
+
 import com.google.inject.Provides;
+import java.awt.image.BufferedImage;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.*;
 import javax.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.Client;
-import net.runelite.api.GameState;
-import net.runelite.api.events.GameStateChanged;
+
+import net.runelite.api.*;
+import net.runelite.api.events.AnimationChanged;
+import net.runelite.api.events.ChatMessage;
 import net.runelite.client.config.ConfigManager;
-import net.runelite.client.eventbus.EventBus;
-import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.game.ItemManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.util.ImageUtil;
+import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.overlay.OverlayManager;
-import net.runelite.client.game.ItemManager;
+import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.callback.ClientThread;
+import net.runelite.api.events.MenuOptionClicked;
+import net.runelite.client.eventbus.EventBus;
 
-import java.awt.image.BufferedImage;
-
-@Slf4j
 @PluginDescriptor(
-	name = "Easy Farming",
-	description = "Helps with farm runs with icons and tab highlighting."
+		name = "Easy Farming",
+		description = "Show item requirements and highlights for farming runs."
 )
+
 public class EasyFarmingPlugin extends Plugin
 {
+	private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+	private HerbRunItemAndLocation herbRunItemAndLocation;
+	private TreeRunItemAndLocation treeRunItemAndLocation;
+	private FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation;
+
+
+	@Inject
+	private ItemManager itemManager;
 	@Inject
 	private Client client;
 
+	public void runOnClientThread(Runnable task) {
+		clientThread.invokeLater(task);
+	}
+
+	public Location getArdougneLocation() {
+		return herbRunItemAndLocation.ardougneLocation;
+	}
+	public Location getCatherbyLocation() {
+		return herbRunItemAndLocation.catherbyLocation;
+	}
+	public Location getFaladorLocation() {
+		return herbRunItemAndLocation.faladorLocation;
+	}
+	public Location getFarmingGuildLocation() {return herbRunItemAndLocation.farmingGuildLocation;}
+	public Location getHarmonyLocation() {
+		return herbRunItemAndLocation.harmonyLocation;
+	}
+	public Location getKourendLocation() {
+		return herbRunItemAndLocation.kourendLocation;
+	}
+	public Location getMorytaniaLocation() {
+		return herbRunItemAndLocation.morytaniaLocation;
+	}
+	public Location getTrollStrongholdLocation() {
+		return herbRunItemAndLocation.trollStrongholdLocation;
+	}
+
+	public Location getWeissLocation() {
+		return herbRunItemAndLocation.weissLocation;
+	}
+
+	//get Tree locations
+	public Location getFaladorTreeLocation() {return treeRunItemAndLocation.faladorTreeLocation;}
+	public Location getFarmingGuildTreeLocation() {
+		return treeRunItemAndLocation.farmingGuildTreeLocation;
+	}
+	public Location getGnomeStrongholdTreeLocation() {return treeRunItemAndLocation.gnomeStrongholdTreeLocation;}
+	public Location getLumbridgeTreeLocation() {return treeRunItemAndLocation.lumbridgeTreeLocation;}
+	public Location getTaverleyTreeLocation() {
+		return treeRunItemAndLocation.taverleyTreeLocation;
+	}
+	public Location getVarrockTreeLocation() {
+		return treeRunItemAndLocation.varrockTreeLocation;
+	}
+
+	//get fruit tree locations
+	public Location getBrimhavenFruitTreeLocation() {return fruitTreeRunItemAndLocation.brimhavenFruitTreeLocation;}
+	public Location getCatherbyFruitTreeLocation() {return fruitTreeRunItemAndLocation.catherbyFruitTreeLocation;}
+	public Location getFarmingGuildFruitTreeLocation() {return fruitTreeRunItemAndLocation.farmingGuildFruitTreeLocation;}
+	public Location getGnomeStrongholdFruitTreeLocation() {return fruitTreeRunItemAndLocation.gnomeStrongholdFruitTreeLocation;}
+	public Location getLletyaFruitTreeLocation() {return fruitTreeRunItemAndLocation.lletyaFruitTreeLocation;}
+	public Location getTreeGnomeVillageTreeLocation() {return fruitTreeRunItemAndLocation.treeGnomeVillageFruitTreeLocation;}
+
+	private boolean isTeleportOverlayActive = false;
+	public boolean isTeleportOverlayActive() {
+		return isTeleportOverlayActive;
+	}
+	public void setTeleportOverlayActive(boolean isTeleportOverlayActive) {
+		this.isTeleportOverlayActive = isTeleportOverlayActive;
+	}
 	@Inject
-	private EasyFarmingConfig config;
+	private EasyFarmingOverlayInfoBox farmingHelperOverlayInfoBox;
+	public EasyFarmingOverlayInfoBox getEasyFarmingOverlayInfoBox()
+	{
+		return farmingHelperOverlayInfoBox;
+	}
+
+	private String lastMessage = "";
+	@Subscribe
+	public void onChatMessage(ChatMessage event) {
+		if (event.getType() == ChatMessageType.GAMEMESSAGE) {
+			lastMessage = event.getMessage();
+			System.out.println("Last game message updated: " + lastMessage);
+		}
+		else if (event.getType() == ChatMessageType.SPAM) {
+			lastMessage = event.getMessage();
+			System.out.println("Last spam message updated: " + lastMessage);
+		}
+	}
+
+	public String getLastMessage() {
+		return lastMessage;
+	}
+	public boolean checkMessage(String targetMessage, String lastMessage) {
+		return lastMessage.trim().equalsIgnoreCase(targetMessage.trim());
+	}
+
+	@Inject
+	private EventBus eventBus;
+	/*
+	@Inject
+	private Client client;
+
+	 */
+	@Inject
+	private ClientThread clientThread;
+
+
+	@Inject
+	private FarmingTeleportOverlay farmingTeleportOverlay;
+	public FarmingTeleportOverlay getFarmingTeleportOverlay()
+	{
+		return farmingTeleportOverlay;
+	}
+	private int lastClickedGroupId;
+	private int lastClickedChildId;
+	private boolean clicked = false;
+
+	public boolean isClicked(int groupId, int childId) {
+		return clicked && groupId == lastClickedGroupId && childId == lastClickedChildId;
+	}
+
+	//"no usage" but currently needed for spellbook check
+	@Subscribe
+	public void onMenuOptionClicked(MenuOptionClicked event) {
+		clientThread.invokeLater(() -> {
+			int groupId = event.getWidgetId() >>> 16;
+			int childId = event.getWidgetId() & 0xFFFF;
+			clicked = true;
+			lastClickedGroupId = groupId;
+			lastClickedChildId = childId;
+			System.out.printf("Clicked widget: groupId=%d, childId=%d%n", groupId, childId);
+		});
+	}
+
+
+	private EasyFarmingPanel farmingHelperPanel;
+	public EasyFarmingPanel panel;
+	private NavigationButton navButton;
 
 	@Inject
 	private ClientToolbar clientToolbar;
 
 	@Inject
-	private OverlayManager overlayManager;
+	private EasyFarmingConfig config;
 	@Inject
-	private ItemManager itemManager;
-	@Inject
-	private ConfigManager configManager;
+	public OverlayManager overlayManager;
+
+	private boolean isOverlayActive = true;
 
 	@Inject
-	private EventBus eventBus;
+	private EasyFarmingOverlay farmingHelperOverlay;
 
-	private NavigationButton navButton;
-	private FarmingPanel farmingPanel;
-	
-	// Core farming system components
-	private LocationManager locationManager;
-	private RequirementManager requirementManager;
-	private FarmingRunState runState;
-	private FarmingEventHandler eventHandler;
-	private HerbRun herbRun;
-	
-	// Overlays
-	private FarmingOverlay farmingOverlay;
-	private InstructionOverlay instructionOverlay;
-	private ItemCountOverlay itemCountOverlay;
-	private HighlightOverlay highlightOverlay;
-	private InventoryHighlightOverlay inventoryHighlightOverlay;
-	private PatchHighlightOverlay patchHighlightOverlay;
+	public EasyFarmingOverlay getEasyFarmingOverlay()
+	{
+		return farmingHelperOverlay;
+	}
+
+	private boolean itemsCollected = false;
+	public boolean areItemsCollected() {
+		return itemsCollected;
+	}
+
+	public void setItemsCollected(boolean itemsCollected) {
+		this.itemsCollected = itemsCollected;
+	}
+	public Client getClient() {
+		return client;
+	}
+
+	private int lastAnimationId = -1;
+
+
+	@Subscribe
+	public void onAnimationChanged(AnimationChanged event)
+	{
+		if (client.getGameState() != GameState.LOGGED_IN
+				|| event.getActor() != client.getLocalPlayer())
+		{
+			return;
+		}
+
+		int currentAnimationId = event.getActor().getAnimation();
+		if (currentAnimationId != lastAnimationId)
+		{
+			System.out.println("Animation ID: " + currentAnimationId);
+			lastAnimationId = currentAnimationId;
+		}
+	}
+
+	//update item list
+	private Map<Integer, Integer> herbItemsCache;
+	public void updateHerbOverlay(Map<Integer, Integer> herbItems)
+	{
+		this.herbItemsCache = herbItems;
+	}
+	private Map<Integer, Integer> treeItemsCache;
+	public void updateTreeOverlay(Map<Integer, Integer> treeItems)
+	{
+		this.treeItemsCache = treeItems;
+	}
+
+	private Map<Integer, Integer> fruitTreeItemsCache;
+	public void updateFruitTreeOverlay(Map<Integer, Integer> fruitTreeItems)
+	{
+		this.fruitTreeItemsCache = fruitTreeItems;
+	}
 
 	@Provides
 	EasyFarmingConfig getConfig(ConfigManager configManager)
 	{
 		return configManager.getConfig(EasyFarmingConfig.class);
 	}
-	
-	@Provides
-	RequirementManager getRequirementManager(Client client)
+
+	public boolean isOverlayActive()
 	{
-		return new RequirementManager(client);
+		return isOverlayActive;
+	}
+
+	public void setOverlayActive(boolean overlayActive)
+	{
+		isOverlayActive = overlayActive;
+	}
+	public void addTextToInfoBox(String text) {
+		farmingHelperOverlayInfoBox.setText(text);
+	}
+	public boolean getHerbLocationEnabled(String locationName) {
+		switch (locationName) {
+			case "Ardougne":
+				return config.ardougneHerb();
+			case "Catherby":
+				return config.catherbyHerb();
+			case "Falador":
+				return config.faladorHerb();
+			case "Farming Guild":
+				return config.farmingGuildHerb();
+			case "Harmony Island":
+				return config.harmonyHerb();
+			case "Kourend":
+				return config.kourendHerb();
+			case "Morytania":
+				return config.morytaniaHerb();
+			case "Troll Stronghold":
+				return config.trollStrongholdHerb();
+			case "Weiss":
+				return config.weissHerb();
+			// Add cases for other locations as needed
+			default:
+				return false;
+		}
+	}
+
+	public boolean getTreeLocationEnabled(String locationName) {
+		switch (locationName) {
+			case "Falador":
+				return config.faladorTree();
+			case "Farming Guild":
+				return config.farmingGuildTree();
+			case "Gnome Stronghold":
+				return config.gnomeStrongholdTree();
+			case "Lumbridge":
+				return config.lumbridgeTree();
+			case "Taverley":
+				return config.taverleyTree();
+			case "Varrock":
+				return config.varrockTree();
+			// Add cases for other locations as needed
+			default:
+				return false;
+		}
+	}
+
+	public boolean getFruitTreeLocationEnabled(String locationName) {
+		switch (locationName) {
+			case "Brimhaven":
+				return config.brimhavenFruitTree();
+			case "Catherby":
+				return config.catherbyFruitTree();
+			case "Farming Guild":
+				return config.farmingGuildFruitTree();
+			case "Gnome Stronghold":
+				return config.gnomeStrongholdFruitTree();
+			case "Lletya":
+				return config.lletyaFruitTree();
+			case "Tree Gnome Village":
+				return config.treeGnomeVillageFruitTree();
+			// Add cases for other locations as needed
+			default:
+				return false;
+		}
 	}
 
 	@Override
 	protected void startUp()
 	{
-		log.info("Easy Farming started!");
-		
-		// Initialize core farming system components
-		locationManager = new LocationManager();
-		requirementManager = new RequirementManager(client);
-		runState = new FarmingRunState(client, requirementManager, locationManager);
-		eventHandler = new FarmingEventHandler(client, runState);
-		
-		// Register event handler with event bus
-		eventBus.register(eventHandler);
-		
-		// Initialize herb run
-		herbRun = new HerbRun(client, runState, locationManager);
-		herbRun.initialize();
-		
-		// Initialize overlays
-		farmingOverlay = new FarmingOverlay(client, config, runState, herbRun, requirementManager);
-		instructionOverlay = new InstructionOverlay(client, config, runState);
-		itemCountOverlay = new ItemCountOverlay(client, config, runState, herbRun, requirementManager, itemManager);
-		highlightOverlay = new HighlightOverlay(client, config, runState);
-		inventoryHighlightOverlay = new InventoryHighlightOverlay(client, config, runState, herbRun, requirementManager);
-		patchHighlightOverlay = new PatchHighlightOverlay(client, config, runState);
-		
-		// Register overlays based on config
-		// Note: FarmingOverlay (status) removed - no longer needed
-		if (config.showInstructions())
-		{
-			overlayManager.add(instructionOverlay);
-		}
-		if (config.showItemCounts())
-		{
-			overlayManager.add(itemCountOverlay);
-		}
-		if (config.highlightNextAction())
-		{
-			overlayManager.add(highlightOverlay);
-		}
-		if (config.highlightInventory())
-		{
-			overlayManager.add(inventoryHighlightOverlay);
-		}
-		if (config.highlightPatches())
-		{
-			overlayManager.add(patchHighlightOverlay);
-		}
-		
-		// Create and add side panel
-		farmingPanel = new FarmingPanel(this, config, runState, herbRun, configManager);
-		
-		// Create navigation button
-		final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "/icon.png");
+		herbRunItemAndLocation = new HerbRunItemAndLocation(config, client, this);
+		treeRunItemAndLocation = new TreeRunItemAndLocation(config, client, this);
+		fruitTreeRunItemAndLocation = new FruitTreeRunItemAndLocation(config, client, this);
+		farmingHelperOverlay = new EasyFarmingOverlay(client, this, itemManager, herbRunItemAndLocation, treeRunItemAndLocation, fruitTreeRunItemAndLocation);
+
+		panel = new EasyFarmingPanel(this, overlayManager, farmingTeleportOverlay, herbRunItemAndLocation, treeRunItemAndLocation, fruitTreeRunItemAndLocation);
+		final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "/com/farminghelper/speaax/icon.png");
+
 		navButton = NavigationButton.builder()
-			.tooltip("Easy Farming")
-			.icon(icon)
-			.priority(5)
-			.panel(farmingPanel)
-			.build();
-		
+				.tooltip("Lazy Farming")
+				.icon(icon)
+				.priority(6)
+				.panel(panel)
+				.build();
 		clientToolbar.addNavigation(navButton);
+
+		overlayManager.add(farmingHelperOverlay);
+		overlayManager.add(farmingTeleportOverlay);
+		overlayManager.add(farmingHelperOverlayInfoBox);
+
+		// set overlay to inactive
+		isOverlayActive = false;
+		eventBus.register(this);
+
+		herbRunItemAndLocation.setupLocations();
 	}
 
 	@Override
 	protected void shutDown()
 	{
-		log.info("Easy Farming stopped!");
-		
-		try
-		{
-			// Unregister event handler from event bus
-			if (eventHandler != null)
-			{
-				eventBus.unregister(eventHandler);
-				log.debug("Unregistered FarmingEventHandler from event bus");
-			}
-		}
-		catch (Exception e)
-		{
-			log.warn("Failed to unregister event handler: {}", e.getMessage());
-		}
-		
-		try
-		{
-			// Stop farming run state
-			if (runState != null)
-			{
-				runState.stopRun();
-				log.debug("Stopped farming run state");
-			}
-		}
-		catch (Exception e)
-		{
-			log.warn("Failed to stop farming run state: {}", e.getMessage());
-		}
-		
-		try
-		{
-			// Remove navigation button if it exists
-			if (navButton != null)
-			{
-				clientToolbar.removeNavigation(navButton);
-				log.debug("Removed navigation button");
-			}
-		}
-		catch (Exception e)
-		{
-			log.warn("Failed to remove navigation button: {}", e.getMessage());
-		}
-		
-		try
-		{
-			// Remove overlays
-			if (farmingOverlay != null)
-			{
-				overlayManager.remove(farmingOverlay);
-				log.debug("Removed farming overlay");
-			}
-			if (instructionOverlay != null)
-			{
-				overlayManager.remove(instructionOverlay);
-				log.debug("Removed instruction overlay");
-			}
-			if (itemCountOverlay != null)
-			{
-				overlayManager.remove(itemCountOverlay);
-				log.debug("Removed item count overlay");
-			}
-			if (highlightOverlay != null)
-			{
-				overlayManager.remove(highlightOverlay);
-				log.debug("Removed highlight overlay");
-			}
-			if (inventoryHighlightOverlay != null)
-			{
-				overlayManager.remove(inventoryHighlightOverlay);
-				log.debug("Removed inventory highlight overlay");
-			}
-			if (patchHighlightOverlay != null)
-			{
-				overlayManager.remove(patchHighlightOverlay);
-				log.debug("Removed patch highlight overlay");
-			}
-		}
-		catch (Exception e)
-		{
-			log.warn("Failed to remove overlays: {}", e.getMessage());
-		}
-		
-		// Null out references to help garbage collection
-		runState = null;
-		eventHandler = null;
-		locationManager = null;
-		requirementManager = null;
-		herbRun = null;
-		navButton = null;
-		farmingPanel = null;
-		farmingOverlay = null;
-		instructionOverlay = null;
-		itemCountOverlay = null;
-		highlightOverlay = null;
-		inventoryHighlightOverlay = null;
-		patchHighlightOverlay = null;
-		
-		log.debug("Cleaned up all component references");
-	}
+		clientToolbar.removeNavigation(navButton);
 
-	@Subscribe
-	public void onGameStateChanged(GameStateChanged gameStateChanged)
-	{
-		if (gameStateChanged.getGameState() == GameState.LOGGED_IN)
-		{
-			log.info("Player logged in");
-			
-			// Start farming runs based on config
-			startFarmingRuns();
-		}
-	}
-	
-	/**
-	 * Start farming runs based on configuration
-	 */
-	private void startFarmingRuns()
-	{
-		if (runState == null)
-		{
-			return;
-		}
-		
-		// Start runs based on config settings
-		runState.startRun(
-			config.enableHerbRuns(),
-			config.enableTreeRuns(),
-			config.enableFruitTreeRuns(),
-			config.enableAllotmentRuns()
-		);
-		
-		log.info("Farming runs started - Herb: {}, Tree: {}, Fruit Tree: {}, Allotment: {}", 
-			config.enableHerbRuns(), config.enableTreeRuns(), 
-			config.enableFruitTreeRuns(), config.enableAllotmentRuns());
-	}
+		overlayManager.remove(farmingHelperOverlay);
+		overlayManager.remove(farmingTeleportOverlay);
+		overlayManager.remove(farmingHelperOverlayInfoBox);
 
-	// Getters for other components
-	public Client getClient() { return client; }
-	public EasyFarmingConfig getConfig() { return config; }
+		eventBus.unregister(this);
+	}
 }

@@ -1,494 +1,668 @@
 package com.easyfarming;
 
+import java.awt.*;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 import net.runelite.client.config.ConfigSection;
 
-@ConfigGroup("easyfarming")
+@ConfigGroup("farminghelper")
 public interface EasyFarmingConfig extends Config
 {
-	// ============================================================================
-	// RUN TYPES SECTION
-	// ============================================================================
 	@ConfigSection(
-		name = "Run Types",
-		description = "Select which types of farming runs to enable",
+			name = "General",
+			description = "The highlighted and hidden item lists",
+			position = 0
+	)
+	String generalList = "generalList";
+
+	enum OptionEnumHouseTele
+	{
+		Law_air_earth_runes,
+		Teleport_To_House,
+		Construction_cape,
+		Construction_cape_t,
+		Max_cape
+	}
+	public interface OptionEnumTeleport {
+		String name();
+	}
+	@ConfigItem(
+			position = 10,
+			keyName = "enumConfigHouseTele",
+			name = "House teleport",
+			description = "Desired way to teleport to house",
+			section = generalList
+	)
+	default OptionEnumHouseTele enumConfigHouseTele() { return OptionEnumHouseTele.Law_air_earth_runes; }
+	@ConfigItem(
+			position = 1,
+			keyName = "highlightLeftClickColor",
+			name = "Left Click Color",
+			description = "The color to use for highlighting objects",
+			section = generalList
+	)
+	default Color highlightLeftClickColor() {return new Color(0, 191, 255, 128);}
+	@ConfigItem(
+			position = 2,
+			keyName = "highlightRightClickColor",
+			name = "Right Click Color",
+			description = "The color to use for highlighting objects",
+			section = generalList
+	)
+	default Color highlightRightClickColor() {return new Color(0, 191, 30, 128);}
+	@ConfigItem(
+			position = 3,
+			keyName = "highlightUseItemColor",
+			name = "'Use' item Color",
+			description = "The color to use for highlighting objects",
+			section = generalList
+	)
+	default Color highlightUseItemColor() {return new Color(255, 192, 203, 128);}
+	@ConfigItem(
+			position = 4,
+			keyName = "highlightAlpha",
+			name = "Transparency",
+			description = "The transparency value for the highlight color (0-255)",
+			section = generalList
+	)
+	default int highlightAlpha() {return 128;}
+
+	enum OptionEnumCompost
+	{
+		Compost,
+		Supercompost,
+		Ultracompost,
+		Bottomless
+	}
+	@ConfigItem(
+			position = 5,
+			keyName = "enumConfigCompost",
+			name = "Compost",
+			description = "Desired Compost",
+			section = generalList
+	)
+	default OptionEnumCompost enumConfigCompost() { return OptionEnumCompost.Bottomless; }
+
+
+	@ConfigItem(
+			keyName = "booleanConfigRake",
+			name = "Rake",
+			description = "Include rake?",
+			position = 6,
+			section = generalList
+	)
+	default boolean generalRake() { return false; }
+	@ConfigItem(
+		keyName = "booleanConfigSeedDibber",
+		name = "Seed dibber",
+		description = "Include seed dibber?",
+		position = 7,
+		section = generalList
+	)
+	default boolean generalSeedDibber() { return true; }
+	@ConfigItem(
+			keyName = "booleanConfigLimpwurt",
+			name = "Limpwurt",
+			description = "Want to include limpwurts in your farm run?",
+			position = 8,
+			section = generalList
+	)
+	default boolean generalLimpwurt() { return false; }
+	@ConfigItem(
+			keyName = "booleanConfigAllotment",
+			name = "Allotment (No code written yet)",
+			description = "Want to include Allotment in your farm run?",
+			position = 9,
+			section = generalList
+	)
+	default boolean generalAllotment() { return false; }
+
+	@ConfigItem(
+		keyName = "booleanConfigPayForProtection",
+		name = "Pay for protection",
+		description = "Want a reminder to pay for protection? (This currently doesn't check for the required items, only prompts you to pay the farmer.)",
+		position = 10,
+		section = generalList
+	)
+	default boolean generalPayForProtection() { return false; }
+
+
+	@ConfigSection(
+		name = "Herbs",
+		description = "The highlighted and hidden item lists",
 		position = 1
 	)
-	String runTypesSection = "runTypes";
+	String herbList = "herbList";
 
 	@ConfigItem(
-		keyName = "enableHerbRuns",
-		name = "Herb Runs",
-		description = "Enable herb farming runs",
-		section = runTypesSection
-	)
-	default boolean enableHerbRuns() { return true; }
-
-	@ConfigItem(
-		keyName = "enableTreeRuns",
-		name = "Tree Runs",
-		description = "Enable tree farming runs",
-		section = runTypesSection
-	)
-	default boolean enableTreeRuns() { return false; }
-
-	@ConfigItem(
-		keyName = "enableFruitTreeRuns",
-		name = "Fruit Tree Runs",
-		description = "Enable fruit tree farming runs",
-		section = runTypesSection
-	)
-	default boolean enableFruitTreeRuns() { return false; }
-
-	@ConfigItem(
-		keyName = "enableAllotmentRuns",
-		name = "Allotment Runs",
-		description = "Enable allotment farming runs",
-		section = runTypesSection
-	)
-	default boolean enableAllotmentRuns() { return false; }
-
-	// ============================================================================
-	// HERB PATCHES SECTION
-	// ============================================================================
-	@ConfigSection(
-		name = "Herb Patches",
-		description = "Select which herb patches to include in your farming runs",
-		position = 2
-	)
-	String herbPatchesSection = "herbPatches";
-
-	@ConfigItem(
-		keyName = "ardougneHerb",
+		keyName = "booleanConfigArdougneHerb",
 		name = "Ardougne",
-		description = "Include Ardougne herb patch",
-		section = herbPatchesSection
+		description = "Include Ardougne?",
+		position = 1,
+		section = herbList
 	)
 	default boolean ardougneHerb() { return true; }
-
+	
 	@ConfigItem(
-		keyName = "catherbyHerb",
+		position = 2,
+		keyName = "booleanConfigCatherbyHerb",
 		name = "Catherby",
-		description = "Include Catherby herb patch",
-		section = herbPatchesSection
+		description = "Include Catherby?",
+		section = herbList
 	)
 	default boolean catherbyHerb() { return true; }
-
+	
 	@ConfigItem(
-		keyName = "faladorHerb",
+		position = 3,
+		keyName = "booleanConfigFaladorHerb",
 		name = "Falador",
-		description = "Include Falador herb patch",
-		section = herbPatchesSection
+		description = "Include Falador?",
+		section = herbList
 	)
 	default boolean faladorHerb() { return true; }
-
+	
 	@ConfigItem(
-		keyName = "morytaniaHerb",
-		name = "Morytania",
-		description = "Include Morytania herb patch",
-		section = herbPatchesSection
+		position = 4,
+		keyName = "booleanConfigFarmingGuildHerb",
+		name = "Farming Guild",
+		description = "Include Farming guild? (Requires level 65 farming and 60% Hosidious favour)",
+		section = herbList
 	)
-	default boolean morytaniaHerb() { return true; }
-
+	default boolean farmingGuildHerb() { return false; }
+	
 	@ConfigItem(
-		keyName = "trollStrongholdHerb",
-		name = "Troll Stronghold",
-		description = "Include Troll Stronghold herb patch",
-		section = herbPatchesSection
+		position = 5,
+		keyName = "booleanConfigHarmonyHerb",
+		name = "Harmony",
+		description = "Include Harmony? (Requires elite Morytania diary)",
+		section = herbList
 	)
-	default boolean trollStrongholdHerb() { return true; }
-
+	default boolean harmonyHerb() { return false; }
+	
 	@ConfigItem(
-		keyName = "kourendHerb",
+		position = 6,
+		keyName = "booleanConfigKourendHerb",
 		name = "Kourend",
-		description = "Include Kourend herb patch",
-		section = herbPatchesSection
+		description = "Include Kourend?",
+		section = herbList
 	)
 	default boolean kourendHerb() { return true; }
-
+	
 	@ConfigItem(
-		keyName = "farmingGuildHerb",
-		name = "Farming Guild",
-		description = "Include Farming Guild herb patch",
-		section = herbPatchesSection
+		position = 7,
+		keyName = "booleanConfigMorytaniaHerb",
+		name = "Morytania",
+		description = "Include Morytania?",
+		section = herbList
 	)
-	default boolean farmingGuildHerb() { return true; }
-
+	default boolean morytaniaHerb() { return true; }
+	
 	@ConfigItem(
-		keyName = "harmonyHerb",
-		name = "Harmony Island",
-		description = "Include Harmony Island herb patch",
-		section = herbPatchesSection
+		position = 8,
+		keyName = "booleanConfigTrollStrongholdHerb",
+		name = "Troll Stronghold",
+		description = "Include Troll Stronghold(Requires completion of My Arm's Big Adventure)?",
+		section = herbList
 	)
-	default boolean harmonyHerb() { return true; }
-
+	default boolean trollStrongholdHerb() { return false; }
+	
 	@ConfigItem(
-		keyName = "weissHerb",
+		position = 9,
+		keyName = "booleanConfigWeissHerb",
 		name = "Weiss",
-		description = "Include Weiss herb patch",
-		section = herbPatchesSection
+		description = "Include Weiss? (Requires completion of Making Friends with My Arm, and The Fire of Nourishment must be built)",
+		section = herbList
 	)
-	default boolean weissHerb() { return true; }
+	default boolean weissHerb() { return false; }
 
-	// ============================================================================
-	// TELEPORT OPTIONS SECTION
-	// ============================================================================
 	@ConfigSection(
-		name = "Teleport Options",
-		description = "Select your preferred teleport method for each location",
+		name = "Tree",
+		description = "The highlighted and hidden item lists",
+		position = 2
+	)
+	String treeList = "treeList";
+	
+	@ConfigItem(
+		position = 10,
+		keyName = "booleanConfigFaladorTree",
+		name = "Falador",
+		description = "Include Falador?",
+		section = treeList
+	)
+	default boolean faladorTree() { return true; }
+	
+	@ConfigItem(
+		position = 11,
+		keyName = "booleanConfigFarmingGuildTree",
+		name = "Farming guild",
+		description = "Include Farming Guild? (Requires 65 farming)",
+		section = treeList
+	)
+	default boolean farmingGuildTree() { return false; }
+	
+	@ConfigItem(
+		position = 12,
+		keyName = "booleanConfigGnomeStrongholdTree",
+		name = "Gnome Stronghold",
+		description = "Include Gnome Stronghold?",
+		section = treeList
+	)
+	default boolean gnomeStrongholdTree() { return true; }
+	
+	@ConfigItem(
+		position = 13,
+		keyName = "booleanConfigLumbridgeTree",
+		name = "Lumbridge",
+		description = "Include Lumbridge?",
+		section = treeList
+	)
+	default boolean lumbridgeTree() { return true; }
+	
+	@ConfigItem(
+		position = 14,
+		keyName = "booleanConfigTaverleyTree",
+		name = "Taverley",
+		description = "Include Taverley?",
+		section = treeList
+	)
+	default boolean taverleyTree() { return true; }
+	
+	@ConfigItem(
+		position = 15,
+		keyName = "booleanConfigVarrockTree",
+		name = "Varrock",
+		description = "Include Varrock?",
+		section = treeList
+	)
+	default boolean varrockTree() { return true; }
+	
+	
+	
+	
+	
+	
+	@ConfigSection(
+		name = "Fruit Tree",
+		description = "The highlighted and hidden item lists",
 		position = 3
 	)
-	String teleportSection = "teleports";
-
+	String fruitTreeList = "fruitTreeList";
+	
 	@ConfigItem(
-		keyName = "ardougneTeleport",
-		name = "Ardougne Teleport",
-		description = "Choose teleport method for Ardougne",
-		section = teleportSection
+		position = 16,
+		keyName = "booleanConfigBrimhavenFruitTree",
+		name = "Brimhaven",
+		description = "Include Brimhaven?",
+		section = fruitTreeList
 	)
-	default ArdougneTeleportOption ardougneTeleport() { return ArdougneTeleportOption.ARDOUGNE_CLOAK; }
-
+	default boolean brimhavenFruitTree() { return true; }
+	
 	@ConfigItem(
-		keyName = "catherbyTeleport",
-		name = "Catherby Teleport",
-		description = "Choose teleport method for Catherby",
-		section = teleportSection
+		position = 17,
+		keyName = "booleanConfigCatherbyFruitTree",
+		name = "Catherby",
+		description = "Include Catherby?",
+		section = fruitTreeList
 	)
-	default CatherbyTeleportOption catherbyTeleport() { return CatherbyTeleportOption.CATHERBY_TELE_TAB; }
-
+	default boolean catherbyFruitTree() { return true; }
+	
 	@ConfigItem(
-		keyName = "faladorTeleport",
-		name = "Falador Teleport",
-		description = "Choose teleport method for Falador",
-		section = teleportSection
+		position = 18,
+		keyName = "booleanConfigFarmingGuildFruitTree",
+		name = "Farming Guild",
+		description = "Include Farming Guild? (Requires 85 farming)",
+		section = fruitTreeList
 	)
-	default FaladorTeleportOption faladorTeleport() { return FaladorTeleportOption.EXPLORERS_RING; }
-
+	default boolean farmingGuildFruitTree() { return false; }
+	
 	@ConfigItem(
-		keyName = "morytaniaTeleport",
-		name = "Morytania Teleport",
-		description = "Choose teleport method for Morytania",
-		section = teleportSection
+		position = 19,
+		keyName = "booleanConfigGnomeStrongholdFruitTree",
+		name = "Gnome Stronghold",
+		description = "Include Gnome Stronghold?",
+		section = fruitTreeList
 	)
-	default MorytaniaTeleportOption morytaniaTeleport() { return MorytaniaTeleportOption.ECTOPHIAL; }
-
+	default boolean gnomeStrongholdFruitTree() { return true; }
+	
 	@ConfigItem(
-		keyName = "trollStrongholdTeleport",
-		name = "Troll Stronghold Teleport",
-		description = "Choose teleport method for Troll Stronghold",
-		section = teleportSection
+		position = 20,
+		keyName = "booleanConfigLletyaFruitTree",
+		name = "Lletya",
+		description = "Include Lletya? (Requires starting Mourning's End Part I)",
+		section = fruitTreeList
 	)
-	default TrollStrongholdTeleportOption trollStrongholdTeleport() { return TrollStrongholdTeleportOption.TROLLHEIM_TELEPORT; }
-
+	default boolean lletyaFruitTree() { return false; }
+	
 	@ConfigItem(
-		keyName = "kourendTeleport",
-		name = "Kourend Teleport",
-		description = "Choose teleport method for Kourend",
-		section = teleportSection
+		position = 21,
+		keyName = "booleanConfigTreeGnomeVillageFruitTree",
+		name = "Tree Gnome Village",
+		description = "Include Tree Gnome Village?",
+		section = fruitTreeList
 	)
-	default KourendTeleportOption kourendTeleport() { return KourendTeleportOption.XERICS_TALISMAN; }
+	default boolean treeGnomeVillageFruitTree() { return true; }
 
-	@ConfigItem(
-		keyName = "farmingGuildTeleport",
-		name = "Farming Guild Teleport",
-		description = "Choose teleport method for Farming Guild",
-		section = teleportSection
-	)
-	default FarmingGuildTeleportOption farmingGuildTeleport() { return FarmingGuildTeleportOption.JEWL_NECKLACE_OF_SKILLS; }
 
-	@ConfigItem(
-		keyName = "harmonyTeleport",
-		name = "Harmony Island Teleport",
-		description = "Choose teleport method for Harmony Island",
-		section = teleportSection
-	)
-	default HarmonyTeleportOption harmonyTeleport() { return HarmonyTeleportOption.HARMONY_TELE_TAB; }
-
-	@ConfigItem(
-		keyName = "weissTeleport",
-		name = "Weiss Teleport",
-		description = "Choose teleport method for Weiss",
-		section = teleportSection
-	)
-	default WeissTeleportOption weissTeleport() { return WeissTeleportOption.WEISS_TELEPORT_BASALT; }
-
-	// ============================================================================
-	// SUPPLIES SECTION
-	// ============================================================================
 	@ConfigSection(
-		name = "Supplies",
-		description = "Configure what farming supplies to include in your runs",
-		position = 4
+			name = "Herb teleport options",
+			description = "Choose what teleport to use for each Herb patch",
+			position = 4
 	)
-	String suppliesSection = "supplies";
+	String teleportOptionList = "teleportOptionList";
 
+	enum OptionEnumArdougneTeleport implements OptionEnumTeleport
+	{
+		Portal_Nexus,
+		Ardougne_teleport,
+		Ardougne_tele_tab,
+		Ardy_cloak_2,
+		Ardy_cloak_3,
+		Ardy_cloak_4,
+		Skills_Necklace
+	}
 	@ConfigItem(
-		keyName = "useCompost",
-		name = "Supercompost",
-		description = "Include supercompost in farming run supplies (1 per patch)",
-		section = suppliesSection
+			position = 2,
+			keyName = "enumOptionEnumArdougneTeleport",
+			name = "Ardougne",
+			description = "Desired way to teleport to Ardougne",
+			section = teleportOptionList
 	)
-	default boolean useCompost() { return true; }
-
+	default OptionEnumArdougneTeleport enumOptionEnumArdougneTeleport() { return OptionEnumArdougneTeleport.Ardy_cloak_3; }
+	enum OptionEnumCatherbyTeleport implements OptionEnumTeleport
+	{
+		Portal_Nexus_Catherby,
+		Portal_Nexus_Camelot,
+		Camelot_Teleport,
+		Camelot_Tele_Tab,
+		Catherby_Tele_Tab
+	}
 	@ConfigItem(
-		keyName = "useWateringCan",
-		name = "Watering Can",
-		description = "Include watering can in farming run supplies (for disease prevention)",
-		section = suppliesSection
+			position = 3,
+			keyName = "enumOptionEnumCatherbyTeleport",
+			name = "Catherby",
+			description = "Desired way to teleport to Catherby",
+			section = teleportOptionList
 	)
-	default boolean useWateringCan() { return true; }
+	default OptionEnumCatherbyTeleport enumOptionEnumCatherbyTeleport() { return OptionEnumCatherbyTeleport.Portal_Nexus_Catherby; }
 
+	enum OptionEnumFaladorTeleport implements OptionEnumTeleport
+	{
+		Portal_Nexus,
+		Explorers_ring_2,
+		Explorers_ring_3,
+		Explorers_ring_4,
+		Falador_Teleport,
+		Falador_Tele_Tab,
+		Draynor_Tele_Tab
+	}
 	@ConfigItem(
-		keyName = "useSecateurs",
-		name = "Secateurs",
-		description = "Include secateurs in farming run supplies (for disease prevention)",
-		section = suppliesSection
+			position = 4,
+			keyName = "enumOptionEnumFaladorTeleport",
+			name = "Falador",
+			description = "Desired way to teleport to Falador",
+			section = teleportOptionList
 	)
-	default boolean useSecateurs() { return true; }
+	default OptionEnumFaladorTeleport enumOptionEnumFaladorTeleport() { return OptionEnumFaladorTeleport.Explorers_ring_2; }
 
-	// ============================================================================
-	// DISPLAY OPTIONS SECTION
-	// ============================================================================
+	enum OptionEnumFarmingGuildTeleport implements OptionEnumTeleport
+	{
+		Jewellery_box,
+		Skills_Necklace
+	}
+	@ConfigItem(
+			position = 5,
+			keyName = "enumOptionEnumFarmingGuildTeleport",
+			name = "Farming Guild",
+			description = "Desired way to teleport to Farming Guild",
+			section = teleportOptionList
+	)
+	default OptionEnumFarmingGuildTeleport enumOptionEnumFarmingGuildTeleport() { return OptionEnumFarmingGuildTeleport.Jewellery_box; }
+
+	enum OptionEnumHarmonyTeleport implements OptionEnumTeleport
+	{
+		Portal_Nexus,
+		Harmony_Tele_tab
+	}
+	@ConfigItem(
+			position = 6,
+			keyName = "enumOptionEnumHarmonyTeleport",
+			name = "Harmony",
+			description = "Desired way to teleport to Harmony",
+			section = teleportOptionList
+	)
+	default OptionEnumHarmonyTeleport enumOptionEnumHarmonyTeleport() { return OptionEnumHarmonyTeleport.Portal_Nexus; }
+
+	enum OptionEnumKourendTeleport implements OptionEnumTeleport
+	{
+		Xerics_Talisman,
+		Mounted_Xerics
+	}
+	@ConfigItem(
+			position = 7,
+			keyName = "enumOptionEnumKourendTeleport",
+			name = "Kourend",
+			description = "Desired way to teleport to Kourend",
+			section = teleportOptionList
+	)
+	default OptionEnumKourendTeleport enumOptionEnumKourendTeleport() { return OptionEnumKourendTeleport.Xerics_Talisman; }
+
+	enum OptionEnumMorytaniaTeleport implements OptionEnumTeleport
+	{
+		Ectophial
+	}
+	@ConfigItem(
+			position = 8,
+			keyName = "enumOptionEnumMorytaniaTeleport",
+			name = "Morytania",
+			description = "Desired way to teleport to Morytania",
+			section = teleportOptionList
+	)
+	default OptionEnumMorytaniaTeleport enumOptionEnumMorytaniaTeleport() { return OptionEnumMorytaniaTeleport.Ectophial; }
+
+	enum OptionEnumTrollStrongholdTeleport implements OptionEnumTeleport
+	{
+		Portal_Nexus,
+		Stony_Basalt
+	}
+	@ConfigItem(
+			position = 9,
+			keyName = "enumOptionEnumTrollStrongholdTeleport",
+			name = "Troll Stronghold",
+			description = "Desired way to teleport to Troll Stronghold",
+			section = teleportOptionList
+	)
+	default OptionEnumTrollStrongholdTeleport enumOptionEnumTrollStrongholdTeleport() { return OptionEnumTrollStrongholdTeleport.Portal_Nexus; }
+
+	enum OptionEnumWeissTeleport implements OptionEnumTeleport
+	{
+		Portal_Nexus,
+		Icy_basalt
+	}
+	@ConfigItem(
+			position = 10,
+			keyName = "enumOptionEnumWeissTeleport",
+			name = "Weiss",
+			description = "Desired way to teleport to Weiss",
+			section = teleportOptionList
+	)
+	default OptionEnumWeissTeleport enumOptionEnumWeissTeleport() { return OptionEnumWeissTeleport.Portal_Nexus; }
+
 	@ConfigSection(
-		name = "Display Options",
-		description = "Configure how the plugin displays information",
-		position = 5
+			name = "Tree teleport options",
+			description = "Choose what teleport to use for each Herb patch",
+			position = 5
 	)
-	String displaySection = "display";
-
+	String treeTeleportOptionList = "treeTeleportOptionList";
+	enum TreeOptionEnumFaladorTeleport implements OptionEnumTeleport
+	{
+		Portal_Nexus,
+		Falador_teleport
+	}
 	@ConfigItem(
-		keyName = "showInstructions",
-		name = "Show Instructions",
-		description = "Display written instructions for each step",
-		section = displaySection
+			position = 1,
+			keyName = "enumTreeFaladorTeleport",
+			name = "Falador",
+			description = "Desired way to teleport to Falador",
+			section = treeTeleportOptionList
 	)
-	default boolean showInstructions() { return true; }
+	default TreeOptionEnumFaladorTeleport enumTreeFaladorTeleport() { return TreeOptionEnumFaladorTeleport.Falador_teleport; }
 
+	enum TreeOptionEnumFarmingGuildTeleport implements OptionEnumTeleport
+	{
+		Jewellery_box
+	}
 	@ConfigItem(
-		keyName = "showItemCounts",
-		name = "Show Item Counts",
-		description = "Display remaining item counts in info boxes",
-		section = displaySection
+			position = 1,
+			keyName = "enumTreeFarmingGuildTeleport",
+			name = "Farming Guild",
+			description = "Desired way to teleport to Farming Guild",
+			section = treeTeleportOptionList
 	)
-	default boolean showItemCounts() { return true; }
+	default TreeOptionEnumFarmingGuildTeleport enumTreeFarmingGuildTeleport() { return TreeOptionEnumFarmingGuildTeleport.Jewellery_box; }
 
+	enum TreeOptionEnumGnomeStrongholdTeleport implements OptionEnumTeleport
+	{
+		Royal_seed_pod,
+		Spirit_Tree
+	}
 	@ConfigItem(
-		keyName = "highlightNextAction",
-		name = "Highlight Next Action",
-		description = "Highlight the next action the player needs to take",
-		section = displaySection
+			position = 2,
+			keyName = "enumTreeGnomeStrongoldTeleport",
+			name = "Gnome Stronghold",
+			description = "Desired way to teleport to Gnome Stronghold",
+			section = treeTeleportOptionList
 	)
-	default boolean highlightNextAction() { return true; }
+	default TreeOptionEnumGnomeStrongholdTeleport enumTreeGnomeStrongoldTeleport() { return TreeOptionEnumGnomeStrongholdTeleport.Royal_seed_pod; }
 
+	enum TreeOptionEnumLumbridgeTeleport implements OptionEnumTeleport
+	{
+		Portal_Nexus,
+		Lumbridge_teleport
+	}
 	@ConfigItem(
-		keyName = "showFarmingOverlay",
-		name = "Show Status Overlay",
-		description = "Display the compact status overlay",
-		section = displaySection
+			position = 3,
+			keyName = "enumTreeLumbridgeTeleport",
+			name = "Lumbridge",
+			description = "Desired way to teleport to Lumbridge",
+			section = treeTeleportOptionList
 	)
-	default boolean showFarmingOverlay() { return true; }
+	default TreeOptionEnumLumbridgeTeleport enumTreeLumbridgeTeleport() { return TreeOptionEnumLumbridgeTeleport.Lumbridge_teleport; }
 
+	enum TreeOptionEnumTaverleyTeleport implements OptionEnumTeleport
+	{
+		Portal_Nexus,
+		Falador_teleport
+	}
 	@ConfigItem(
-		keyName = "highlightInventory",
-		name = "Highlight Inventory",
-		description = "Highlight required items in inventory",
-		section = displaySection
+			position = 4,
+			keyName = "enumTreeTaverleyTeleport",
+			name = "Taverley",
+			description = "Desired way to teleport to Taverley",
+			section = treeTeleportOptionList
 	)
-	default boolean highlightInventory() { return false; }
+	default TreeOptionEnumTaverleyTeleport enumTreeTaverleyTeleport() { return TreeOptionEnumTaverleyTeleport.Falador_teleport; }
 
+	enum TreeOptionEnumVarrockTeleport implements OptionEnumTeleport
+	{
+		Portal_Nexus,
+		Varrock_teleport
+	}
 	@ConfigItem(
-		keyName = "highlightPatches",
-		name = "Highlight Patches",
-		description = "Highlight farming patches when nearby",
-		section = displaySection
+			position = 5,
+			keyName = "enumTreeVarrockTeleport",
+			name = "Varrock",
+			description = "Desired way to teleport to Varrock",
+			section = treeTeleportOptionList
 	)
-	default boolean highlightPatches() { return true; }
+	default TreeOptionEnumVarrockTeleport enumTreeVarrockTeleport() { return TreeOptionEnumVarrockTeleport.Varrock_teleport; }
 
-	// ============================================================================
-	// TELEPORT OPTION ENUMS
-	// ============================================================================
+	@ConfigSection(
+			name = "Fruit tree teleport options",
+			description = "Choose what teleport to use for each fruit tree",
+			position = 6
+	)
+	String fruitTreeTeleportOptionList = "fruitTreeTeleportOptionList";
 
-	enum ArdougneTeleportOption
+	enum FruitTreeOptionEnumBrimhavenTeleport implements OptionEnumTeleport
 	{
-		ARDOUGNE_CLOAK("Ardougne Cloak (Farm teleport)"),
-		ARDOUGNE_TELEPORT("Ardougne Teleport Spell"),
-		ARDOUGNE_TELE_TAB("Ardougne Teleport Tab"),
-		JEWL_NECKLACE_OF_SKILLS_1("Skills Necklace (Fishing Guild)"),
-		COMBAT_BRACELET_RANGING("Combat Bracelet (Ranging Guild)"),
-		QUEST_POINT_CAPE("Quest Point Cape"),
-		FAIRY_RING_BLR("Fairy Ring BLR");
-
-		private final String displayName;
-
-		ArdougneTeleportOption(String displayName)
-		{
-			this.displayName = displayName;
-		}
-
-		@Override
-		public String toString()
-		{
-			return displayName;
-		}
+		Portal_Nexus,
+		Ardougne_teleport
 	}
+	@ConfigItem(
+			position = 1,
+			keyName = "enumFruitTreeBrimhavenTeleport",
+			name = "Brimhaven",
+			description = "Desired way to teleport to Brimhaven",
+			section = fruitTreeTeleportOptionList
+	)
+	default FruitTreeOptionEnumBrimhavenTeleport enumFruitTreeBrimhavenTeleport() { return FruitTreeOptionEnumBrimhavenTeleport.Ardougne_teleport; }
 
-	enum CatherbyTeleportOption
+	enum FruitTreeOptionEnumCatherbyTeleport implements OptionEnumTeleport
 	{
-		CATHERBY_TELE_TAB("Catherby Teleport Tab"),
-		CAMELOT_TELEPORT("Camelot Teleport Spell"),
-		CAMELOT_TELE_TAB("Camelot Teleport Tab");
-
-		private final String displayName;
-
-		CatherbyTeleportOption(String displayName)
-		{
-			this.displayName = displayName;
-		}
-
-		@Override
-		public String toString()
-		{
-			return displayName;
-		}
+		Portal_Nexus_Catherby,
+		Portal_Nexus_Camelot
 	}
+	@ConfigItem(
+			position = 1,
+			keyName = "enumFruitTreeCatherbyTeleport",
+			name = "Catherby",
+			description = "Desired way to teleport to Catherby",
+			section = fruitTreeTeleportOptionList
+	)
+	default FruitTreeOptionEnumCatherbyTeleport enumFruitTreeCatherbyTeleport() { return FruitTreeOptionEnumCatherbyTeleport.Portal_Nexus_Catherby; }
 
-	enum FaladorTeleportOption
+	enum FruitTreeOptionEnumFarmingGuildTeleport implements OptionEnumTeleport
 	{
-		EXPLORERS_RING("Explorer's Ring (Farm teleport)"),
-		FALADOR_TELEPORT("Falador Teleport Spell"),
-		FALADOR_TELE_TAB("Falador Teleport Tab"),
-		RING_OF_ELEMENTS_AIR("Ring of Elements (Air Altar)"),
-		SPIRIT_TREE_PORT_SARIM("Spirit Tree (Port Sarim)"),
-		DRAYNOR_MANOR_TELEPORT("Draynor Manor Teleport"),
-		AMULET_OF_GLORY_DRAYNOR("Amulet of Glory (Draynor)"),
-		JEWL_NECKLACE_OF_SKILLS_1_MINING("Skills Necklace (Mining Guild)"),
-		RING_OF_WEALTH_FALADOR("Ring of Wealth (Falador Park)");
-
-		private final String displayName;
-
-		FaladorTeleportOption(String displayName)
-		{
-			this.displayName = displayName;
-		}
-
-		@Override
-		public String toString()
-		{
-			return displayName;
-		}
+		Jewellery_box
 	}
+	@ConfigItem(
+			position = 1,
+			keyName = "enumFruitTreeFarmingGuildTeleport",
+			name = "Farming Guild",
+			description = "Desired way to teleport to Farming Guild",
+			section = fruitTreeTeleportOptionList
+	)
+	default FruitTreeOptionEnumFarmingGuildTeleport enumFruitTreeFarmingGuildTeleport() { return FruitTreeOptionEnumFarmingGuildTeleport.Jewellery_box; }
 
-	enum MorytaniaTeleportOption
+	enum FruitTreeOptionEnumGnomeStrongholdTeleport implements OptionEnumTeleport
 	{
-		ECTOPHIAL("Ectophial"),
-		BURGH_DE_ROTT_TELEPORT("Burgh de Rott Teleport");
-
-		private final String displayName;
-
-		MorytaniaTeleportOption(String displayName)
-		{
-			this.displayName = displayName;
-		}
-
-		@Override
-		public String toString()
-		{
-			return displayName;
-		}
+		Royal_seed_pod,
+		Spirit_Tree
 	}
+	@ConfigItem(
+			position = 1,
+			keyName = "enumFruitTreeGnomeStrongholdTeleport",
+			name = "Gnome Stronghold",
+			description = "Desired way to teleport to Gnome Stronghold",
+			section = fruitTreeTeleportOptionList
+	)
+	default FruitTreeOptionEnumGnomeStrongholdTeleport enumFruitTreeGnomeStrongholdTeleport() { return FruitTreeOptionEnumGnomeStrongholdTeleport.Royal_seed_pod; }
 
-	enum TrollStrongholdTeleportOption
+	enum FruitTreeOptionEnumLletyaTeleport implements OptionEnumTeleport
 	{
-		TROLLHEIM_TELEPORT("Trollheim Teleport Spell"),
-		STRONGHOLD_TELEPORT_BASALT("Stony Basalt");
-
-		private final String displayName;
-
-		TrollStrongholdTeleportOption(String displayName)
-		{
-			this.displayName = displayName;
-		}
-
-		@Override
-		public String toString()
-		{
-			return displayName;
-		}
+		Teleport_crystal
 	}
+	@ConfigItem(
+			position = 1,
+			keyName = "enumFruitTreeLletyaTeleport",
+			name = "Lletya",
+			description = "Desired way to teleport to Lletya",
+			section = fruitTreeTeleportOptionList
+	)
+	default FruitTreeOptionEnumLletyaTeleport enumFruitTreeLletyaTeleport() { return FruitTreeOptionEnumLletyaTeleport.Teleport_crystal; }
 
-	enum KourendTeleportOption
+	enum FruitTreeOptionEnumTreeGnomeVillageTeleport implements OptionEnumTeleport
 	{
-		XERICS_TALISMAN("Xeric's Talisman"),
-		XERICS_HEART("Xeric's Heart"),
-		MOUNTED_XERICS("Mounted Xeric's (POH)");
-
-		private final String displayName;
-
-		KourendTeleportOption(String displayName)
-		{
-			this.displayName = displayName;
-		}
-
-		@Override
-		public String toString()
-		{
-			return displayName;
-		}
+		Royal_seed_pod,
+		Spirit_Tree
 	}
-
-	enum FarmingGuildTeleportOption
-	{
-		JEWL_NECKLACE_OF_SKILLS("Skills Necklace"),
-		SKILLCAPE_FARMING("Farming Cape");
-
-		private final String displayName;
-
-		FarmingGuildTeleportOption(String displayName)
-		{
-			this.displayName = displayName;
-		}
-
-		@Override
-		public String toString()
-		{
-			return displayName;
-		}
-	}
-	enum HarmonyTeleportOption
-	{
-		HARMONY_TELE_TAB("Harmony Teleport Tab");
-
-		private final String displayName;
-
-		HarmonyTeleportOption(String displayName)
-		{
-			this.displayName = displayName;
-		}
-
-		@Override
-		public String toString()
-		{
-			return displayName;
-		}
-	}
-
-	enum WeissTeleportOption
-	{
-		WEISS_TELEPORT_BASALT("Icy Basalt");
-
-		private final String displayName;
-
-		WeissTeleportOption(String displayName)
-		{
-			this.displayName = displayName;
-		}
-
-		@Override
-		public String toString()
-		{
-			return displayName;
-		}
-	}
+	@ConfigItem(
+			position = 1,
+			keyName = "enumFruitTreeTreeGnomeVillageTeleport",
+			name = "Tree Gnome Village",
+			description = "Desired way to teleport to Tree Gnome Village",
+			section = fruitTreeTeleportOptionList
+	)
+	default FruitTreeOptionEnumTreeGnomeVillageTeleport enumFruitTreeTreeGnomeVillageTeleport() { return FruitTreeOptionEnumTreeGnomeVillageTeleport.Royal_seed_pod; }
 }
