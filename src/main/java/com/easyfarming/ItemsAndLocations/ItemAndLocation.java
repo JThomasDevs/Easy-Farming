@@ -5,7 +5,7 @@ import com.easyfarming.EasyFarmingPlugin;
 import com.easyfarming.ItemRequirement;
 import com.easyfarming.Location;
 import net.runelite.api.Client;
-import net.runelite.api.ItemID;
+import net.runelite.api.gameval.ItemID;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,17 +40,17 @@ public class ItemAndLocation
         switch (selectedOption) {
             case Law_air_earth_runes:
                 itemRequirements.add(new ItemRequirement(
-                    ItemID.AIR_RUNE,
+                    ItemID.AIRRUNE,
                     1
                 ));
 
                 itemRequirements.add(new ItemRequirement(
-                    ItemID.EARTH_RUNE,
+                    ItemID.EARTHRUNE,
                     1
                 ));
 
                 itemRequirements.add(new ItemRequirement(
-                    ItemID.LAW_RUNE,
+                    ItemID.LAWRUNE,
                     1
                 ));
 
@@ -63,7 +63,7 @@ public class ItemAndLocation
             //     ));
             //
             //     itemRequirements.add(new ItemRequirement(
-            //         ItemID.LAW_RUNE,
+            //         ItemID.LAWRUNE,
             //         1
             //     ));
             //
@@ -71,7 +71,7 @@ public class ItemAndLocation
 
             case Teleport_To_House:
                 itemRequirements.add(new ItemRequirement(
-                    ItemID.TELEPORT_TO_HOUSE,
+                    ItemID.POH_TABLET_TELEPORTTOHOUSE,
                     1
                 ));
 
@@ -79,7 +79,7 @@ public class ItemAndLocation
 
             case Construction_cape:
                 itemRequirements.add(new ItemRequirement(
-                    ItemID.CONSTRUCT_CAPE,
+                    ItemID.SKILLCAPE_CONSTRUCTION,
                     1
                 ));
 
@@ -87,7 +87,7 @@ public class ItemAndLocation
 
             case Construction_cape_t:
                 itemRequirements.add(new ItemRequirement(
-                    ItemID.CONSTRUCT_CAPET,
+                    ItemID.SKILLCAPE_CONSTRUCTION,
                     1
                 ));
 
@@ -95,7 +95,7 @@ public class ItemAndLocation
 
             case Max_cape:
                 itemRequirements.add(new ItemRequirement(
-                    ItemID.MAX_CAPE,
+                    ItemID.SKILLCAPE_MAX,
                     1
                 ));
 
@@ -114,16 +114,16 @@ public class ItemAndLocation
 
         switch (selectedCompost) {
             case Compost:
-                return ItemID.COMPOST;
+                return ItemID.BUCKET_COMPOST;
 
             case Supercompost:
-                return ItemID.SUPERCOMPOST;
+                return ItemID.BUCKET_SUPERCOMPOST;
 
             case Ultracompost:
-                return ItemID.ULTRACOMPOST;
+                return ItemID.BUCKET_ULTRACOMPOST;
 
             case Bottomless:
-                return ItemID.BOTTOMLESS_COMPOST_BUCKET_22997;
+                return ItemID.BOTTOMLESS_COMPOST_BUCKET;
         }
 
         return - 1;

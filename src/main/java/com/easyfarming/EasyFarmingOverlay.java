@@ -6,6 +6,8 @@ import java.util.*;
 import javax.inject.Inject;
 
 import net.runelite.api.*;
+import net.runelite.api.gameval.InventoryID;
+import net.runelite.api.gameval.ItemID;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
@@ -30,8 +32,8 @@ public class EasyFarmingOverlay extends Overlay {
     @Inject
     private ItemManager itemManager;
 
-    public static final List<Integer> TELEPORT_CRYSTAL_IDS = Arrays.asList(ItemID.TELEPORT_CRYSTAL_1, ItemID.TELEPORT_CRYSTAL_2, ItemID.TELEPORT_CRYSTAL_3, ItemID.TELEPORT_CRYSTAL_4, ItemID.TELEPORT_CRYSTAL_5);
-    private static final int BASE_TELEPORT_CRYSTAL_ID = ItemID.TELEPORT_CRYSTAL_1;
+    public static final List<Integer> TELEPORT_CRYSTAL_IDS = Arrays.asList(ItemID.MOURNING_TELEPORT_CRYSTAL_1, ItemID.MOURNING_TELEPORT_CRYSTAL_2, ItemID.MOURNING_TELEPORT_CRYSTAL_3, ItemID.MOURNING_TELEPORT_CRYSTAL_4, ItemID.MOURNING_TELEPORT_CRYSTAL_5);
+    private static final int BASE_TELEPORT_CRYSTAL_ID = ItemID.MOURNING_TELEPORT_CRYSTAL_1;
     public List<Integer> getTeleportCrystalIdsIds() {
         return TELEPORT_CRYSTAL_IDS;
     }
@@ -39,8 +41,8 @@ public class EasyFarmingOverlay extends Overlay {
         return TELEPORT_CRYSTAL_IDS.contains(itemId);
     }
 
-    public static final List<Integer> SKILLS_NECKLACE_IDS = Arrays.asList(ItemID.SKILLS_NECKLACE1, ItemID.SKILLS_NECKLACE2, ItemID.SKILLS_NECKLACE3, ItemID.SKILLS_NECKLACE4, ItemID.SKILLS_NECKLACE5, ItemID.SKILLS_NECKLACE6);
-    private static final int BASE_SKILLS_NECKLACE_ID = ItemID.SKILLS_NECKLACE1;
+    public static final List<Integer> SKILLS_NECKLACE_IDS = Arrays.asList(ItemID.JEWL_NECKLACE_OF_SKILLS_1, ItemID.JEWL_NECKLACE_OF_SKILLS_2, ItemID.JEWL_NECKLACE_OF_SKILLS_3, ItemID.JEWL_NECKLACE_OF_SKILLS_4, ItemID.JEWL_NECKLACE_OF_SKILLS_5, ItemID.JEWL_NECKLACE_OF_SKILLS_6);
+    private static final int BASE_SKILLS_NECKLACE_ID = ItemID.JEWL_NECKLACE_OF_SKILLS_1;
     public List<Integer> getSkillsNecklaceIdsIds() {
         return SKILLS_NECKLACE_IDS;
     }
@@ -74,8 +76,8 @@ public class EasyFarmingOverlay extends Overlay {
     public List<Integer> getTreePatchIds() {
         return TREE_PATCH_IDS;
     }
-    private static final List<Integer> TREE_SAPLING_IDS = Arrays.asList(ItemID.OAK_SAPLING, ItemID.WILLOW_SAPLING,ItemID.MAPLE_SAPLING,ItemID.YEW_SAPLING,ItemID.MAGIC_SAPLING);
-    private static final int BASE_SAPLING_ID = ItemID.OAK_SAPLING;
+    private static final List<Integer> TREE_SAPLING_IDS = Arrays.asList(ItemID.PLANTPOT_OAK_SAPLING, ItemID.PLANTPOT_WILLOW_SAPLING,ItemID.PLANTPOT_MAPLE_SAPLING,ItemID.PLANTPOT_YEW_SAPLING,ItemID.PLANTPOT_MAGIC_TREE_SAPLING);
+    private static final int BASE_SAPLING_ID = ItemID.PLANTPOT_OAK_SAPLING;
     public List<Integer> getTreeSaplingIds() {
         return TREE_SAPLING_IDS;
     }
@@ -86,13 +88,13 @@ public class EasyFarmingOverlay extends Overlay {
     public List<Integer> getFruitTreePatchIds() {
         return FRUIT_TREE_PATCH_IDS;
     }
-    private static final List<Integer> FRUIT_TREE_SAPLING_IDS = Arrays.asList(ItemID.APPLE_SAPLING, ItemID.BANANA_SAPLING,ItemID.ORANGE_SAPLING,ItemID.CURRY_SAPLING,ItemID.PINEAPPLE_SAPLING,ItemID.PAPAYA_SAPLING,ItemID.PALM_SAPLING, ItemID.DRAGONFRUIT_SAPLING);
-    private static final int BASE_FRUIT_SAPLING_ID = ItemID.APPLE_SAPLING;
+    private static final List<Integer> FRUIT_TREE_SAPLING_IDS = Arrays.asList(ItemID.PLANTPOT_APPLE_SAPLING, ItemID.PLANTPOT_BANANA_SAPLING,ItemID.PLANTPOT_ORANGE_SAPLING,ItemID.PLANTPOT_CURRY_SAPLING,ItemID.PLANTPOT_PINEAPPLE_SAPLING,ItemID.PLANTPOT_PAPAYA_SAPLING,ItemID.PLANTPOT_PALM_SAPLING, ItemID.PLANTPOT_DRAGONFRUIT_SAPLING);
+    private static final int BASE_FRUIT_SAPLING_ID = ItemID.PLANTPOT_APPLE_SAPLING;
     public List<Integer> getFruitTreeSaplingIds() {return FRUIT_TREE_SAPLING_IDS;}
     private boolean isFruitTreeSapling(int itemId) {return FRUIT_TREE_SAPLING_IDS.contains(itemId);}
 
 
-    public static final List<Integer> RUNE_POUCH_ID = Arrays.asList(ItemID.RUNE_POUCH, ItemID.DIVINE_RUNE_POUCH);
+    public static final List<Integer> RUNE_POUCH_ID = Arrays.asList(ItemID.BH_RUNE_POUCH, ItemID.DIVINE_RUNE_POUCH);
     public static final List<Integer> RUNE_POUCH_AMOUNT_VARBITS = Arrays.asList(Varbits.RUNE_POUCH_AMOUNT1, Varbits.RUNE_POUCH_AMOUNT2, Varbits.RUNE_POUCH_AMOUNT3, Varbits.RUNE_POUCH_AMOUNT4);
 
     public static final List<Integer> RUNE_POUCH_RUNE_VARBITS = Arrays.asList(Varbits.RUNE_POUCH_RUNE1, Varbits.RUNE_POUCH_RUNE2, Varbits.RUNE_POUCH_RUNE3, Varbits.RUNE_POUCH_RUNE4);
@@ -101,59 +103,59 @@ public class EasyFarmingOverlay extends Overlay {
 
     static {
         Map<Integer, List<Integer>> tempMap = new HashMap<>();
-        tempMap.put(ItemID.DUST_RUNE, Arrays.asList(ItemID.AIR_RUNE, ItemID.EARTH_RUNE));
-        tempMap.put(ItemID.MIST_RUNE, Arrays.asList(ItemID.AIR_RUNE, ItemID.WATER_RUNE));
-        tempMap.put(ItemID.MUD_RUNE, Arrays.asList(ItemID.WATER_RUNE, ItemID.EARTH_RUNE));
-        tempMap.put(ItemID.LAVA_RUNE, Arrays.asList(ItemID.FIRE_RUNE, ItemID.EARTH_RUNE));
-        tempMap.put(ItemID.STEAM_RUNE, Arrays.asList(ItemID.FIRE_RUNE, ItemID.WATER_RUNE));
-        tempMap.put(ItemID.SMOKE_RUNE, Arrays.asList(ItemID.FIRE_RUNE, ItemID.AIR_RUNE));
+        tempMap.put(ItemID.DUSTRUNE, Arrays.asList(ItemID.AIRRUNE, ItemID.EARTHRUNE));
+        tempMap.put(ItemID.MISTRUNE, Arrays.asList(ItemID.AIRRUNE, ItemID.WATERRUNE));
+        tempMap.put(ItemID.MUDRUNE, Arrays.asList(ItemID.WATERRUNE, ItemID.EARTHRUNE));
+        tempMap.put(ItemID.LAVARUNE, Arrays.asList(ItemID.FIRERUNE, ItemID.EARTHRUNE));
+        tempMap.put(ItemID.STEAMRUNE, Arrays.asList(ItemID.FIRERUNE, ItemID.WATERRUNE));
+        tempMap.put(ItemID.SMOKERUNE, Arrays.asList(ItemID.FIRERUNE, ItemID.AIRRUNE));
         COMBINATION_RUNE_SUBRUNES_MAP = Collections.unmodifiableMap(tempMap);
     }
 
     private int getRuneItemIdFromVarbitValue(int varbitValue) {
         switch (varbitValue) {
             case 1:
-                return ItemID.AIR_RUNE;
+                return ItemID.AIRRUNE;
             case 2:
-                return ItemID.WATER_RUNE;
+                return ItemID.WATERRUNE;
             case 3:
-                return ItemID.EARTH_RUNE;
+                return ItemID.EARTHRUNE;
             case 4:
-                return ItemID.FIRE_RUNE;
+                return ItemID.FIRERUNE;
             case 5:
-                return ItemID.MIND_RUNE;
+                return ItemID.MINDRUNE;
             case 6:
-                return ItemID.CHAOS_RUNE;
+                return ItemID.CHAOSRUNE;
             case 7:
-                return ItemID.DEATH_RUNE;
+                return ItemID.DEATHRUNE;
             case 8:
-                return ItemID.BLOOD_RUNE;
+                return ItemID.BLOODRUNE;
             case 9:
-                return ItemID.COSMIC_RUNE;
+                return ItemID.COSMICRUNE;
             case 10:
-                return ItemID.NATURE_RUNE;
+                return ItemID.NATURERUNE;
             case 11:
-                return ItemID.LAW_RUNE;
+                return ItemID.LAWRUNE;
             case 12:
-                return ItemID.BODY_RUNE;
+                return ItemID.BODYRUNE;
             case 13:
-                return ItemID.SOUL_RUNE;
+                return ItemID.SOULRUNE;
             case 14:
-                return ItemID.ASTRAL_RUNE;
+                return ItemID.ASTRALRUNE;
             case 15:
-                return ItemID.MIST_RUNE;
+                return ItemID.MISTRUNE;
             case 16:
-                return ItemID.MUD_RUNE;
+                return ItemID.MUDRUNE;
             case 17:
-                return ItemID.DUST_RUNE;
+                return ItemID.DUSTRUNE;
             case 18:
-                return ItemID.LAVA_RUNE;
+                return ItemID.LAVARUNE;
             case 19:
-                return ItemID.STEAM_RUNE;
+                return ItemID.STEAMRUNE;
             case 20:
-                return ItemID.SMOKE_RUNE;
+                return ItemID.SMOKERUNE;
             case 21:
-                return ItemID.WRATH_RUNE;
+                return ItemID.WRATHRUNE;
             // Add more cases for other runes
             default:
                 return -1;
@@ -199,16 +201,16 @@ public class EasyFarmingOverlay extends Overlay {
         }
     }
     public Integer checkToolLep(Integer item) {
-        if(item == ItemID.COMPOST) {
+        if(item == ItemID.BUCKET_COMPOST) {
             return client.getVarbitValue(1442);
         }
-        if(item == ItemID.SUPERCOMPOST) {
+        if(item == ItemID.BUCKET_SUPERCOMPOST) {
             return client.getVarbitValue(1443);
         }
-        if (item == ItemID.ULTRACOMPOST) {
+        if (item == ItemID.BUCKET_ULTRACOMPOST) {
             return client.getVarbitValue(5732);
         }
-        if (item == ItemID.BOTTOMLESS_COMPOST_BUCKET_22997) {
+        if (item == ItemID.BOTTOMLESS_COMPOST_BUCKET) {
             if (client.getVarbitValue(7915) != 0) {
                 return 1;
             }
@@ -240,7 +242,7 @@ public class EasyFarmingOverlay extends Overlay {
                 return null;
             }
 
-            ItemContainer inventory = client.getItemContainer(InventoryID.INVENTORY);
+            ItemContainer inventory = client.getItemContainer(InventoryID.INV);
             Map<Integer, Integer> runePouchContents = getRunePouchContentsVarbits();
 
             Item[] items;

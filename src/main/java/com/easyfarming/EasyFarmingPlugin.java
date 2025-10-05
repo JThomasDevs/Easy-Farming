@@ -337,7 +337,7 @@ public class EasyFarmingPlugin extends Plugin
 		farmingHelperOverlay = new EasyFarmingOverlay(client, this, itemManager, herbRunItemAndLocation, treeRunItemAndLocation, fruitTreeRunItemAndLocation);
 
 		panel = new EasyFarmingPanel(this, overlayManager, farmingTeleportOverlay, herbRunItemAndLocation, treeRunItemAndLocation, fruitTreeRunItemAndLocation);
-		final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "/com/farminghelper/speaax/icon.png");
+		final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "/icon.png");
 
 		navButton = NavigationButton.builder()
 				.tooltip("Lazy Farming")
@@ -361,7 +361,9 @@ public class EasyFarmingPlugin extends Plugin
 	@Override
 	protected void shutDown()
 	{
-		clientToolbar.removeNavigation(navButton);
+		if (navButton != null) {
+			clientToolbar.removeNavigation(navButton);
+		}
 
 		overlayManager.remove(farmingHelperOverlay);
 		overlayManager.remove(farmingTeleportOverlay);

@@ -4,6 +4,7 @@ import java.awt.*;
 import javax.inject.Inject;
 
 import net.runelite.api.*;
+import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.ui.overlay.Overlay;
@@ -12,7 +13,7 @@ import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.api.Client;
 import net.runelite.api.GameObject;
 import net.runelite.client.ui.overlay.components.PanelComponent;
-import net.runelite.api.ItemID;
+import net.runelite.api.gameval.ItemID;
 import net.runelite.client.util.ColorUtil;
 import net.runelite.api.Tile;
 
@@ -198,7 +199,7 @@ public class FarmingTeleportOverlay extends Overlay {
     }
 
     public void itemHighlight(Graphics2D graphics, int itemID, Color color) {
-        ItemContainer inventory = client.getItemContainer(InventoryID.INVENTORY);
+        ItemContainer inventory = client.getItemContainer(InventoryID.INV);
 
         if (inventory != null) {
             Item[] items = inventory.getItems();
@@ -495,19 +496,19 @@ public class FarmingTeleportOverlay extends Overlay {
         EasyFarmingConfig.OptionEnumCompost selectedCompost = config.enumConfigCompost();
         switch (selectedCompost) {
             case Compost:
-                return ItemID.COMPOST;
+                return ItemID.BUCKET_COMPOST;
             case Supercompost:
-                return ItemID.SUPERCOMPOST;
+                return ItemID.BUCKET_SUPERCOMPOST;
             case Ultracompost:
-                return ItemID.ULTRACOMPOST;
+                return ItemID.BUCKET_ULTRACOMPOST;
             case Bottomless:
-                return ItemID.BOTTOMLESS_COMPOST_BUCKET_22997;
+                return ItemID.BOTTOMLESS_COMPOST_BUCKET;
         }
         return -1;
     }
 
     private boolean isItemInInventory(int itemId) {
-        ItemContainer inventory = client.getItemContainer(InventoryID.INVENTORY);
+        ItemContainer inventory = client.getItemContainer(InventoryID.INV);
 
         Item[] items;
         if (inventory == null || inventory.getItems() == null) {
@@ -531,17 +532,17 @@ public class FarmingTeleportOverlay extends Overlay {
             highlightNpc(graphics, "Tool Leprechaun");
         }
         else {
-            if (selectedCompostID() == ItemID.COMPOST) {
+            if (selectedCompostID() == ItemID.BUCKET_COMPOST) {
                 interfaceOverlay(125, 17).render(graphics);
             }
-            else if(selectedCompostID() == ItemID.SUPERCOMPOST)
+            else if(selectedCompostID() == ItemID.BUCKET_SUPERCOMPOST)
             {
                 interfaceOverlay(125, 18).render(graphics);
             }
-            else if(selectedCompostID() == ItemID.ULTRACOMPOST) {
+            else if(selectedCompostID() == ItemID.BUCKET_ULTRACOMPOST) {
                 interfaceOverlay(125, 19).render(graphics);
             }
-            else if(selectedCompostID() == ItemID.BOTTOMLESS_COMPOST_BUCKET_22997) {
+            else if(selectedCompostID() == ItemID.BOTTOMLESS_COMPOST_BUCKET) {
                 interfaceOverlay(125, 15).render(graphics);
             }
         }
@@ -856,19 +857,19 @@ public class FarmingTeleportOverlay extends Overlay {
                 }
             case Teleport_To_House:
                 inHouseCheck();
-                itemHighlight(graphics, ItemID.TELEPORT_TO_HOUSE, leftClickColorWithAlpha);
+                itemHighlight(graphics, ItemID.POH_TABLET_TELEPORTTOHOUSE, leftClickColorWithAlpha);
                 break;
             case Construction_cape:
                 inHouseCheck();
-                itemHighlight(graphics, ItemID.CONSTRUCT_CAPE, rightClickColorWithAlpha);
+                itemHighlight(graphics, ItemID.SKILLCAPE_CONSTRUCTION, rightClickColorWithAlpha);
                 break;
             case Construction_cape_t:
                 inHouseCheck();
-                itemHighlight(graphics, ItemID.CONSTRUCT_CAPET, rightClickColorWithAlpha);
+                itemHighlight(graphics, ItemID.SKILLCAPE_CONSTRUCTION_TRIMMED, rightClickColorWithAlpha);
                 break;
             case Max_cape:
                 inHouseCheck();
-                itemHighlight(graphics, ItemID.MAX_CAPE, rightClickColorWithAlpha);
+                itemHighlight(graphics, ItemID.SKILLCAPE_MAX, rightClickColorWithAlpha);
                 break;
         }
     }
@@ -920,10 +921,10 @@ public class FarmingTeleportOverlay extends Overlay {
                                 itemHighlight(graphics, teleport.getId(), rightClickColorWithAlpha);
                                 highlightRightClickOption(graphics, teleport.getRightClickOption());
                             } else {
-                                if(teleport.getId() == ItemID.TELEPORT_CRYSTAL_1) {
+                                if(teleport.getId() == ItemID.MOURNING_TELEPORT_CRYSTAL_1) {
                                     highlightTeleportCrystal(graphics);
                                 }
-                                if(teleport.getId() == ItemID.SKILLS_NECKLACE1) {
+                                if(teleport.getId() == ItemID.JEWL_NECKLACE_OF_SKILLS_1) {
                                     String index = location.getName();
                                     if(Objects.equals(index, "Ardougne")) {
                                         highlightSkillsNecklace(graphics);

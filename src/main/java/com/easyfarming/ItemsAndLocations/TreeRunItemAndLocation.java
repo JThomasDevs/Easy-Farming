@@ -5,7 +5,7 @@ import com.easyfarming.EasyFarmingPlugin;
 import com.easyfarming.ItemRequirement;
 import com.easyfarming.Location;
 import net.runelite.api.Client;
-import net.runelite.api.ItemID;
+import net.runelite.api.gameval.ItemID;
 import net.runelite.api.coords.WorldPoint;
 
 import java.util.*;
@@ -49,13 +49,13 @@ public class TreeRunItemAndLocation extends ItemAndLocation
                 //ItemID.GUAM_SEED is default for herb seeds, code later will allow for any seed to be used, just needed a placeholder ID
                 //allRequirements.merge(ItemID.GUAM_SEED, 1, Integer::sum);
                 allRequirements.merge(
-                    ItemID.OAK_SAPLING,
+                    ItemID.PLANTPOT_OAK_SAPLING,
                     1,
                     Integer::sum
                 );
 
                 allRequirements.merge(
-                    ItemID.COINS_995,
+                    ItemID.COINS,
                     200,
                     Integer::sum
                 );
@@ -68,7 +68,7 @@ public class TreeRunItemAndLocation extends ItemAndLocation
                     int itemId = entry.getKey();
                     int quantity = entry.getValue();
 
-                    if (itemId == ItemID.CONSTRUCT_CAPE || itemId == ItemID.CONSTRUCT_CAPET || itemId == ItemID.MAX_CAPE) {
+                    if (itemId == ItemID.SKILLCAPE_CONSTRUCTION || itemId == ItemID.SKILLCAPE_CONSTRUCTION_TRIMMED || itemId == ItemID.SKILLCAPE_MAX) {
                         allRequirements.merge(
                             itemId,
                             quantity,
@@ -96,13 +96,13 @@ public class TreeRunItemAndLocation extends ItemAndLocation
         );
 
         allRequirements.merge(
-            ItemID.BOTTOMLESS_COMPOST_BUCKET_22997,
+            ItemID.BOTTOMLESS_COMPOST_BUCKET,
             1,
             Integer::sum
         );
 
         allRequirements.merge(
-            ItemID.MAGIC_SECATEURS,
+            ItemID.FAIRY_ENCHANTED_SECATEURS,
             1,
             Integer::sum
         );
@@ -170,15 +170,15 @@ public class TreeRunItemAndLocation extends ItemAndLocation
             faladorTreePatchPoint,
             Arrays.asList(
                 new ItemRequirement(
-                    ItemID.AIR_RUNE,
+                    ItemID.AIRRUNE,
                     3
                 ),
                 new ItemRequirement(
-                    ItemID.LAW_RUNE,
+                    ItemID.LAWRUNE,
                     1
                 ),
                 new ItemRequirement(
-                    ItemID.WATER_RUNE,
+                    ItemID.WATERRUNE,
                     1
                 )
             )
@@ -237,14 +237,14 @@ public class TreeRunItemAndLocation extends ItemAndLocation
             "Royal_seed_pod",
             Location.TeleportCategory.ITEM,
             "Teleport to Gnome Stronghold with Royal seed pod.",
-            ItemID.ROYAL_SEED_POD,
+            ItemID.MM2_ROYAL_SEED_POD,
             "null",
             0,
             0,
             9782,
             gnomeStrongholdTreePatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.ROYAL_SEED_POD,
+                ItemID.MM2_ROYAL_SEED_POD,
                 1
             ))
         ));
@@ -305,15 +305,15 @@ public class TreeRunItemAndLocation extends ItemAndLocation
             lumbridgeTreePatchPoint,
             Arrays.asList(
                 new ItemRequirement(
-                    ItemID.AIR_RUNE,
+                    ItemID.AIRRUNE,
                     3
                 ),
                 new ItemRequirement(
-                    ItemID.LAW_RUNE,
+                    ItemID.LAWRUNE,
                     1
                 ),
                 new ItemRequirement(
-                    ItemID.EARTH_RUNE,
+                    ItemID.EARTHRUNE,
                     1
                 )
             )
@@ -362,15 +362,15 @@ public class TreeRunItemAndLocation extends ItemAndLocation
             taverlyPatchPoint,
             Arrays.asList(
                 new ItemRequirement(
-                    ItemID.AIR_RUNE,
+                    ItemID.AIRRUNE,
                     3
                 ),
                 new ItemRequirement(
-                    ItemID.LAW_RUNE,
+                    ItemID.LAWRUNE,
                     1
                 ),
                 new ItemRequirement(
-                    ItemID.WATER_RUNE,
+                    ItemID.WATERRUNE,
                     1
                 )
             )
@@ -419,15 +419,15 @@ public class TreeRunItemAndLocation extends ItemAndLocation
             varrockTreePatchPoint,
             Arrays.asList(
                 new ItemRequirement(
-                    ItemID.AIR_RUNE,
+                    ItemID.AIRRUNE,
                     3
                 ),
                 new ItemRequirement(
-                    ItemID.LAW_RUNE,
+                    ItemID.LAWRUNE,
                     1
                 ),
                 new ItemRequirement(
-                    ItemID.FIRE_RUNE,
+                    ItemID.FIRERUNE,
                     1
                 )
             )

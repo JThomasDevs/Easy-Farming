@@ -5,7 +5,7 @@ import com.easyfarming.EasyFarmingPlugin;
 import com.easyfarming.ItemRequirement;
 import com.easyfarming.Location;
 import net.runelite.api.Client;
-import net.runelite.api.ItemID;
+import net.runelite.api.gameval.ItemID;
 import net.runelite.api.coords.WorldPoint;
 
 import java.util.*;
@@ -49,13 +49,13 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
                 //ItemID.GUAM_SEED is default for herb seeds, code later will allow for any seed to be used, just needed a placeholder ID
                 //allRequirements.merge(ItemID.GUAM_SEED, 1, Integer::sum);
                 allRequirements.merge(
-                    ItemID.APPLE_SAPLING,
+                    ItemID.PLANTPOT_APPLE_SAPLING,
                     1,
                     Integer::sum
                 );
 
                 allRequirements.merge(
-                    ItemID.COINS_995,
+                    ItemID.COINS,
                     200,
                     Integer::sum
                 );
@@ -68,7 +68,7 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
                     int itemId = entry.getKey();
                     int quantity = entry.getValue();
 
-                    if (itemId == ItemID.CONSTRUCT_CAPE || itemId == ItemID.CONSTRUCT_CAPET || itemId == ItemID.MAX_CAPE || itemId == ItemID.ROYAL_SEED_POD) {
+                    if (itemId == ItemID.SKILLCAPE_CONSTRUCTION || itemId == ItemID.SKILLCAPE_CONSTRUCTION_TRIMMED || itemId == ItemID.SKILLCAPE_MAX || itemId == ItemID.MM2_ROYAL_SEED_POD) {
                         allRequirements.merge(
                             itemId,
                             quantity,
@@ -96,13 +96,13 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
         );
 
         allRequirements.merge(
-            ItemID.BOTTOMLESS_COMPOST_BUCKET_22997,
+            ItemID.BOTTOMLESS_COMPOST_BUCKET,
             1,
             Integer::sum
         );
 
         allRequirements.merge(
-            ItemID.MAGIC_SECATEURS,
+            ItemID.FAIRY_ENCHANTED_SECATEURS,
             1,
             Integer::sum
         );
@@ -170,15 +170,15 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
             brimhavenFruitTreePatchPoint,
             Arrays.asList(
                 new ItemRequirement(
-                    ItemID.COINS_995,
+                    ItemID.COINS,
                     30
                 ),
                 new ItemRequirement(
-                    ItemID.LAW_RUNE,
+                    ItemID.LAWRUNE,
                     2
                 ),
                 new ItemRequirement(
-                    ItemID.WATER_RUNE,
+                    ItemID.WATERRUNE,
                     2
                 )
             )
@@ -281,14 +281,14 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
             "Royal_seed_pod",
             Location.TeleportCategory.ITEM,
             "Teleport to Gnome Stronghold with Royal seed pod.",
-            ItemID.ROYAL_SEED_POD,
+            ItemID.MM2_ROYAL_SEED_POD,
             "null",
             0,
             0,
             9782,
             gnomeStrongholdFruitTreePatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.ROYAL_SEED_POD,
+                ItemID.MM2_ROYAL_SEED_POD,
                 1
             ))
         ));
@@ -328,14 +328,14 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
             "Teleport_crystal",
             Location.TeleportCategory.ITEM,
             "Teleport to Lletya with Teleport crystal.",
-            ItemID.TELEPORT_CRYSTAL_1,
+            ItemID.MOURNING_TELEPORT_CRYSTAL_1,
             "null",
             0,
             0,
             9265,
             lletyaFruitTreePatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.TELEPORT_CRYSTAL_1,
+                ItemID.MOURNING_TELEPORT_CRYSTAL_1,
                 1
             ))
         ));
@@ -362,14 +362,14 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
             "Royal_seed_pod",
             Location.TeleportCategory.ITEM,
             "Teleport to Tree Gnome Village with Royal seed pod and use Spirit tree to Tree Gnome Village.",
-            ItemID.ROYAL_SEED_POD,
+            ItemID.MM2_ROYAL_SEED_POD,
             "null",
             0,
             0,
             9782,
             treeGnomeVillageFruitTreePatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.ROYAL_SEED_POD,
+                ItemID.MM2_ROYAL_SEED_POD,
                 1
             ))
         ));

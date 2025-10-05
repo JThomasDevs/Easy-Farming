@@ -5,7 +5,7 @@ import com.easyfarming.EasyFarmingPlugin;
 import com.easyfarming.ItemRequirement;
 import com.easyfarming.Location;
 import net.runelite.api.Client;
-import net.runelite.api.ItemID;
+import net.runelite.api.gameval.ItemID;
 import net.runelite.api.coords.WorldPoint;
 
 import java.util.*;
@@ -56,7 +56,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
                     Integer::sum
                 );
 
-                if (selectedCompostID() != - 1 && selectedCompostID() != ItemID.BOTTOMLESS_COMPOST_BUCKET_22997) {
+                if (selectedCompostID() != - 1 && selectedCompostID() != ItemID.BOTTOMLESS_COMPOST_BUCKET) {
                     allRequirements.merge(
                         selectedCompostID(),
                         1,
@@ -72,7 +72,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
                     int itemId = entry.getKey();
                     int quantity = entry.getValue();
 
-                    if (itemId == ItemID.CONSTRUCT_CAPE || itemId == ItemID.CONSTRUCT_CAPET || itemId == ItemID.MAX_CAPE) {
+                    if (itemId == ItemID.SKILLCAPE_CONSTRUCTION || itemId == ItemID.SKILLCAPE_CONSTRUCTION_TRIMMED || itemId == ItemID.SKILLCAPE_MAX) {
                         allRequirements.merge(
                             itemId,
                             quantity,
@@ -97,7 +97,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
                         Integer::sum
                     );
 
-                    if (selectedCompostID() != - 1 && selectedCompostID() != ItemID.BOTTOMLESS_COMPOST_BUCKET_22997) {
+                    if (selectedCompostID() != - 1 && selectedCompostID() != ItemID.BOTTOMLESS_COMPOST_BUCKET) {
                         allRequirements.merge(
                             selectedCompostID(),
                             1,
@@ -109,7 +109,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
         }
         if(config.generalSeedDibber()) {
             allRequirements.merge(
-                ItemID.SEED_DIBBER,
+                ItemID.DIBBER,
                 1,
                 Integer::sum
             );
@@ -121,16 +121,16 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             Integer::sum
         );
 
-        if (selectedCompostID() == ItemID.BOTTOMLESS_COMPOST_BUCKET_22997) {
+        if (selectedCompostID() == ItemID.BOTTOMLESS_COMPOST_BUCKET) {
             allRequirements.merge(
-                ItemID.BOTTOMLESS_COMPOST_BUCKET_22997,
+                ItemID.BOTTOMLESS_COMPOST_BUCKET,
                 1,
                 Integer::sum
             );
         }
 
         allRequirements.merge(
-            ItemID.MAGIC_SECATEURS,
+            ItemID.FAIRY_ENCHANTED_SECATEURS,
             1,
             Integer::sum
         );
@@ -201,11 +201,11 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             ardougneHerbPatchPoint,
             Arrays.asList(
                 new ItemRequirement(
-                    ItemID.LAW_RUNE,
+                    ItemID.LAWRUNE,
                     2
                 ),
                 new ItemRequirement(
-                    ItemID.WATER_RUNE,
+                    ItemID.WATERRUNE,
                     2
                 )
             )
@@ -215,14 +215,14 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             "Ardougne_Tele_Tab",
             Location.TeleportCategory.ITEM,
             "Teleport to Ardougne with Ardougne tele tab, and run north.",
-            ItemID.ARDOUGNE_TELEPORT,
+            ItemID.POH_TABLET_ARDOUGNETELEPORT,
             "null",
             0,
             0,
             10547,
             ardougneHerbPatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.ARDOUGNE_TELEPORT,
+                ItemID.POH_TABLET_ARDOUGNETELEPORT,
                 1
             ))
         ));
@@ -231,14 +231,14 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             "Ardy_Cloak_2",
             Location.TeleportCategory.ITEM,
             "Teleport to Ardougne with Ardougne cloak.",
-            ItemID.ARDOUGNE_CLOAK_2,
+            ItemID.ARDY_CAPE_MEDIUM,
             "Farm Teleport",
             0,
             0,
             10548,
             ardougneHerbPatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.ARDOUGNE_CLOAK_2,
+                ItemID.ARDY_CAPE_MEDIUM,
                 1
             ))
         ));
@@ -247,14 +247,14 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             "Ardy_Cloak_3",
             Location.TeleportCategory.ITEM,
             "Teleport to Ardougne with Ardougne cloak.",
-            ItemID.ARDOUGNE_CLOAK_3,
+            ItemID.ARDY_CAPE_HARD,
             "Farm Teleport",
             0,
             0,
             10548,
             ardougneHerbPatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.ARDOUGNE_CLOAK_3,
+                ItemID.ARDY_CAPE_HARD,
                 1
             ))
         ));
@@ -263,14 +263,14 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             "Ardy_Cloak_4",
             Location.TeleportCategory.ITEM,
             "Teleport to Ardougne with Ardougne cloak.",
-            ItemID.ARDOUGNE_CLOAK_4,
+            ItemID.ARDY_CAPE_ELITE,
             "Farm Teleport",
             0,
             0,
             10548,
             ardougneHerbPatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.ARDOUGNE_CLOAK_4,
+                ItemID.ARDY_CAPE_ELITE,
                 1
             ))
         ));
@@ -279,14 +279,14 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             "Skills_Necklace",
             Location.TeleportCategory.ITEM,
             "Teleport to Fishing guild with Skills necklace, and run east.",
-            ItemID.SKILLS_NECKLACE1,
+            ItemID.JEWL_NECKLACE_OF_SKILLS_1,
             "null",
             0,
             0,
             10292,
             ardougneHerbPatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.SKILLS_NECKLACE1,
+                ItemID.JEWL_NECKLACE_OF_SKILLS_1,
                 1
             ))
         ));
@@ -347,11 +347,11 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             catherbyHerbPatchPoint,
             Arrays.asList(
                 new ItemRequirement(
-                    ItemID.AIR_RUNE,
+                    ItemID.AIRRUNE,
                     5
                 ),
                 new ItemRequirement(
-                    ItemID.LAW_RUNE,
+                    ItemID.LAWRUNE,
                     1
                 )
             )
@@ -361,14 +361,14 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             "Camelot_Tele_Tab",
             Location.TeleportCategory.ITEM,
             "Teleport to Camelot using a Camelot tele tab, and run east.(If you have configured the teleport to seers you need to right click and teleport to Camelot)",
-            ItemID.CAMELOT_TELEPORT,
+            ItemID.POH_TABLET_CAMELOTTELEPORT,
             "null",
             0,
             0,
             11062,
             catherbyHerbPatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.CAMELOT_TELEPORT,
+                ItemID.POH_TABLET_CAMELOTTELEPORT,
                 1
             ))
         ));
@@ -377,14 +377,14 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             "Catherby_Tele_Tab",
             Location.TeleportCategory.ITEM,
             "Teleport to Catherby using Catherby teleport tab.",
-            ItemID.CATHERBY_TELEPORT,
+            ItemID.LUNAR_TABLET_CATHERBY_TELEPORT,
             "null",
             0,
             0,
             11061,
             catherbyHerbPatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.CATHERBY_TELEPORT,
+                ItemID.LUNAR_TABLET_CATHERBY_TELEPORT,
                 1
             ))
         ));
@@ -424,14 +424,14 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             "Explorers_ring_2",
             Location.TeleportCategory.ITEM,
             "Teleport to Falador with Explorers ring.",
-            ItemID.EXPLORERS_RING_2,
+            ItemID.LUMBRIDGE_RING_MEDIUM,
             "Teleport",
             0,
             0,
             12083,
             faladorHerbPatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.EXPLORERS_RING_2,
+                ItemID.LUMBRIDGE_RING_MEDIUM,
                 1
             ))
         ));
@@ -440,14 +440,14 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             "Explorers_ring_3",
             Location.TeleportCategory.ITEM,
             "Teleport to Falador with Explorers ring.",
-            ItemID.EXPLORERS_RING_3,
+            ItemID.LUMBRIDGE_RING_HARD,
             "Teleport",
             0,
             0,
             12083,
             faladorHerbPatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.EXPLORERS_RING_3,
+                ItemID.LUMBRIDGE_RING_HARD,
                 1
             ))
         ));
@@ -456,14 +456,14 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             "Explorers_ring_4",
             Location.TeleportCategory.ITEM,
             "Teleport to Falador with Explorers ring.",
-            ItemID.EXPLORERS_RING_4,
+            ItemID.LUMBRIDGE_RING_ELITE,
             "Teleport",
             0,
             0,
             12083,
             faladorHerbPatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.EXPLORERS_RING_4,
+                ItemID.LUMBRIDGE_RING_ELITE,
                 1
             ))
         ));
@@ -480,15 +480,15 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             faladorHerbPatchPoint,
             Arrays.asList(
                 new ItemRequirement(
-                    ItemID.AIR_RUNE,
+                    ItemID.AIRRUNE,
                     3
                 ),
                 new ItemRequirement(
-                    ItemID.LAW_RUNE,
+                    ItemID.LAWRUNE,
                     1
                 ),
                 new ItemRequirement(
-                    ItemID.WATER_RUNE,
+                    ItemID.WATERRUNE,
                     1
                 )
             )
@@ -498,14 +498,14 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             "Falador_Tele_Tab",
             Location.TeleportCategory.ITEM,
             "Teleport to Falador with Falador Tele Tab, and run south-east.",
-            ItemID.FALADOR_TELEPORT,
+            ItemID.POH_TABLET_FALADORTELEPORT,
             "null",
             0,
             0,
             11828,
             faladorHerbPatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.FALADOR_TELEPORT,
+                ItemID.POH_TABLET_FALADORTELEPORT,
                 1
             ))
         ));
@@ -514,14 +514,14 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             "Draynor_Tele_Tab",
             Location.TeleportCategory.ITEM,
             "Teleport to Draynor Manor with Draynor Manor Tele Tab, and run south-west.",
-            ItemID.DRAYNOR_MANOR_TELEPORT,
+            ItemID.TELETAB_DRAYNOR,
             "null",
             0,
             0,
             12340,
             faladorHerbPatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.DRAYNOR_MANOR_TELEPORT,
+                ItemID.TELETAB_DRAYNOR,
                 1
             ))
         ));
@@ -561,14 +561,14 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             "Skills_Necklace",
             Location.TeleportCategory.ITEM,
             "Teleport to Farming guild using Skills necklace.",
-            ItemID.SKILLS_NECKLACE1,
+            ItemID.JEWL_NECKLACE_OF_SKILLS_1,
             "null",
             0,
             0,
             4922,
             farmingGuildHerbPatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.SKILLS_NECKLACE1,
+                ItemID.JEWL_NECKLACE_OF_SKILLS_1,
                 1
             ))
         ));
@@ -608,14 +608,14 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             "Harmony_Tele_Tab",
             Location.TeleportCategory.ITEM,
             "Teleport to Harmony with Harmony Tele Tab.",
-            ItemID.HARMONY_ISLAND_TELEPORT,
+            ItemID.TELETAB_HARMONY,
             "null",
             0,
             0,
             15148,
             harmonyHerbPatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.HARMONY_ISLAND_TELEPORT,
+                ItemID.TELETAB_HARMONY,
                 1
             ))
         ));
@@ -642,14 +642,14 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             "Xerics_Talisman",
             Location.TeleportCategory.ITEM,
             "Teleport to Kourend with Xeric's Talisman.",
-            ItemID.XERICS_TALISMAN,
+            ItemID.XERIC_TALISMAN,
             "Rub",
             187,
             3,
             6967,
             kourendHerbPatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.XERICS_TALISMAN,
+                ItemID.XERIC_TALISMAN,
                 1
             ))
         ));
@@ -723,14 +723,14 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             "Stony_Basalt",
             Location.TeleportCategory.ITEM,
             "Teleport to Troll Stronghold with Stony Basalt.",
-            ItemID.STONY_BASALT,
+            ItemID.STRONGHOLD_TELEPORT_BASALT,
             "null",
             0,
             0,
             11321,
             trollStrongholdHerbPatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.STONY_BASALT,
+                ItemID.STRONGHOLD_TELEPORT_BASALT,
                 1
             ))
         ));
@@ -770,14 +770,14 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             "Icy_Basalt",
             Location.TeleportCategory.ITEM,
             "Teleport to Weiss with Icy Basalt.",
-            ItemID.ICY_BASALT,
+            ItemID.WEISS_TELEPORT_BASALT,
             "null",
             0,
             0,
             11325,
             weissHerbPatchPoint,
             Collections.singletonList(new ItemRequirement(
-                ItemID.ICY_BASALT,
+                ItemID.WEISS_TELEPORT_BASALT,
                 1
             ))
         ));
