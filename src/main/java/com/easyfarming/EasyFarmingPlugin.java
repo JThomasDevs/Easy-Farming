@@ -19,6 +19,7 @@ import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.util.ImageUtil;
 import net.runelite.client.ui.overlay.OverlayManager;
+import net.runelite.client.game.ItemManager;
 
 import java.awt.image.BufferedImage;
 
@@ -40,6 +41,10 @@ public class EasyFarmingPlugin extends Plugin
 
 	@Inject
 	private OverlayManager overlayManager;
+	@Inject
+	private ItemManager itemManager;
+	@Inject
+	private ConfigManager configManager;
 
 	@Inject
 	private EventBus eventBus;
@@ -95,16 +100,13 @@ public class EasyFarmingPlugin extends Plugin
 		// Initialize overlays
 		farmingOverlay = new FarmingOverlay(client, config, runState, herbRun, requirementManager);
 		instructionOverlay = new InstructionOverlay(client, config, runState);
-		itemCountOverlay = new ItemCountOverlay(client, config, runState, herbRun, requirementManager);
+		itemCountOverlay = new ItemCountOverlay(client, config, runState, herbRun, requirementManager, itemManager);
 		highlightOverlay = new HighlightOverlay(client, config, runState);
 		inventoryHighlightOverlay = new InventoryHighlightOverlay(client, config, runState, herbRun, requirementManager);
 		patchHighlightOverlay = new PatchHighlightOverlay(client, config, runState);
 		
 		// Register overlays based on config
-		if (config.showFarmingOverlay())
-		{
-			overlayManager.add(farmingOverlay);
-		}
+		// Note: FarmingOverlay (status) removed - no longer needed
 		if (config.showInstructions())
 		{
 			overlayManager.add(instructionOverlay);
@@ -127,7 +129,7 @@ public class EasyFarmingPlugin extends Plugin
 		}
 		
 		// Create and add side panel
-		farmingPanel = new FarmingPanel(this, config, runState, herbRun);
+		farmingPanel = new FarmingPanel(this, config, runState, herbRun, configManager);
 		
 		// Create navigation button
 		final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "/icon.png");

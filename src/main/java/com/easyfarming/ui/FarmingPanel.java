@@ -4,6 +4,7 @@ import com.easyfarming.EasyFarmingConfig;
 import com.easyfarming.EasyFarmingPlugin;
 import com.easyfarming.core.*;
 import com.easyfarming.runs.HerbRun;
+import net.runelite.client.config.ConfigManager;
 import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.ui.components.PluginErrorPanel;
 
@@ -11,6 +12,8 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ItemEvent;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Main farming panel that displays in the RuneLite sidebar.
@@ -22,6 +25,7 @@ public class FarmingPanel extends PluginPanel
     private final EasyFarmingConfig config;
     private final FarmingRunState runState;
     private final HerbRun herbRun;
+    private final ConfigManager configManager;
     
     // UI Components
     private final JPanel headerPanel = new JPanel();
@@ -40,13 +44,18 @@ public class FarmingPanel extends PluginPanel
     private final JCheckBox fruitTreeCheckbox = new JCheckBox("Fruit Tree Run", false);
     private final JCheckBox allotmentCheckbox = new JCheckBox("Allotment Run", false);
     
+    // Location status tracking
+    private final Map<String, JLabel> locationStatusLabels = new HashMap<>();
+    private final Map<String, JComboBox<String>> locationTeleportDropdowns = new HashMap<>();
+    
     public FarmingPanel(EasyFarmingPlugin plugin, EasyFarmingConfig config, 
-                       FarmingRunState runState, HerbRun herbRun)
+                       FarmingRunState runState, HerbRun herbRun, ConfigManager configManager)
     {
         this.plugin = plugin;
         this.config = config;
         this.runState = runState;
         this.herbRun = herbRun;
+        this.configManager = configManager;
         
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -163,14 +172,347 @@ public class FarmingPanel extends PluginPanel
         JPanel locationPanel = new JPanel(new BorderLayout());
         locationPanel.setBorder(new EmptyBorder(2, 5, 2, 5));
         
-        JLabel nameLabel = new JLabel(locationName);
-        JLabel statusLabel = new JLabel(enabled ? "✓" : "✗");
-        statusLabel.setForeground(enabled ? Color.GREEN : Color.RED);
+        // Create checkbox for location toggle
+        JCheckBox locationCheckbox = new JCheckBox(locationName, enabled);
+        locationCheckbox.addItemListener(e -> updateLocationSetting(locationName, e.getStateChange() == ItemEvent.SELECTED));
         
-        locationPanel.add(nameLabel, BorderLayout.CENTER);
-        locationPanel.add(statusLabel, BorderLayout.EAST);
+        // Create teleport dropdown
+        JComboBox<String> teleportDropdown = createTeleportDropdown(locationName);
+        
+        // Create status label
+        JLabel statusLabel = new JLabel("●");
+        statusLabel.setForeground(Color.GRAY);
+        statusLabel.setToolTipText("Location status: Not started");
+        
+        // Store references for updates
+        locationTeleportDropdowns.put(locationName, teleportDropdown);
+        locationStatusLabels.put(locationName, statusLabel);
+        
+        // Add components to panel
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        leftPanel.add(locationCheckbox);
+        leftPanel.add(Box.createHorizontalStrut(5));
+        leftPanel.add(statusLabel);
+        
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        rightPanel.add(teleportDropdown);
+        
+        locationPanel.add(leftPanel, BorderLayout.WEST);
+        locationPanel.add(rightPanel, BorderLayout.EAST);
         
         locationsPanel.add(locationPanel);
+    }
+    
+    private JComboBox<String> createTeleportDropdown(String locationName)
+    {
+        JComboBox<String> dropdown = new JComboBox<>();
+        dropdown.setPreferredSize(new Dimension(120, 25));
+        
+        // Add teleport options based on location
+        switch (locationName.toLowerCase())
+        {
+            case "ardougne":
+                dropdown.addItem("Ardougne Cloak");
+                dropdown.addItem("Ardougne Teleport");
+                dropdown.addItem("Ardougne Tele Tab");
+                dropdown.addItem("Skills Necklace");
+                dropdown.addItem("Combat Bracelet");
+                dropdown.addItem("Quest Cape");
+                dropdown.addItem("Fairy Ring BLR");
+                break;
+            case "catherby":
+                dropdown.addItem("Catherby Tele Tab");
+                dropdown.addItem("Camelot Teleport");
+                dropdown.addItem("Camelot Tele Tab");
+                break;
+            case "falador":
+                dropdown.addItem("Explorer's Ring");
+                dropdown.addItem("Falador Teleport");
+                dropdown.addItem("Falador Tele Tab");
+                dropdown.addItem("Ring of Elements");
+                dropdown.addItem("Spirit Tree");
+                dropdown.addItem("Draynor Manor");
+                dropdown.addItem("Amulet of Glory");
+                dropdown.addItem("Skills Necklace");
+                dropdown.addItem("Ring of Wealth");
+                break;
+            case "morytania":
+                dropdown.addItem("Ectophial");
+                dropdown.addItem("Burgh de Rott");
+                break;
+            case "troll stronghold":
+                dropdown.addItem("Trollheim Teleport");
+                dropdown.addItem("Stony Basalt");
+                break;
+            case "kourend":
+                dropdown.addItem("Xeric's Talisman");
+                dropdown.addItem("Mounted Xeric's");
+                break;
+            case "farming guild":
+                dropdown.addItem("Skills Necklace");
+                dropdown.addItem("Farming Cape");
+                break;
+            case "harmony island":
+                dropdown.addItem("Harmony Tele Tab");
+                break;
+            case "weiss":
+                dropdown.addItem("Icy Basalt");
+                break;
+        }
+        
+        // Add listener to update config
+        dropdown.addActionListener(e -> updateTeleportSetting(locationName, (String) dropdown.getSelectedItem()));
+        
+        return dropdown;
+    }
+    
+    private void updateLocationSetting(String locationName, boolean enabled)
+    {
+        // Update config based on location name
+        String configKey = null;
+        switch (locationName.toLowerCase())
+        {
+            case "ardougne":
+                configKey = "ardougneHerb";
+                break;
+            case "catherby":
+                configKey = "catherbyHerb";
+                break;
+            case "falador":
+                configKey = "faladorHerb";
+                break;
+            case "morytania":
+                configKey = "morytaniaHerb";
+                break;
+            case "troll stronghold":
+                configKey = "trollStrongholdHerb";
+                break;
+            case "kourend":
+                configKey = "kourendHerb";
+                break;
+            case "farming guild":
+                configKey = "farmingGuildHerb";
+                break;
+            case "harmony island":
+                configKey = "harmonyHerb";
+                break;
+            case "weiss":
+                configKey = "weissHerb";
+                break;
+        }
+        
+        if (configKey != null)
+        {
+            configManager.setConfiguration("easyfarming", configKey, enabled);
+        }
+    }
+    
+    private void updateTeleportSetting(String locationName, String teleportMethod)
+    {
+        // Update config based on location name and teleport method
+        String configKey = null;
+        String configValue = null;
+        
+        switch (locationName.toLowerCase())
+        {
+            case "ardougne":
+                configKey = "ardougneTeleport";
+                switch (teleportMethod)
+                {
+                    case "Ardougne Cloak": configValue = "ARDOUGNE_CLOAK"; break;
+                    case "Ardougne Teleport": configValue = "ARDOUGNE_TELEPORT"; break;
+                    case "Ardougne Tele Tab": configValue = "ARDOUGNE_TELE_TAB"; break;
+                    case "Skills Necklace": configValue = "JEWL_NECKLACE_OF_SKILLS_1_FISHING"; break;
+                    case "Combat Bracelet": configValue = "COMBAT_BRACELET_RANGING"; break;
+                    case "Quest Cape": configValue = "QUEST_POINT_CAPE"; break;
+                    case "Fairy Ring BLR": configValue = "FAIRY_RING_BLR"; break;
+                }
+                break;
+            case "catherby":
+                configKey = "catherbyTeleport";
+                switch (teleportMethod)
+                {
+                    case "Catherby Tele Tab": configValue = "CATHERBY_TELE_TAB"; break;
+                    case "Camelot Teleport": configValue = "CAMELOT_TELEPORT"; break;
+                    case "Camelot Tele Tab": configValue = "CAMELOT_TELE_TAB"; break;
+                }
+                break;
+            case "falador":
+                configKey = "faladorTeleport";
+                switch (teleportMethod)
+                {
+                    case "Explorer's Ring": configValue = "EXPLORERS_RING"; break;
+                    case "Falador Teleport": configValue = "FALADOR_TELEPORT"; break;
+                    case "Falador Tele Tab": configValue = "FALADOR_TELE_TAB"; break;
+                    case "Ring of Elements": configValue = "RING_OF_ELEMENTS_AIR"; break;
+                    case "Spirit Tree": configValue = "SPIRIT_TREE_PORT_SARIM"; break;
+                    case "Draynor Manor": configValue = "DRAYNOR_MANOR_TELEPORT"; break;
+                    case "Amulet of Glory": configValue = "AMULET_OF_GLORY_DRAYNOR"; break;
+                    case "Skills Necklace": configValue = "JEWL_NECKLACE_OF_SKILLS_1_MINING"; break;
+                    case "Ring of Wealth": configValue = "RING_OF_WEALTH_FALADOR"; break;
+                }
+                break;
+            case "morytania":
+                configKey = "morytaniaTeleport";
+                switch (teleportMethod)
+                {
+                    case "Ectophial": configValue = "ECTOPHIAL"; break;
+                    case "Burgh de Rott": configValue = "BURGH_DE_ROTT_TELEPORT"; break;
+                }
+                break;
+            case "troll stronghold":
+                configKey = "trollStrongholdTeleport";
+                switch (teleportMethod)
+                {
+                    case "Trollheim Teleport": configValue = "TROLLHEIM_TELEPORT"; break;
+                    case "Stony Basalt": configValue = "STRONGHOLD_TELEPORT_BASALT"; break;
+                }
+                break;
+            case "kourend":
+                configKey = "kourendTeleport";
+                switch (teleportMethod)
+                {
+                    case "Xeric's Talisman": configValue = "XERICS_TALISMAN"; break;
+                    case "Mounted Xeric's": configValue = "MOUNTED_XERICS"; break;
+                }
+                break;
+            case "farming guild":
+                configKey = "farmingGuildTeleport";
+                switch (teleportMethod)
+                {
+                    case "Skills Necklace": configValue = "JEWL_NECKLACE_OF_SKILLS_1"; break;
+                    case "Farming Cape": configValue = "SKILLCAPE_FARMING"; break;
+                }
+                break;
+            case "harmony island":
+                configKey = "harmonyTeleport";
+                switch (teleportMethod)
+                {
+                    case "Harmony Tele Tab": configValue = "HARMONY_TELE_TAB"; break;
+                }
+                break;
+            case "weiss":
+                configKey = "weissTeleport";
+                switch (teleportMethod)
+                {
+                    case "Icy Basalt": configValue = "WEISS_TELEPORT_BASALT"; break;
+                }
+                break;
+        }
+        
+        if (configKey != null && configValue != null)
+        {
+            configManager.setConfiguration("easyfarming", configKey, configValue);
+        }
+    }
+    
+    /**
+     * Update the status display for a specific location
+     */
+    public void updateLocationStatus(String locationName, LocationStatus status)
+    {
+        JLabel statusLabel = locationStatusLabels.get(locationName);
+        if (statusLabel != null)
+        {
+            switch (status)
+            {
+                case NOT_STARTED:
+                    statusLabel.setText("●");
+                    statusLabel.setForeground(Color.GRAY);
+                    statusLabel.setToolTipText("Location status: Not started");
+                    break;
+                case IN_PROGRESS:
+                    statusLabel.setText("●");
+                    statusLabel.setForeground(Color.YELLOW);
+                    statusLabel.setToolTipText("Location status: In progress");
+                    break;
+                case COMPLETED:
+                    statusLabel.setText("●");
+                    statusLabel.setForeground(Color.GREEN);
+                    statusLabel.setToolTipText("Location status: Completed");
+                    break;
+                case SKIPPED:
+                    statusLabel.setText("●");
+                    statusLabel.setForeground(Color.ORANGE);
+                    statusLabel.setToolTipText("Location status: Skipped");
+                    break;
+                case ERROR:
+                    statusLabel.setText("●");
+                    statusLabel.setForeground(Color.RED);
+                    statusLabel.setToolTipText("Location status: Error");
+                    break;
+            }
+        }
+    }
+    
+    /**
+     * Update the overall status display
+     */
+    public void updateOverallStatus()
+    {
+        if (runState.isRunActive())
+        {
+            FarmingState currentState = runState.getCurrentState();
+            statusLabel.setText(currentState.getDisplayName());
+            
+            // Update progress
+            int totalLocations = getEnabledLocationCount();
+            int completedLocations = getCompletedLocationCount();
+            progressLabel.setText(completedLocations + "/" + totalLocations + " locations");
+            
+            // Update button states
+            startStopButton.setText("Stop Run");
+            pauseResumeButton.setEnabled(true);
+            pauseResumeButton.setText(runState.getCurrentState() == FarmingState.PAUSED ? "Resume" : "Pause");
+        }
+        else
+        {
+            statusLabel.setText("Idle");
+            progressLabel.setText("0/0 locations");
+            startStopButton.setText("Start Run");
+            pauseResumeButton.setEnabled(false);
+            pauseResumeButton.setText("Pause");
+        }
+    }
+    
+    /**
+     * Get count of enabled locations
+     */
+    private int getEnabledLocationCount()
+    {
+        int count = 0;
+        if (config.ardougneHerb()) count++;
+        if (config.catherbyHerb()) count++;
+        if (config.faladorHerb()) count++;
+        if (config.morytaniaHerb()) count++;
+        if (config.trollStrongholdHerb()) count++;
+        if (config.kourendHerb()) count++;
+        if (config.farmingGuildHerb()) count++;
+        if (config.harmonyHerb()) count++;
+        if (config.weissHerb()) count++;
+        return count;
+    }
+    
+    /**
+     * Get count of completed locations (placeholder - would need integration with run state)
+     */
+    private int getCompletedLocationCount()
+    {
+        // This would need to be integrated with the actual farming run state
+        // For now, return 0 as a placeholder
+        return 0;
+    }
+    
+    /**
+     * Enum for location status
+     */
+    public enum LocationStatus
+    {
+        NOT_STARTED,
+        IN_PROGRESS,
+        COMPLETED,
+        SKIPPED,
+        ERROR
     }
     
     private void toggleRun()

@@ -48,39 +48,8 @@ public class FarmingOverlay extends Overlay
     @Override
     public Dimension render(Graphics2D graphics)
     {
-        // Only show overlay if farming run is active
-        if (!runState.isRunActive())
-        {
-            return null;
-        }
-        
-        panelComponent.getChildren().clear();
-        
-        // Add title with state color
-        FarmingState currentState = runState.getCurrentState();
-        panelComponent.getChildren().add(TitleComponent.builder()
-            .text("Easy Farming")
-            .color(getStateColor(currentState))
-            .build());
-        
-        // Add current state (compact)
-        panelComponent.getChildren().add(LineComponent.builder()
-            .left("State:")
-            .right(currentState.getDisplayName())
-            .rightColor(getStateColor(currentState))
-            .build());
-        
-        // Only show location if actively working on one
-        Location currentLocation = runState.getCurrentLocation();
-        if (currentLocation != null && currentState != FarmingState.GATHERING_ITEMS)
-        {
-            panelComponent.getChildren().add(LineComponent.builder()
-                .left("Location:")
-                .right(currentLocation.getName())
-                .build());
-        }
-        
-        return panelComponent.render(graphics);
+        // Status overlay removed - no longer needed
+        return null;
     }
     
     /**
