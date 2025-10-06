@@ -4,6 +4,7 @@ import java.awt.*;
 import javax.inject.Inject;
 
 import net.runelite.api.*;
+import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
@@ -851,10 +852,12 @@ public class FarmingTeleportOverlay extends Overlay {
                         interfaceOverlay(161, 64).render(graphics);
                         break;
                     case SPELLBOOK:
-                        interfaceOverlay(218, 29).render(graphics);
+                        // Highlight the "Teleport to House" spell using correct child ID from widget inspector
+                        interfaceOverlay(InterfaceID.MAGIC_SPELLBOOK, 31).render(graphics);
                         inHouseCheck();
                         break;
                 }
+                break;
             case Teleport_To_House:
                 inHouseCheck();
                 itemHighlight(graphics, ItemID.POH_TABLET_TELEPORTTOHOUSE, leftClickColorWithAlpha);
