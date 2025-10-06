@@ -114,18 +114,15 @@ public class EasyFarmingPlugin extends Plugin
 	}
 
 	private String lastMessage = "";
-	@Subscribe
-	public void onChatMessage(ChatMessage event) {
-		if (event.getType() == ChatMessageType.GAMEMESSAGE) {
-			lastMessage = event.getMessage();
-			System.out.println("Last game message updated: " + lastMessage);
-		}
-		else if (event.getType() == ChatMessageType.SPAM) {
-			lastMessage = event.getMessage();
-			System.out.println("Last spam message updated: " + lastMessage);
-		}
-	}
-
+    @Subscribe
+    public void onChatMessage(ChatMessage event) {
+        if (event.getType() == ChatMessageType.GAMEMESSAGE) {
+            lastMessage = event.getMessage();
+        }
+        else if (event.getType() == ChatMessageType.SPAM) {
+            lastMessage = event.getMessage();
+        }
+    }
 	public String getLastMessage() {
 		return lastMessage;
 	}
@@ -221,11 +218,9 @@ public class EasyFarmingPlugin extends Plugin
 		int currentAnimationId = event.getActor().getAnimation();
 		if (currentAnimationId != lastAnimationId)
 		{
-			System.out.println("Animation ID: " + currentAnimationId);
 			lastAnimationId = currentAnimationId;
 		}
 	}
-
 	//update item list
 	private Map<Integer, Integer> herbItemsCache;
 	public void updateHerbOverlay(Map<Integer, Integer> herbItems)
@@ -340,7 +335,7 @@ public class EasyFarmingPlugin extends Plugin
 		final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "/icon.png");
 
 		navButton = NavigationButton.builder()
-				.tooltip("Lazy Farming")
+				.tooltip("Easy Farming")
 				.icon(icon)
 				.priority(6)
 				.panel(panel)

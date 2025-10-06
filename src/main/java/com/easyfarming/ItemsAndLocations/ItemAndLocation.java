@@ -87,12 +87,11 @@ public class ItemAndLocation
 
             case Construction_cape_t:
                 itemRequirements.add(new ItemRequirement(
-                    ItemID.SKILLCAPE_CONSTRUCTION,
+                    ItemID.SKILLCAPE_CONSTRUCTION_TRIMMED,
                     1
                 ));
 
                 break;
-
             case Max_cape:
                 itemRequirements.add(new ItemRequirement(
                     ItemID.SKILLCAPE_MAX,
@@ -124,12 +123,10 @@ public class ItemAndLocation
 
             case Bottomless:
                 return ItemID.BOTTOMLESS_COMPOST_BUCKET;
+            default:
+                return 0;
         }
-
-        return - 1;
-    }
-
-    public void setupLocations()
+    }    public void setupLocations()
     {
         locations.clear();
     }

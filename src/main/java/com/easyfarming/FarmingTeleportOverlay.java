@@ -36,8 +36,6 @@ public class FarmingTeleportOverlay extends Overlay {
     @Inject
     private EasyFarmingOverlay farmingHelperOverlay;
     @Inject
-    private FarmingTeleportOverlay farmingTeleportOverlay;
-    @Inject
     private EasyFarmingOverlayInfoBox farmingHelperOverlayInfoBox;
     @Inject
     private AreaCheck areaCheck;
@@ -360,6 +358,54 @@ public class FarmingTeleportOverlay extends Overlay {
         return widget != null && !widget.isHidden();
     }
 
+    /**
+     * Dynamically detects the correct spellbook tab interface ID based on the current client mode
+     * @return The child ID for the magic spellbook tab, or -1 if not found
+     */
+    private int getSpellbookTabChildId() {
+        // Try resizable classic mode first (161.65)
+        if (isInterfaceOpen(161, 65)) {
+            return 65;
+        }
+        // Try pre-EOC mode (164.58)
+        if (isInterfaceOpen(164, 58)) {
+            return 58;
+        }
+        // Try other possible variations
+        if (isInterfaceOpen(161, 58)) {
+            return 58;
+        }
+        if (isInterfaceOpen(164, 65)) {
+            return 65;
+        }
+        // Default fallback to resizable classic mode
+        return 65;
+    }
+
+    /**
+     * Gets the correct group ID for the spellbook tab based on the current client mode
+     * @return The group ID for the spellbook tab
+     */
+    private int getSpellbookTabGroupId() {
+        // Try resizable classic mode first (161.65)
+        if (isInterfaceOpen(161, 65)) {
+            return 161;
+        }
+        // Try pre-EOC mode (164.58)
+        if (isInterfaceOpen(164, 58)) {
+            return 164;
+        }
+        // Try other possible variations
+        if (isInterfaceOpen(161, 58)) {
+            return 161;
+        }
+        if (isInterfaceOpen(164, 65)) {
+            return 164;
+        }
+        // Default fallback to resizable classic mode
+        return 161;
+    }
+
 
     private void printWidgetText(int groupId, int childId) {
         Widget widget = client.getWidget(groupId, childId);
@@ -403,11 +449,11 @@ public class FarmingTeleportOverlay extends Overlay {
     {
         if (isItemInInventory(selectedCompostID())) {
             if (herbRun) {
-                if (subCase == 1) {
+                if (this.subCase == 1) {
                     highlightHerbPatches(graphics, highlightUseItemWithAlpha);
 
                 }
-                else if(subCase == 2) {
+                else if(this.subCase == 2) {
                     highlightFlowerPatches(graphics, highlightUseItemWithAlpha);
                 }
 
@@ -616,10 +662,10 @@ public class FarmingTeleportOverlay extends Overlay {
         }
     }
 
-    public static boolean flowerPatchDone = false;
+    private boolean flowerPatchDone = false;
 
     public void flowerSteps(Graphics2D graphics) {
-        if (farmLimps) {
+        if (this.farmLimps) {
             int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
             FlowerPatchChecker.PlantState plantState;
             if (currentRegionId == 4922) {
@@ -651,12 +697,12 @@ public class FarmingTeleportOverlay extends Overlay {
                     highlightCompost(graphics);
 
                     if (patchIsComposted()) {
-                        flowerPatchDone = true;
+                        this.flowerPatchDone = true;
                     }
                     break;
             }
         } else {
-            flowerPatchDone = true;
+            this.flowerPatchDone = true;
         }
     }
 
@@ -836,7 +882,7 @@ public class FarmingTeleportOverlay extends Overlay {
     public void inHouseCheck() {
         if(getGameObjectIdsByName("Portal").contains(4525))
         {
-            currentTeleportCase = 2;
+            this.currentTeleportCase = 2;
         }
     }
 
@@ -847,10 +893,10 @@ public class FarmingTeleportOverlay extends Overlay {
                 InventoryTabChecker.TabState tabState;
                 tabState = InventoryTabChecker.checkTab(client, VarClientInt.INVENTORY_TAB);
                 switch (tabState) {
-                    case INVENTORY:
-                    case REST:
-                        interfaceOverlay(161, 64).render(graphics);
-                        break;
+                            case INVENTORY:
+                            case REST:
+                                interfaceOverlay(getSpellbookTabGroupId(), getSpellbookTabChildId()).render(graphics);
+                                break;
                     case SPELLBOOK:
                         // Highlight the "Teleport to House" spell using correct child ID from widget inspector
                         interfaceOverlay(InterfaceID.MAGIC_SPELLBOOK, 31).render(graphics);
@@ -877,7 +923,7 @@ public class FarmingTeleportOverlay extends Overlay {
         }
     }
 
-    public static int currentTeleportCase = 1;
+    private int currentTeleportCase = 1;
 
     public boolean isAtDestination = false;
 
@@ -912,11 +958,11 @@ public class FarmingTeleportOverlay extends Overlay {
                                 highlightDynamicComponent(graphics, widget, 1);
                             }
                             if (currentRegionId == teleport.getRegionId()) {
-                                currentTeleportCase = 1;
+                                this.currentTeleportCase = 1;
                                 isAtDestination = true;
-                                startSubCases = true;
+                                this.startSubCases = true;
                                 if (location.getFarmLimps()) {
-                                    farmLimps = true;
+                                    this.farmLimps = true;
                                 }
                             }
                         } else {
@@ -948,17 +994,17 @@ public class FarmingTeleportOverlay extends Overlay {
                                 }
                             }
                             if (currentRegionId == teleport.getRegionId()) {
-                                currentTeleportCase = 1;
+                                this.currentTeleportCase = 1;
                                 isAtDestination = true;
-                                startSubCases = true;
+                                this.startSubCases = true;
                                 if (location.getFarmLimps()) {
-                                    farmLimps = true;
+                                    this.farmLimps = true;
                                 }
                             }
                         }
                         break;
                     case PORTAL_NEXUS:
-                        switch (currentTeleportCase) {
+                        switch (this.currentTeleportCase) {
                             case 1:
                                 gettingToHouse(graphics);
                                 break;
@@ -975,11 +1021,11 @@ public class FarmingTeleportOverlay extends Overlay {
                                     highlightDynamicComponent(graphics, widget, index);
                                 }
                                 if (currentRegionId == teleport.getRegionId()) {
-                                    currentTeleportCase = 1;
+                                    this.currentTeleportCase = 1;
                                     isAtDestination = true;
-                                    startSubCases = true;
+                                    this.startSubCases = true;
                                     if (location.getFarmLimps()) {
-                                        farmLimps = true;
+                                        this.farmLimps = true;
                                     }
                                 }
                                 break;
@@ -998,30 +1044,33 @@ public class FarmingTeleportOverlay extends Overlay {
                             switch (location.getName()) {
                                 case "Gnome Stronghold":
                                     highlightDynamicComponent(graphics, widget, getChildIndexSpiritTree("Gnome Stronghold"));
+                                    break;
 
                                 case "Tree Gnome Village":
                                     highlightDynamicComponent(graphics, widget, getChildIndexSpiritTree("Tree Gnome Village"));
+                                    break;
 
                                 case "Falador":
                                     highlightDynamicComponent(graphics, widget, getChildIndexSpiritTree("Port Sarim"));
+                                    break;
 
                                 case "Kourend":
                                     highlightDynamicComponent(graphics, widget, getChildIndexSpiritTree("Hosidius"));
+                                    break;
                             }
                         }
-
                         if (currentRegionId == teleport.getRegionId()) {
-                            currentTeleportCase = 1;
+                            this.currentTeleportCase = 1;
                             isAtDestination = true;
-                            startSubCases = true;
+                            this.startSubCases = true;
 
                             if (location.getFarmLimps()) {
-                                farmLimps = true;
+                                this.farmLimps = true;
                             }
                         }
-                        break;
+                        break;                    
                     case JEWELLERY_BOX:
-                        switch (currentTeleportCase) {
+                        switch (this.currentTeleportCase) {
                             case 1:
                                 gettingToHouse(graphics);
                                 break;
@@ -1038,18 +1087,18 @@ public class FarmingTeleportOverlay extends Overlay {
                                     highlightDynamicComponent(graphics, widget, 10);
                                 }
                                 if (currentRegionId == teleport.getRegionId()) {
-                                    currentTeleportCase = 1;
+                                    this.currentTeleportCase = 1;
                                     isAtDestination = true;
-                                    startSubCases = true;
+                                    this.startSubCases = true;
                                     if (location.getFarmLimps()) {
-                                        farmLimps = true;
+                                        this.farmLimps = true;
                                     }
                                 }
                                 break;
                         }
                         break;
                     case MOUNTED_XERICS:
-                        switch (currentTeleportCase) {
+                        switch (this.currentTeleportCase) {
                             case 1:
                                 gettingToHouse(graphics);
                                 break;
@@ -1065,44 +1114,45 @@ public class FarmingTeleportOverlay extends Overlay {
                                     Widget widget = client.getWidget(teleport.getInterfaceGroupId(), teleport.getInterfaceChildId());
                                     highlightDynamicComponent(graphics, widget, 1);
                                     if (currentRegionId == teleport.getRegionId()) {
-                                        currentTeleportCase = 1;
+                                        this.currentTeleportCase = 1;
                                         isAtDestination = true;
-                                        startSubCases = true;
+                                        this.startSubCases = true;
                                         if (location.getFarmLimps()) {
-                                            farmLimps = true;
+                                            this.farmLimps = true;
                                         }
                                     }
                                 }
                                 break;
                         }
+                        break;
                     case SPELLBOOK:
                         InventoryTabChecker.TabState tabState;
                         tabState = InventoryTabChecker.checkTab(client, VarClientInt.INVENTORY_TAB);
                         switch (tabState) {
                             case REST:
                                 if (currentRegionId == teleport.getRegionId()) {
-                                    currentTeleportCase = 1;
+                                    this.currentTeleportCase = 1;
                                     isAtDestination = true;
-                                    startSubCases = true;
+                                    this.startSubCases = true;
                                 }
+                                break;
                             case INVENTORY:
-                                interfaceOverlay(161, 64).render(graphics);
+                                interfaceOverlay(getSpellbookTabGroupId(), getSpellbookTabChildId()).render(graphics);
                                 if (currentRegionId == teleport.getRegionId()) {
-                                    currentTeleportCase = 1;
+                                    this.currentTeleportCase = 1;
                                     isAtDestination = true;
-                                    startSubCases = true;
+                                    this.startSubCases = true;
                                 }
                                 break;
                             case SPELLBOOK:
                                 interfaceOverlay(teleport.getInterfaceGroupId(), teleport.getInterfaceChildId()).render(graphics);
                                 if (currentRegionId == teleport.getRegionId()) {
-                                    currentTeleportCase = 1;
+                                    this.currentTeleportCase = 1;
                                     isAtDestination = true;
-                                    startSubCases = true;
+                                    this.startSubCases = true;
                                 }
                                 break;
                         }
-
                         break;
                     default:
                         // Optional: Code for handling unexpected values
@@ -1113,85 +1163,85 @@ public class FarmingTeleportOverlay extends Overlay {
                 farming(graphics, teleport);
             }
         } else {
-            herbRunIndex++;
+            this.currentLocationIndex++;
         }
     }
     //}
 
 
-    public static boolean farmLimps = false;
+    private boolean farmLimps = false;
 
     public void farming(Graphics2D graphics, Location.Teleport teleport) {
-        if (startSubCases) {
+        if (this.startSubCases) {
             if (herbRun) {
-                if (subCase == 1) {
+                if (this.subCase == 1) {
                     herbSteps(graphics, teleport);
                     if (herbPatchDone) {
-                        subCase = 2;
+                        this.subCase = 2;
                         herbPatchDone = false;
                     }
-                } else if (subCase == 2) {
+                } else if (this.subCase == 2) {
                     if (config.generalLimpwurt()) {
                         flowerSteps(graphics);
-                        if (flowerPatchDone) {
-                            subCase = 1;
-                            startSubCases = false;
+                        if (this.flowerPatchDone) {
+                            this.subCase = 1;
+                            this.startSubCases = false;
                             isAtDestination = false;
-                            herbRunIndex++;
-                            farmLimps = false;
-                            flowerPatchDone = false;
+                            this.currentLocationIndex++;
+                            this.farmLimps = false;
+                            this.flowerPatchDone = false;
 
                         }
                     } else {
-                        subCase = 1;
-                        startSubCases = false;
+                        this.subCase = 1;
+                        this.startSubCases = false;
                         isAtDestination = false;
-                        herbRunIndex++;
-                        farmLimps = false;
-                        flowerPatchDone = false;
+                        this.currentLocationIndex++;
+                        this.farmLimps = false;
+                        this.flowerPatchDone = false;
                     }
                 }
             }
             if (treeRun) {
                 treeSteps(graphics, teleport);
                 if (treePatchDone) {
-                    startSubCases = false;
+                    this.startSubCases = false;
                     isAtDestination = false;
-                    herbRunIndex++;
+                    this.currentLocationIndex++;
                     treePatchDone = false;
                 }
             }
             if (fruitTreeRun) {
                 fruitTreeSteps(graphics, teleport);
                 if (fruitTreePatchDone) {
-                    startSubCases = false;
+                    this.startSubCases = false;
                     isAtDestination = false;
-                    herbRunIndex++;
+                    this.currentLocationIndex++;
                     fruitTreePatchDone = false;
                 }
             }
         }
     }
 
-    public static int subCase = 1;
-    public static boolean startSubCases = false;
-    public static int herbRunIndex = 0;
+    private int subCase = 1;
+    private boolean startSubCases = false;
+    private int currentLocationIndex = 0;
 
-    public void RemoveOverlay() {
+    public void removeOverlay() {
         plugin.overlayManager.remove(farmingHelperOverlay);
-        plugin.overlayManager.remove(farmingTeleportOverlay);
+        plugin.overlayManager.remove(this);
         plugin.overlayManager.remove(farmingHelperOverlayInfoBox);
 
         plugin.setOverlayActive(false);
         plugin.setTeleportOverlayActive(false);
 
-        herbRunIndex = 0;
-        currentTeleportCase = 1;
-        subCase = 1;
-        startSubCases = false;
+        this.currentLocationIndex = 0;
+        this.currentTeleportCase = 1;
+        this.subCase = 1;
+        this.startSubCases = false;
         isAtDestination = false;
-        farmLimps = false;
-        flowerPatchDone = false;
+        this.farmLimps = false;
+        this.flowerPatchDone = false;
 
         plugin.setItemsCollected(false);
 
@@ -1219,7 +1269,7 @@ public class FarmingTeleportOverlay extends Overlay {
         if (plugin.isTeleportOverlayActive()) {
             Client client = plugin.getClient();
             if (herbRun) {
-                switch (herbRunIndex) {
+                switch (this.currentLocationIndex) {
                     case 0:
                         gettingToLocation(graphics, plugin.getArdougneLocation());
                         break;
@@ -1248,15 +1298,15 @@ public class FarmingTeleportOverlay extends Overlay {
                         gettingToLocation(graphics, plugin.getWeissLocation());
                         break;
                     case 9:
-                        RemoveOverlay();
+                        removeOverlay();
                         // add more cases for each location in the array
                     default:
-                        RemoveOverlay();
+                        removeOverlay();
                         // Add any other actions you want to perform when the herb run is complete
                         break;
                 }
             } else if (treeRun) {
-                switch (herbRunIndex) {
+                switch (this.currentLocationIndex) {
                     case 0:
                         gettingToLocation(graphics, plugin.getFaladorTreeLocation());
                         break;
@@ -1276,15 +1326,15 @@ public class FarmingTeleportOverlay extends Overlay {
                         gettingToLocation(graphics, plugin.getVarrockTreeLocation());
                         break;
                     case 6:
-                        RemoveOverlay();
+                        removeOverlay();
                         // add more cases for each location in the array
                     default:
-                        RemoveOverlay();
+                        removeOverlay();
                         // Add any other actions you want to perform when the herb run is complete
                         break;
                 }
             } else if (fruitTreeRun) {
-                switch (herbRunIndex) {
+                switch (this.currentLocationIndex) {
                     case 0:
                         gettingToLocation(graphics, plugin.getBrimhavenFruitTreeLocation());
                         break;
@@ -1304,10 +1354,10 @@ public class FarmingTeleportOverlay extends Overlay {
                         gettingToLocation(graphics, plugin.getTreeGnomeVillageTreeLocation());
                         break;
                     case 6:
-                        RemoveOverlay();
+                        removeOverlay();
                         // add more cases for each location in the array
                     default:
-                        RemoveOverlay();
+                        removeOverlay();
                         // Add any other actions you want to perform when the herb run is complete
                         break;
                 }

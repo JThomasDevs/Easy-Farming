@@ -196,7 +196,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             0,
             "null",
             218,
-            38,
+            41,
             10547,
             ardougneHerbPatchPoint,
             Arrays.asList(
@@ -342,7 +342,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             0,
             "null",
             218,
-            32,
+            34,
             11062,
             catherbyHerbPatchPoint,
             Arrays.asList(
@@ -475,7 +475,7 @@ public class HerbRunItemAndLocation extends ItemAndLocation
             0,
             "null",
             218,
-            27,
+            29,
             11828,
             faladorHerbPatchPoint,
             Arrays.asList(

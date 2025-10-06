@@ -2,7 +2,6 @@ package com.easyfarming;
 
 import javax.swing.*;
 import java.awt.*;
-import java.beans.ConstructorProperties;
 
 public class StartStopJButton extends JButton {
     private String originalText;
@@ -14,11 +13,11 @@ public class StartStopJButton extends JButton {
         this.setStartStopState(false);
     }
 
-    public void setStartStopState(Boolean started)
+    public void setStartStopState(boolean started)
     {
         String startOrStop = started ? "Stop " : "Start ";
 
         this.setText(startOrStop.concat(this.originalText));
-        this.setBackground(started  ? Color.RED : Color.BLACK);
+        this.setBackground(started ? Color.RED : Color.BLACK);
     }
 }

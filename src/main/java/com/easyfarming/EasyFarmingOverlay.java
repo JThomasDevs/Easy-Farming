@@ -178,6 +178,31 @@ public class EasyFarmingOverlay extends Overlay {
         return runePouchContents;
     }
 
+    private Map<Integer, Integer> buildExpandedRuneMap(Item[] items) {
+        // Start with rune pouch contents
+        Map<Integer, Integer> expandedRuneMap = new HashMap<>(getRunePouchContentsVarbits());
+        
+        // Add combination runes from inventory
+        for (Item item : items) {
+            if (item != null) {
+                int itemIdRune = item.getId();
+                int itemQuantity = item.getQuantity();
+
+                if (COMBINATION_RUNE_SUBRUNES_MAP.containsKey(itemIdRune)) {
+                    List<Integer> subRunes = COMBINATION_RUNE_SUBRUNES_MAP.get(itemIdRune);
+                    for (int subRune : subRunes) {
+                        expandedRuneMap.put(subRune, expandedRuneMap.getOrDefault(subRune, 0) + itemQuantity);
+                    }
+                } else {
+                    // Add regular runes from inventory
+                    expandedRuneMap.put(itemIdRune, expandedRuneMap.getOrDefault(itemIdRune, 0) + itemQuantity);
+                }
+            }
+        }
+        
+        return expandedRuneMap;
+    }
+
     @Inject
     public EasyFarmingOverlay(Client client, EasyFarmingPlugin plugin, ItemManager itemManager, HerbRunItemAndLocation herbRunItemAndLocation, TreeRunItemAndLocation treeRunItemAndLocation, FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation) {
         this.client = client;
@@ -243,7 +268,6 @@ public class EasyFarmingOverlay extends Overlay {
             }
 
             ItemContainer inventory = client.getItemContainer(InventoryID.INV);
-            Map<Integer, Integer> runePouchContents = getRunePouchContentsVarbits();
 
             Item[] items;
             if (inventory == null || inventory.getItems() == null) {
@@ -251,6 +275,9 @@ public class EasyFarmingOverlay extends Overlay {
             } else {
                 items = inventory.getItems();
             }
+
+            // Build expanded rune map once before any requirement checks
+            Map<Integer, Integer> expandedRuneMap = buildExpandedRuneMap(items);
 
             int teleportCrystalCount = 0;
             for (Item item : items) {
@@ -293,103 +320,51 @@ public class EasyFarmingOverlay extends Overlay {
             panelComponent.getChildren().clear();
             int yOffset = 0;
 
+            // Single inventory scan to build item count map
+            Map<Integer, Integer> inventoryItemCounts = new HashMap<>();
+            for (Item item : items) {
+                if (item != null) {
+                    inventoryItemCounts.put(item.getId(), item.getQuantity());
+                }
+            }
+
             List<AbstractMap.SimpleEntry<Integer, Integer>> missingItemsWithCounts = new ArrayList<>();
             boolean allItemsCollected = true;
             for (Map.Entry<Integer, Integer> entry : itemsToCheck.entrySet()) {
                 int itemId = entry.getKey();
                 int count = entry.getValue();
 
-                int inventoryCount = 0;
-                if(plugin.getFarmingTeleportOverlay().herbRun) {
-                    if (itemId == BASE_SEED_ID) {
-                        inventoryCount = totalSeeds;
-                    } else {
-                        for (Item item : items) {
-                            if (item != null && item.getId() == itemId) {
-                                inventoryCount = item.getQuantity();
-                                break;
-                            }
-                        }
-                    }
-                }
-                // Check if the item is stored at the Tool Lep NPC
+                // Start with inventory count from single scan
+                int inventoryCount = inventoryItemCounts.getOrDefault(itemId, 0);
+                
+                // Add tool lep count
                 int toolLepCount = checkToolLep(itemId);
                 if (toolLepCount > 0) {
                     inventoryCount += toolLepCount;
                 }
-                if(plugin.getFarmingTeleportOverlay().treeRun) {
-                    if (itemId == BASE_SAPLING_ID) {
-                        inventoryCount = totalSeeds;
-                    } else {
-                        for (Item item : items) {
-                            if (item != null && item.getId() == itemId) {
-                                inventoryCount = item.getQuantity();
-                                break;
-                            }
-                        }
-                    }
-                }
-                if(plugin.getFarmingTeleportOverlay().fruitTreeRun) {
-                    if (itemId == BASE_FRUIT_SAPLING_ID) {
-                        inventoryCount = totalSeeds;
-                    } else {
-                        for (Item item : items) {
-                            if (item != null && item.getId() == itemId) {
-                                inventoryCount = item.getQuantity();
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (itemId == BASE_TELEPORT_CRYSTAL_ID) {
+                
+                // Apply run-specific and item-specific overrides in order
+                if (plugin.getFarmingTeleportOverlay().herbRun && itemId == BASE_SEED_ID) {
+                    inventoryCount = totalSeeds;
+                } else if (plugin.getFarmingTeleportOverlay().treeRun && itemId == BASE_SAPLING_ID) {
+                    inventoryCount = totalSeeds;
+                } else if (plugin.getFarmingTeleportOverlay().fruitTreeRun && itemId == BASE_FRUIT_SAPLING_ID) {
+                    inventoryCount = totalSeeds;
+                } else if (itemId == BASE_TELEPORT_CRYSTAL_ID) {
                     inventoryCount = teleportCrystalCount;
-                } else {
-                    for (Item item : items) {
-                        if (item != null && item.getId() == itemId) {
-                            inventoryCount = item.getQuantity();
-                            break;
-                        }
-                    }
-                }
-
-                if (itemId == BASE_SKILLS_NECKLACE_ID) {
+                } else if (itemId == BASE_SKILLS_NECKLACE_ID) {
                     inventoryCount = skillsNecklaceCount;
-                } else {
-                    for (Item item : items) {
-                        if (item != null && item.getId() == itemId) {
-                            inventoryCount = item.getQuantity();
-                            break;
-                        }
-                    }
-                }
-
-                for (Item item : items) {
-                    if (item != null && item.getId() == itemId) {
-                        inventoryCount = item.getQuantity();
-                        break;
-                    }
                 }
 
 
                 for (Item item: items) {
                     if (item != null && RUNE_POUCH_ID.contains(item.getId())) {
-                        if (runePouchContents.containsKey(itemId)) {
-                            inventoryCount += runePouchContents.get(itemId);
+                        if (expandedRuneMap.containsKey(itemId)) {
+                            inventoryCount += expandedRuneMap.get(itemId);
                         }
                     }
                 }
 
-                for (Item item : items) {
-                    if (item != null) {
-                        int itemIdRune = item.getId();
-                        int itemQuantity = item.getQuantity();
-
-                        if (COMBINATION_RUNE_SUBRUNES_MAP.containsKey(itemIdRune)) {
-                            handleCombinationRunes(itemIdRune, itemQuantity, runePouchContents);
-                        }
-                    }
-                }
 
 
                 if (inventoryCount < count) {

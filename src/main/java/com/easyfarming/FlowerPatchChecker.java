@@ -7,10 +7,10 @@ import java.util.List;
 
 public class FlowerPatchChecker {
     // Add lists for each plant state
-    private static final List<Integer> harvestable = Arrays.asList(32);
-    private static final List<Integer> growing = Arrays.asList(28, 29, 30, 31);
-    private static final List<Integer> dead = Arrays.asList(221,222,223,224);
-    private static final List<Integer> weeds = Arrays.asList(0, 1, 2);
+    private static final List<Integer> HARVESTABLE = Arrays.asList(32);
+    private static final List<Integer> GROWING = Arrays.asList(28, 29, 30, 31);
+    private static final List<Integer> DEAD = Arrays.asList(221,222,223,224);
+    private static final List<Integer> WEEDS = Arrays.asList(0, 1, 2);
 
 
     public enum PlantState {
@@ -25,18 +25,17 @@ public class FlowerPatchChecker {
     public static PlantState checkFlowerPatch(Client client, int varbitIndex) {
         int varbitValue = client.getVarbitValue(varbitIndex);
 
-        if (harvestable.contains(varbitValue)) {
+        if (HARVESTABLE.contains(varbitValue)) {
             return PlantState.HARVESTABLE;
-        } else if (growing.contains(varbitValue)) {
+        } else if (GROWING.contains(varbitValue)) {
             return PlantState.GROWING;
-        } else if (dead.contains(varbitValue)) {
+        } else if (DEAD.contains(varbitValue)) {
             return PlantState.DEAD;
-        }  else if (weeds.contains(varbitValue)) {
+        } else if (WEEDS.contains(varbitValue)) {
             return PlantState.WEEDS;
         } else if (varbitValue == 3) {
             return PlantState.PLANT;
         } else {
-                return PlantState.UNKNOWN;
+            return PlantState.UNKNOWN;
         }
-    }
-}
+    }}

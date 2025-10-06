@@ -2,6 +2,8 @@ package com.easyfarming;
 
 import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.ui.overlay.OverlayManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -16,6 +18,7 @@ import com.easyfarming.ItemsAndLocations.FruitTreeRunItemAndLocation;
 
 public class EasyFarmingPanel extends PluginPanel
 {
+    private static final Logger logger = LoggerFactory.getLogger(EasyFarmingPanel.class);
     private final HerbRunItemAndLocation herbRunItemAndLocation;
     private final TreeRunItemAndLocation treeRunItemAndLocation;
     private  final FruitTreeRunItemAndLocation fruitTreeRunItemAndLocation;
@@ -177,10 +180,10 @@ public class EasyFarmingPanel extends PluginPanel
                 EasyFarmingOverlay overlay = plugin.getEasyFarmingOverlay();
 
                 if (!plugin.isOverlayActive()) {
-                    farmingTeleportOverlay.RemoveOverlay();
-                    System.out.println("Remove overlay from button");
+                    farmingTeleportOverlay.removeOverlay();
+                    logger.debug("Remove overlay from button");
                 } else {
-                    System.out.println("Add overlay from button");
+                    logger.debug("Add overlay from button");
                     plugin.getFarmingTeleportOverlay().herbRun = true;
                     overlayManager.add(overlay);
                     overlayManager.add(farmingTeleportOverlay);
@@ -199,10 +202,10 @@ public class EasyFarmingPanel extends PluginPanel
                 EasyFarmingOverlay overlay = plugin.getEasyFarmingOverlay();
 
                 if (!plugin.isOverlayActive()) {
-                    farmingTeleportOverlay.RemoveOverlay();
-                    System.out.println("Remove overlay from button");
+                    farmingTeleportOverlay.removeOverlay();
+                    logger.debug("Remove overlay from button");
                 } else {
-                    System.out.println("Add overlay from button");
+                    logger.debug("Add overlay from button");
                     plugin.getFarmingTeleportOverlay().treeRun = true;
                     overlayManager.add(overlay);
                     overlayManager.add(farmingTeleportOverlay);
@@ -220,10 +223,10 @@ public class EasyFarmingPanel extends PluginPanel
                 EasyFarmingOverlay overlay = plugin.getEasyFarmingOverlay();
 
                 if (!plugin.isOverlayActive()) {
-                    farmingTeleportOverlay.RemoveOverlay();
-                    System.out.println("Remove overlay from button");
+                    farmingTeleportOverlay.removeOverlay();
+                    logger.debug("Remove overlay from button");
                 } else {
-                    System.out.println("Add overlay from button");
+                    logger.debug("Add overlay from button");
                     plugin.getFarmingTeleportOverlay().fruitTreeRun = true;
                     overlayManager.add(overlay);
                     overlayManager.add(farmingTeleportOverlay);

@@ -29,12 +29,11 @@ public class HerbPatchChecker {
         private final List<Integer> diseased;
         private final List<Integer> harvest;
 
-        Herb(List<Integer> growing, List<Integer> dead, List<Integer> harvest) {
+        Herb(List<Integer> growing, List<Integer> diseased, List<Integer> harvest) {
             this.growing = growing;
-            this.diseased = dead;
+            this.diseased = diseased;
             this.harvest = harvest;
         }
-
         public List<Integer> getGrowing() {
             return growing;
         }
@@ -61,18 +60,8 @@ public class HerbPatchChecker {
             .flatMap(herb -> herb.getHarvest().stream())
             .collect(Collectors.toList());
 
-    private static final List<Integer> weeds = Arrays.asList(0, 1, 2);
-    private static final List<Integer> dead = Arrays.asList(170,171,172);
-
-    public enum PlantState {
-        GROWING,
-        DISEASED,
-        HARVESTABLE,
-        WEEDS,
-        DEAD,
-        PLANT,
-        UNKNOWN
-    }
+    private static final List<Integer> WEEDS = Arrays.asList(0, 1, 2);
+    private static final List<Integer> DEAD = Arrays.asList(170, 171, 172);
 
     public static PlantState checkHerbPatch(Client client, int varbitIndex) {
         int varbitValue = client.getVarbitValue(varbitIndex);
@@ -83,9 +72,9 @@ public class HerbPatchChecker {
             return PlantState.DISEASED;
         } else if (harvest.contains(varbitValue)) {
             return PlantState.HARVESTABLE;
-        } else if (weeds.contains(varbitValue)) {
+        } else if (WEEDS.contains(varbitValue)) {
             return PlantState.WEEDS;
-        } else if (dead.contains(varbitValue)) {
+        } else if (DEAD.contains(varbitValue)) {
             return PlantState.DEAD;
         } else if (varbitValue == 3) {
             return PlantState.PLANT;
@@ -93,4 +82,14 @@ public class HerbPatchChecker {
             return PlantState.UNKNOWN;
         }
     }
+    public enum PlantState {
+        GROWING,
+        DISEASED,
+        HARVESTABLE,
+        WEEDS,
+        DEAD,
+        PLANT,
+        UNKNOWN
+    }
+
 }
