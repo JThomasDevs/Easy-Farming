@@ -1182,12 +1182,14 @@ public class FarmingTeleportOverlay extends Overlay {
                     if (location.getFarmLimps()) {
                         this.farmLimps = true;
                     }
+                    plugin.addTextToInfoBox(teleport.getDescription());
                 } else {
                     // Use adaptive highlighting based on current situation
                     adaptiveHighlighting(location, teleport, graphics);
+                    plugin.addTextToInfoBox(teleport.getDescription());
+                    return;
                 }
                 
-                plugin.addTextToInfoBox(teleport.getDescription());
                 switch (teleport.getCategory()) {
                     case ITEM:
                         if (teleport.getInterfaceGroupId() != 0) {
@@ -1213,10 +1215,10 @@ public class FarmingTeleportOverlay extends Overlay {
                                 itemHighlight(graphics, teleport.getId(), rightClickColorWithAlpha);
                                 highlightRightClickOption(graphics, teleport.getRightClickOption());
                             } else {
-                                if(teleport.getId() == ItemID.MOURNING_TELEPORT_CRYSTAL_1) {
+                                if(plugin.getEasyFarmingOverlay().isTeleportCrystal(teleport.getId())) {
                                     highlightTeleportCrystal(graphics);
                                 }
-                                if(teleport.getId() == ItemID.JEWL_NECKLACE_OF_SKILLS_1) {
+                                if(plugin.getEasyFarmingOverlay().isSkillsNecklace(teleport.getId())) {
                                     String index = location.getName();
                                     if(Objects.equals(index, "Ardougne")) {
                                         highlightSkillsNecklace(graphics);

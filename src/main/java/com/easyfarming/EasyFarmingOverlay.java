@@ -37,7 +37,7 @@ public class EasyFarmingOverlay extends Overlay {
     public List<Integer> getTeleportCrystalIdsIds() {
         return TELEPORT_CRYSTAL_IDS;
     }
-    private boolean isTeleportCrystal(int itemId) {
+    public boolean isTeleportCrystal(int itemId) {
         return TELEPORT_CRYSTAL_IDS.contains(itemId);
     }
 
@@ -46,7 +46,7 @@ public class EasyFarmingOverlay extends Overlay {
     public List<Integer> getSkillsNecklaceIdsIds() {
         return SKILLS_NECKLACE_IDS;
     }
-    private boolean isSkillsNecklace(int itemId) {
+    public boolean isSkillsNecklace(int itemId) {
         return SKILLS_NECKLACE_IDS.contains(itemId);
     }
 

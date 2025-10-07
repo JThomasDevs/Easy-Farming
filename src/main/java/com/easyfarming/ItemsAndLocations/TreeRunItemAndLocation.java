@@ -170,7 +170,7 @@ public class TreeRunItemAndLocation extends ItemAndLocation
         ));
 
         faladorTreeLocation.addTeleportOption(faladorTreeLocation.new Teleport(
-            "Falador_teleport",
+            "Teleport",
             Location.TeleportCategory.SPELLBOOK,
             "Teleport to Falador with Spellbook and run to Falador park.",
             0,
@@ -321,13 +321,13 @@ public class TreeRunItemAndLocation extends ItemAndLocation
         ));
 
         lumbridgeTreeLocation.addTeleportOption(lumbridgeTreeLocation.new Teleport(
-            "Lumbridge_teleport",
+            "Teleport",
             Location.TeleportCategory.SPELLBOOK,
             "Teleport to Lumbridge with spellbook.",
             0,
             "null",
             218,
-            24,
+            26,
             12850,
             lumbridgeTreePatchPoint,
             Arrays.asList(
@@ -378,13 +378,13 @@ public class TreeRunItemAndLocation extends ItemAndLocation
         ));
 
         taverleyTreeLocation.addTeleportOption(taverleyTreeLocation.new Teleport(
-            "Falador_teleport",
+            "Teleport",
             Location.TeleportCategory.SPELLBOOK,
             "Teleport to Falador with spellbook and run to Taverly.",
             0,
             "null",
             218,
-            27,
+            29,
             11828,
             taverlyPatchPoint,
             Arrays.asList(
@@ -435,13 +435,13 @@ public class TreeRunItemAndLocation extends ItemAndLocation
         ));
 
         varrockTreeLocation.addTeleportOption(varrockTreeLocation.new Teleport(
-            "Varrock_teleport",
+            "Teleport",
             Location.TeleportCategory.SPELLBOOK,
             "Teleport to Varrock with spellbook.",
             0,
             "null",
             218,
-            21,
+            23,
             12853,
             varrockTreePatchPoint,
             Arrays.asList(

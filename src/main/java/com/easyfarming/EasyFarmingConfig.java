@@ -497,7 +497,7 @@ public interface EasyFarmingConfig extends Config
 	enum TreeOptionEnumFaladorTeleport implements OptionEnumTeleport
 	{
 		Portal_Nexus,
-		Falador_teleport
+		Teleport
 	}
 	@ConfigItem(
 			position = 1,
@@ -506,7 +506,7 @@ public interface EasyFarmingConfig extends Config
 			description = "Desired way to teleport to Falador",
 			section = treeTeleportOptionList
 	)
-	default TreeOptionEnumFaladorTeleport enumTreeFaladorTeleport() { return TreeOptionEnumFaladorTeleport.Falador_teleport; }
+	default TreeOptionEnumFaladorTeleport enumTreeFaladorTeleport() { return TreeOptionEnumFaladorTeleport.Teleport; }
 
 	enum TreeOptionEnumFarmingGuildTeleport implements OptionEnumTeleport
 	{
@@ -539,7 +539,7 @@ public interface EasyFarmingConfig extends Config
 	enum TreeOptionEnumLumbridgeTeleport implements OptionEnumTeleport
 	{
 		Portal_Nexus,
-		Lumbridge_teleport
+		Teleport
 	}
 	@ConfigItem(
 			position = 3,
@@ -548,12 +548,12 @@ public interface EasyFarmingConfig extends Config
 			description = "Desired way to teleport to Lumbridge",
 			section = treeTeleportOptionList
 	)
-	default TreeOptionEnumLumbridgeTeleport enumTreeLumbridgeTeleport() { return TreeOptionEnumLumbridgeTeleport.Lumbridge_teleport; }
+	default TreeOptionEnumLumbridgeTeleport enumTreeLumbridgeTeleport() { return TreeOptionEnumLumbridgeTeleport.Teleport; }
 
 	enum TreeOptionEnumTaverleyTeleport implements OptionEnumTeleport
 	{
 		Portal_Nexus,
-		Falador_teleport
+		Teleport
 	}
 	@ConfigItem(
 			position = 4,
@@ -562,12 +562,12 @@ public interface EasyFarmingConfig extends Config
 			description = "Desired way to teleport to Taverley",
 			section = treeTeleportOptionList
 	)
-	default TreeOptionEnumTaverleyTeleport enumTreeTaverleyTeleport() { return TreeOptionEnumTaverleyTeleport.Falador_teleport; }
+	default TreeOptionEnumTaverleyTeleport enumTreeTaverleyTeleport() { return TreeOptionEnumTaverleyTeleport.Teleport; }
 
 	enum TreeOptionEnumVarrockTeleport implements OptionEnumTeleport
 	{
 		Portal_Nexus,
-		Varrock_teleport
+		Teleport
 	}
 	@ConfigItem(
 			position = 5,
@@ -576,7 +576,7 @@ public interface EasyFarmingConfig extends Config
 			description = "Desired way to teleport to Varrock",
 			section = treeTeleportOptionList
 	)
-	default TreeOptionEnumVarrockTeleport enumTreeVarrockTeleport() { return TreeOptionEnumVarrockTeleport.Varrock_teleport; }
+	default TreeOptionEnumVarrockTeleport enumTreeVarrockTeleport() { return TreeOptionEnumVarrockTeleport.Teleport; }
 
 	@ConfigSection(
 			name = "Fruit tree teleport options",

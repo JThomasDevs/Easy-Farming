@@ -176,7 +176,7 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
             0,
             "null",
             218,
-            38,
+            41,
             10547,
             brimhavenFruitTreePatchPoint,
             Arrays.asList(
