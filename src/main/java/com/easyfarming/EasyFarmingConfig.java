@@ -510,7 +510,8 @@ public interface EasyFarmingConfig extends Config
 
 	enum TreeOptionEnumFarmingGuildTeleport implements OptionEnumTeleport
 	{
-		Jewellery_box
+		Jewellery_box,
+		Skills_Necklace
 	}
 	@ConfigItem(
 			position = 1,
@@ -601,7 +602,10 @@ public interface EasyFarmingConfig extends Config
 	enum FruitTreeOptionEnumCatherbyTeleport implements OptionEnumTeleport
 	{
 		Portal_Nexus_Catherby,
-		Portal_Nexus_Camelot
+		Portal_Nexus_Camelot,
+		Camelot_Teleport,
+		Camelot_Tele_Tab,
+		Catherby_Tele_Tab
 	}
 	@ConfigItem(
 			position = 1,
@@ -614,7 +618,8 @@ public interface EasyFarmingConfig extends Config
 
 	enum FruitTreeOptionEnumFarmingGuildTeleport implements OptionEnumTeleport
 	{
-		Jewellery_box
+		Jewellery_box,
+		Skills_Necklace
 	}
 	@ConfigItem(
 			position = 1,

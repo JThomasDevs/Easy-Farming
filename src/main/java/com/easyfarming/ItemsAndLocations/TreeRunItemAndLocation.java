@@ -60,6 +60,14 @@ public class TreeRunItemAndLocation extends ItemAndLocation
                     Integer::sum
                 );
 
+                if (selectedCompostID() != -1 && selectedCompostID() != ItemID.BOTTOMLESS_COMPOST_BUCKET) {
+                    allRequirements.merge(
+                        selectedCompostID(),
+                        1,
+                        Integer::sum
+                    );
+                }
+
                 Location.Teleport teleport = location.getSelectedTeleport();
 
                 Map<Integer, Integer> locationRequirements = teleport.getItemRequirements();
@@ -95,11 +103,14 @@ public class TreeRunItemAndLocation extends ItemAndLocation
             Integer::sum
         );
 
-        allRequirements.merge(
-            ItemID.BOTTOMLESS_COMPOST_BUCKET,
-            1,
-            Integer::sum
-        );
+        // Only add bottomless compost bucket if it's selected in config
+        if (selectedCompostID() == ItemID.BOTTOMLESS_COMPOST_BUCKET) {
+            allRequirements.merge(
+                ItemID.BOTTOMLESS_COMPOST_BUCKET,
+                1,
+                Integer::sum
+            );
+        }
 
         allRequirements.merge(
             ItemID.FAIRY_ENCHANTED_SECATEURS,
@@ -213,6 +224,22 @@ public class TreeRunItemAndLocation extends ItemAndLocation
             4922,
             farmingGuildTreePatchPoint,
             getHouseTeleportItemRequirements()
+        ));
+
+        farmingGuildTreeLocation.addTeleportOption(farmingGuildTreeLocation.new Teleport(
+            "Skills_Necklace",
+            Location.TeleportCategory.ITEM,
+            "Teleport to Farming guild using Skills necklace.",
+            ItemID.JEWL_NECKLACE_OF_SKILLS_1,
+            "null",
+            0,
+            0,
+            4922,
+            farmingGuildTreePatchPoint,
+            Collections.singletonList(new ItemRequirement(
+                ItemID.JEWL_NECKLACE_OF_SKILLS_1,
+                1
+            ))
         ));
 
         locations.add(farmingGuildTreeLocation);

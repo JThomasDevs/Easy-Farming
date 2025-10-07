@@ -60,6 +60,14 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
                     Integer::sum
                 );
 
+                if (selectedCompostID() != -1 && selectedCompostID() != ItemID.BOTTOMLESS_COMPOST_BUCKET) {
+                    allRequirements.merge(
+                        selectedCompostID(),
+                        1,
+                        Integer::sum
+                    );
+                }
+
                 Location.Teleport teleport = location.getSelectedTeleport();
 
                 Map<Integer, Integer> locationRequirements = teleport.getItemRequirements();
@@ -95,11 +103,14 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
             Integer::sum
         );
 
-        allRequirements.merge(
-            ItemID.BOTTOMLESS_COMPOST_BUCKET,
-            1,
-            Integer::sum
-        );
+        // Only add bottomless compost bucket if it's selected in config
+        if (selectedCompostID() == ItemID.BOTTOMLESS_COMPOST_BUCKET) {
+            allRequirements.merge(
+                ItemID.BOTTOMLESS_COMPOST_BUCKET,
+                1,
+                Integer::sum
+            );
+        }
 
         allRequirements.merge(
             ItemID.FAIRY_ENCHANTED_SECATEURS,
@@ -228,6 +239,60 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
             getHouseTeleportItemRequirements()
         ));
 
+        catherbyFruitTreeLocation.addTeleportOption(catherbyFruitTreeLocation.new Teleport(
+            "Camelot_Teleport",
+            Location.TeleportCategory.SPELLBOOK,
+            "Teleport to Camelot using the standard spellbook, and run east. (If you have configured the teleport to seers you need to right click and teleport to Camelot)",
+            0,
+            "null",
+            218,
+            34,
+            11062,
+            cathebyFruitTreePatchPoint,
+            Arrays.asList(
+                new ItemRequirement(
+                    ItemID.AIRRUNE,
+                    5
+                ),
+                new ItemRequirement(
+                    ItemID.LAWRUNE,
+                    1
+                )
+            )
+        ));
+
+        catherbyFruitTreeLocation.addTeleportOption(catherbyFruitTreeLocation.new Teleport(
+            "Camelot_Tele_Tab",
+            Location.TeleportCategory.ITEM,
+            "Teleport to Camelot using a Camelot tele tab, and run east.(If you have configured the teleport to seers you need to right click and teleport to Camelot)",
+            ItemID.POH_TABLET_CAMELOTTELEPORT,
+            "null",
+            0,
+            0,
+            11062,
+            cathebyFruitTreePatchPoint,
+            Collections.singletonList(new ItemRequirement(
+                ItemID.POH_TABLET_CAMELOTTELEPORT,
+                1
+            ))
+        ));
+
+        catherbyFruitTreeLocation.addTeleportOption(catherbyFruitTreeLocation.new Teleport(
+            "Catherby_Tele_Tab",
+            Location.TeleportCategory.ITEM,
+            "Teleport to Catherby using Catherby teleport tab.",
+            ItemID.LUNAR_TABLET_CATHERBY_TELEPORT,
+            "null",
+            0,
+            0,
+            11061,
+            cathebyFruitTreePatchPoint,
+            Collections.singletonList(new ItemRequirement(
+                ItemID.LUNAR_TABLET_CATHERBY_TELEPORT,
+                1
+            ))
+        ));
+
         locations.add(catherbyFruitTreeLocation);
     }
 
@@ -257,6 +322,22 @@ public class FruitTreeRunItemAndLocation extends ItemAndLocation
             4922,
             farmingGuildFruitTreePatchPoint,
             getHouseTeleportItemRequirements()
+        ));
+
+        farmingGuildFruitTreeLocation.addTeleportOption(farmingGuildFruitTreeLocation.new Teleport(
+            "Skills_Necklace",
+            Location.TeleportCategory.ITEM,
+            "Teleport to Farming guild using Skills necklace.",
+            ItemID.JEWL_NECKLACE_OF_SKILLS_1,
+            "null",
+            0,
+            0,
+            4922,
+            farmingGuildFruitTreePatchPoint,
+            Collections.singletonList(new ItemRequirement(
+                ItemID.JEWL_NECKLACE_OF_SKILLS_1,
+                1
+            ))
         ));
 
         locations.add(farmingGuildFruitTreeLocation);

@@ -4,6 +4,7 @@ import java.awt.*;
 import javax.inject.Inject;
 
 import net.runelite.api.*;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.widgets.Widget;
@@ -404,6 +405,234 @@ public class FarmingTeleportOverlay extends Overlay {
         }
         // Default fallback to resizable classic mode
         return 161;
+    }
+
+    /**
+     * Enhanced location detection that handles edge cases and adapts to player's current situation
+     * @param location The target location
+     * @param teleport The selected teleport method
+     * @return true if player should proceed to farming phase, false if still navigating
+     */
+    private boolean shouldProceedToFarming(Location location, Location.Teleport teleport) {
+        int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
+        WorldPoint playerLocation = client.getLocalPlayer().getWorldLocation();
+        WorldPoint targetLocation = teleport.getPoint();
+        
+        // Check if player is in the correct region
+        boolean inCorrectRegion = (currentRegionId == teleport.getRegionId());
+        
+        // Check if player is near the target location (within 20 tiles)
+        boolean nearTarget = areaCheck.isPlayerWithinArea(targetLocation, 20);
+        
+        // Check if player is very close to the farming patch (within 5 tiles)
+        boolean nearPatch = areaCheck.isPlayerWithinArea(targetLocation, 5);
+        
+        // Adaptive logic for different scenarios:
+        
+        // Scenario 1: Player is very close to the patch - proceed to farming regardless of teleport method
+        if (nearPatch) {
+            return true;
+        }
+        
+        // Scenario 2: Player is in correct region and reasonably close - proceed to farming
+        if (inCorrectRegion && nearTarget) {
+            return true;
+        }
+        
+        // Scenario 3: Player is in correct region but far from target - might have skipped teleport step
+        // Check if there are any farming patches nearby that match this location type
+        if (inCorrectRegion && !nearTarget) {
+            // Check if player is near any farming patches of the same type
+            if (isNearAnyFarmingPatch(location.getName())) {
+                return true;
+            }
+        }
+        
+        // Scenario 4: Player is in wrong region but very close to target - might have used different teleport
+        if (!inCorrectRegion && nearTarget) {
+            return true;
+        }
+        
+        // Default: Continue with normal navigation
+        return false;
+    }
+    
+    /**
+     * Checks if player is near any farming patches of the specified type
+     * @param locationName The name of the location to check for
+     * @return true if player is near any farming patch of this type
+     */
+    private boolean isNearAnyFarmingPatch(String locationName) {
+        WorldPoint playerLocation = client.getLocalPlayer().getWorldLocation();
+        
+        // Define farming patch locations for each area
+        switch (locationName) {
+            case "Ardougne":
+                // Check if near Ardougne herb patch
+                return areaCheck.isPlayerWithinArea(new WorldPoint(2670, 3374, 0), 10);
+            case "Catherby":
+                // Check if near Catherby herb patch
+                return areaCheck.isPlayerWithinArea(new WorldPoint(2813, 3463, 0), 10);
+            case "Falador":
+                // Check if near Falador herb patch
+                return areaCheck.isPlayerWithinArea(new WorldPoint(3058, 3307, 0), 10);
+            case "Farming Guild":
+                // Check if near Farming Guild patches
+                return areaCheck.isPlayerWithinArea(new WorldPoint(1238, 3726, 0), 15) ||
+                       areaCheck.isPlayerWithinArea(new WorldPoint(1232, 3736, 0), 15) ||
+                       areaCheck.isPlayerWithinArea(new WorldPoint(1243, 3759, 0), 15);
+            case "Brimhaven":
+                // Check if near Brimhaven fruit tree patch
+                return areaCheck.isPlayerWithinArea(new WorldPoint(2764, 3212, 0), 10);
+            case "Gnome Stronghold":
+                // Check if near Gnome Stronghold patches
+                return areaCheck.isPlayerWithinArea(new WorldPoint(2436, 3415, 0), 10) ||
+                       areaCheck.isPlayerWithinArea(new WorldPoint(2475, 3446, 0), 10);
+            case "Lumbridge":
+                // Check if near Lumbridge tree patch
+                return areaCheck.isPlayerWithinArea(new WorldPoint(3193, 3231, 0), 10);
+            case "Taverley":
+                // Check if near Taverley tree patch
+                return areaCheck.isPlayerWithinArea(new WorldPoint(2936, 3438, 0), 10);
+            case "Varrock":
+                // Check if near Varrock tree patch
+                return areaCheck.isPlayerWithinArea(new WorldPoint(3229, 3459, 0), 10);
+            default:
+                return false;
+        }
+    }
+    
+    /**
+     * Gets the appropriate highlighting based on current situation
+     * @param location The target location
+     * @param teleport The selected teleport method
+     * @param graphics Graphics context for highlighting
+     */
+    private void adaptiveHighlighting(Location location, Location.Teleport teleport, Graphics2D graphics) {
+        int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
+        WorldPoint playerLocation = client.getLocalPlayer().getWorldLocation();
+        WorldPoint targetLocation = teleport.getPoint();
+        
+        boolean inCorrectRegion = (currentRegionId == teleport.getRegionId());
+        boolean nearTarget = areaCheck.isPlayerWithinArea(targetLocation, 20);
+        boolean nearPatch = areaCheck.isPlayerWithinArea(targetLocation, 5);
+        
+        // If player is very close to patch, highlight the patch directly
+        if (nearPatch) {
+            highlightFarmingPatchesForLocation(location.getName(), graphics);
+            return;
+        }
+        
+        // If player is in correct region but not near target, they might be near a different patch
+        if (inCorrectRegion && !nearTarget) {
+            if (isNearAnyFarmingPatch(location.getName())) {
+                highlightFarmingPatchesForLocation(location.getName(), graphics);
+                return;
+            }
+        }
+        
+        // Default to normal teleport highlighting
+        highlightTeleportMethod(teleport, graphics);
+    }
+    
+    /**
+     * Highlights farming patches for a specific location
+     * @param locationName The name of the location
+     * @param graphics Graphics context for highlighting
+     */
+    private void highlightFarmingPatchesForLocation(String locationName, Graphics2D graphics) {
+        switch (locationName) {
+            case "Ardougne":
+            case "Weiss":
+                highlightHerbPatches(graphics, leftClickColorWithAlpha);
+                break;
+            case "Catherby":
+                // Catherby has both herb and fruit tree patches
+                highlightHerbPatches(graphics, leftClickColorWithAlpha);
+                highlightFruitTreePatches(graphics, leftClickColorWithAlpha);
+                break;
+            case "Falador":
+                // Falador has both herb and tree patches
+                highlightHerbPatches(graphics, leftClickColorWithAlpha);
+                highlightTreePatches(graphics, leftClickColorWithAlpha);
+                break;
+            case "Farming Guild":
+                // Farming Guild has all patch types
+                highlightHerbPatches(graphics, leftClickColorWithAlpha);
+                highlightTreePatches(graphics, leftClickColorWithAlpha);
+                highlightFruitTreePatches(graphics, leftClickColorWithAlpha);
+                break;
+            case "Lumbridge":
+            case "Taverley":
+            case "Varrock":
+                highlightTreePatches(graphics, leftClickColorWithAlpha);
+                break;
+            case "Brimhaven":
+            case "Gnome Stronghold":
+            case "Lletya":
+            case "Tree Gnome Village":
+                highlightFruitTreePatches(graphics, leftClickColorWithAlpha);
+                break;
+        }
+    }
+    
+    /**
+     * Highlights the appropriate teleport method based on category
+     * @param teleport The teleport method to highlight
+     * @param graphics Graphics context for highlighting
+     */
+    private void highlightTeleportMethod(Location.Teleport teleport, Graphics2D graphics) {
+        switch (teleport.getCategory()) {
+            case ITEM:
+                itemHighlight(graphics, teleport.getId(), rightClickColorWithAlpha);
+                if (!teleport.getRightClickOption().equals("null")) {
+                    highlightRightClickOption(graphics, teleport.getRightClickOption());
+                }
+                break;
+            case SPELLBOOK:
+                InventoryTabChecker.TabState tabState = InventoryTabChecker.checkTab(client, VarClientInt.INVENTORY_TAB);
+                if (tabState == InventoryTabChecker.TabState.SPELLBOOK) {
+                    interfaceOverlay(teleport.getInterfaceGroupId(), teleport.getInterfaceChildId()).render(graphics);
+                } else {
+                    interfaceOverlay(getSpellbookTabGroupId(), getSpellbookTabChildId()).render(graphics);
+                }
+                break;
+            case PORTAL_NEXUS:
+                if (!isInterfaceOpen(17, 0)) {
+                    List<Integer> portalNexusIds = getGameObjectIdsByName("Portal Nexus");
+                    for (Integer objectId : portalNexusIds) {
+                        gameObjectOverlay(objectId, leftClickColorWithAlpha).render(graphics);
+                    }
+                } else {
+                    Widget widget = client.getWidget(17, 13);
+                    int index = getChildIndexPortalNexus(teleport.getPoint().toString());
+                    highlightDynamicComponent(graphics, widget, index);
+                }
+                break;
+            case SPIRIT_TREE:
+                if (!isInterfaceOpen(187, 3)) {
+                    List<Integer> spiritTreeIds = Arrays.asList(1293, 1294, 1295, 8355, 29227, 29229, 37329, 40778);
+                    for (Integer objectId : spiritTreeIds) {
+                        gameObjectOverlay(objectId, leftClickColorWithAlpha).render(graphics);
+                    }
+                } else {
+                    Widget widget = client.getWidget(187, 3);
+                    int index = getChildIndexSpiritTree(teleport.getPoint().toString());
+                    highlightDynamicComponent(graphics, widget, index);
+                }
+                break;
+            case JEWELLERY_BOX:
+                if (!isInterfaceOpen(29155, 0)) {
+                    List<Integer> jewelleryBoxIds = getGameObjectIdsByName("Jewellery Box");
+                    for (Integer objectId : jewelleryBoxIds) {
+                        gameObjectOverlay(objectId, leftClickColorWithAlpha).render(graphics);
+                    }
+                } else {
+                    Widget widget = client.getWidget(29155, 0);
+                    highlightDynamicComponent(graphics, widget, 0);
+                }
+                break;
+        }
     }
 
 
@@ -944,6 +1173,20 @@ public class FarmingTeleportOverlay extends Overlay {
         if (locationEnabledBool) {
             if (!isAtDestination) {
                 int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
+                
+                // Use adaptive detection to determine if we should proceed to farming
+                if (shouldProceedToFarming(location, teleport)) {
+                    this.currentTeleportCase = 1;
+                    isAtDestination = true;
+                    this.startSubCases = true;
+                    if (location.getFarmLimps()) {
+                        this.farmLimps = true;
+                    }
+                } else {
+                    // Use adaptive highlighting based on current situation
+                    adaptiveHighlighting(location, teleport, graphics);
+                }
+                
                 plugin.addTextToInfoBox(teleport.getDescription());
                 switch (teleport.getCategory()) {
                     case ITEM:
