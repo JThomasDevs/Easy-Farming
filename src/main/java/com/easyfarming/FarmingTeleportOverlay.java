@@ -641,17 +641,6 @@ public class FarmingTeleportOverlay extends Overlay {
         }
     }
 
-
-    private void printWidgetText(int groupId, int childId) {
-        Widget widget = client.getWidget(groupId, childId);
-        if (widget != null) {
-            String text = widget.getText();
-            System.out.println("Widget text: " + text);
-        } else {
-            System.out.println("Widget not found for groupId: " + groupId + " and childId: " + childId);
-        }
-    }
-
     public void highlightHerbPatches(Graphics2D graphics, Color color)
     {
         for (Integer patchId : farmingHelperOverlay.getHerbPatchIds()) {
