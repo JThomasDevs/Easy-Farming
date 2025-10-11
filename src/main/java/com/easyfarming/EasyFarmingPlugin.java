@@ -11,8 +11,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.*;
 import javax.inject.Inject;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.runelite.api.*;
-import net.runelite.api.events.AnimationChanged;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.game.ItemManager;
@@ -24,7 +25,6 @@ import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.callback.ClientThread;
-import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.client.eventbus.EventBus;
 
 @PluginDescriptor(
@@ -43,7 +43,8 @@ public class EasyFarmingPlugin extends Plugin
 
 	@Inject
 	private ItemManager itemManager;
-	@Inject
+	@Getter
+    @Inject
 	private Client client;
 
 	public void runOnClientThread(Runnable task) {
@@ -99,21 +100,19 @@ public class EasyFarmingPlugin extends Plugin
 	public Location getLletyaFruitTreeLocation() {return fruitTreeRunItemAndLocation.lletyaFruitTreeLocation;}
 	public Location getTreeGnomeVillageTreeLocation() {return fruitTreeRunItemAndLocation.treeGnomeVillageFruitTreeLocation;}
 
-	private boolean isTeleportOverlayActive = false;
-	public boolean isTeleportOverlayActive() {
-		return isTeleportOverlayActive;
-	}
-	public void setTeleportOverlayActive(boolean isTeleportOverlayActive) {
-		this.isTeleportOverlayActive = isTeleportOverlayActive;
-	}
-	@Inject
+	@Getter
+    @Setter
+    private boolean isTeleportOverlayActive = false;
+
+    @Inject
 	private EasyFarmingOverlayInfoBox farmingHelperOverlayInfoBox;
 	public EasyFarmingOverlayInfoBox getEasyFarmingOverlayInfoBox()
 	{
 		return farmingHelperOverlayInfoBox;
 	}
 
-	private String lastMessage = "";
+	@Getter
+    private String lastMessage = "";
     @Subscribe
     public void onChatMessage(ChatMessage event) {
         if (event.getType() == ChatMessageType.GAMEMESSAGE) {
@@ -123,51 +122,21 @@ public class EasyFarmingPlugin extends Plugin
             lastMessage = event.getMessage();
         }
     }
-	public String getLastMessage() {
-		return lastMessage;
-	}
-	public boolean checkMessage(String targetMessage, String lastMessage) {
+
+    public boolean checkMessage(String targetMessage, String lastMessage) {
 		return lastMessage.trim().equalsIgnoreCase(targetMessage.trim());
 	}
 
 	@Inject
 	private EventBus eventBus;
-	/*
-	@Inject
-	private Client client;
 
-	 */
 	@Inject
 	private ClientThread clientThread;
 
 
-	@Inject
+	@Getter
+    @Inject
 	private FarmingTeleportOverlay farmingTeleportOverlay;
-	public FarmingTeleportOverlay getFarmingTeleportOverlay()
-	{
-		return farmingTeleportOverlay;
-	}
-	private int lastClickedGroupId;
-	private int lastClickedChildId;
-	private boolean clicked = false;
-
-	public boolean isClicked(int groupId, int childId) {
-		return clicked && groupId == lastClickedGroupId && childId == lastClickedChildId;
-	}
-
-	//"no usage" but currently needed for spellbook check
-	@Subscribe
-	public void onMenuOptionClicked(MenuOptionClicked event) {
-		clientThread.invokeLater(() -> {
-			int groupId = event.getWidgetId() >>> 16;
-			int childId = event.getWidgetId() & 0xFFFF;
-			clicked = true;
-			lastClickedGroupId = groupId;
-			lastClickedChildId = childId;
-			System.out.printf("Clicked widget: groupId=%d, childId=%d%n", groupId, childId);
-		});
-	}
-
 
 	private EasyFarmingPanel farmingHelperPanel;
 	public EasyFarmingPanel panel;
@@ -181,7 +150,9 @@ public class EasyFarmingPlugin extends Plugin
 	@Inject
 	public OverlayManager overlayManager;
 
-	private boolean isOverlayActive = true;
+	@Getter
+    @Setter
+    private boolean isOverlayActive = true;
 
 	@Inject
 	private EasyFarmingOverlay farmingHelperOverlay;
@@ -191,53 +162,24 @@ public class EasyFarmingPlugin extends Plugin
 		return farmingHelperOverlay;
 	}
 
-	private boolean itemsCollected = false;
+	@Setter
+    private boolean itemsCollected = false;
 	public boolean areItemsCollected() {
 		return itemsCollected;
 	}
 
-	public void setItemsCollected(boolean itemsCollected) {
-		this.itemsCollected = itemsCollected;
-	}
-	public Client getClient() {
-		return client;
-	}
-
-	private int lastAnimationId = -1;
-
-
-	@Subscribe
-	public void onAnimationChanged(AnimationChanged event)
+    public void updateHerbOverlay(Map<Integer, Integer> herbItems)
 	{
-		if (client.getGameState() != GameState.LOGGED_IN
-				|| event.getActor() != client.getLocalPlayer())
-		{
-			return;
-		}
+        //update item list
+    }
 
-		int currentAnimationId = event.getActor().getAnimation();
-		if (currentAnimationId != lastAnimationId)
-		{
-			lastAnimationId = currentAnimationId;
-		}
-	}
-	//update item list
-	private Map<Integer, Integer> herbItemsCache;
-	public void updateHerbOverlay(Map<Integer, Integer> herbItems)
+    public void updateTreeOverlay(Map<Integer, Integer> treeItems)
 	{
-		this.herbItemsCache = herbItems;
-	}
-	private Map<Integer, Integer> treeItemsCache;
-	public void updateTreeOverlay(Map<Integer, Integer> treeItems)
-	{
-		this.treeItemsCache = treeItems;
-	}
+    }
 
-	private Map<Integer, Integer> fruitTreeItemsCache;
-	public void updateFruitTreeOverlay(Map<Integer, Integer> fruitTreeItems)
+    public void updateFruitTreeOverlay(Map<Integer, Integer> fruitTreeItems)
 	{
-		this.fruitTreeItemsCache = fruitTreeItems;
-	}
+    }
 
 	@Provides
 	EasyFarmingConfig getConfig(ConfigManager configManager)
@@ -245,16 +187,7 @@ public class EasyFarmingPlugin extends Plugin
 		return configManager.getConfig(EasyFarmingConfig.class);
 	}
 
-	public boolean isOverlayActive()
-	{
-		return isOverlayActive;
-	}
-
-	public void setOverlayActive(boolean overlayActive)
-	{
-		isOverlayActive = overlayActive;
-	}
-	public void addTextToInfoBox(String text) {
+    public void addTextToInfoBox(String text) {
 		farmingHelperOverlayInfoBox.setText(text);
 	}
 	public boolean getHerbLocationEnabled(String locationName) {

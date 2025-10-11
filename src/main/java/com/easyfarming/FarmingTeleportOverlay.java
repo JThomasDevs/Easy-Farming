@@ -8,7 +8,6 @@ import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.widgets.Widget;
-import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
@@ -203,7 +202,8 @@ public class FarmingTeleportOverlay extends Overlay {
 
         if (inventory != null) {
             Item[] items = inventory.getItems();
-            Widget inventoryWidget = client.getWidget(WidgetInfo.INVENTORY);
+        // TODO: Replace deprecated WidgetInfo usage with InterfaceID
+        Widget inventoryWidget = client.getWidget(InterfaceID.INVENTORY);
 
             for (int i = 0; i < items.length; i++) {
                 Item item = items[i];
@@ -223,6 +223,7 @@ public class FarmingTeleportOverlay extends Overlay {
         List<GameObject> gameObjects = new ArrayList<>();
         for (int x = 0; x < Constants.SCENE_SIZE; x++) {
             for (int y = 0; y < Constants.SCENE_SIZE; y++) {
+                // TODO: Replace deprecated getScene() and getPlane() with getTopLevelWorldView() API
                 Tile tile = client.getScene().getTiles()[client.getPlane()][x][y];
                 if (tile == null) {
                     continue;
@@ -269,6 +270,7 @@ public class FarmingTeleportOverlay extends Overlay {
         List<DecorativeObject> foundDecorativeObjects = new ArrayList<>();
 
         if (client != null) {
+            // TODO: Replace deprecated getScene() with getTopLevelWorldView() API
             Tile[][][] tiles = client.getScene().getTiles();
             for (int plane = 0; plane < tiles.length; plane++) {
                 for (int x = 0; x < tiles[plane].length; x++) {
@@ -317,6 +319,7 @@ public class FarmingTeleportOverlay extends Overlay {
 
     public void highlightRightClickOption(Graphics2D graphics, String option) {
         // Get the menu entries
+        // TODO: Replace deprecated getMenuEntries() with MenuManager
         MenuEntry[] menuEntries = client.getMenuEntries();
 
         for (int i = 0; i < menuEntries.length; i++) {
@@ -328,6 +331,7 @@ public class FarmingTeleportOverlay extends Overlay {
                 // Modify the menu entry to include a highlight
                 String highlightedText = ColorUtil.prependColorTag(">>> " + optionText, rightClickColorWithAlpha);
                 entry.setOption(highlightedText);
+                // TODO: Replace deprecated setMenuEntries() with MenuManager
                 client.setMenuEntries(menuEntries);
                 break;
             }
@@ -335,6 +339,7 @@ public class FarmingTeleportOverlay extends Overlay {
     }
 
     public void highlightNpc(Graphics2D graphics, String npcName) {
+        // TODO: Replace deprecated getNpcs() with getTopLevelWorldView().npcs()
         List<NPC> npcs = client.getNpcs();
 
         if (npcs != null) {
@@ -590,6 +595,7 @@ public class FarmingTeleportOverlay extends Overlay {
                 }
                 break;
             case SPELLBOOK:
+                // TODO: Replace deprecated VarClientInt.INVENTORY_TAB with VarClientID.INVENTORY_TAB
                 InventoryTabChecker.TabState tabState = InventoryTabChecker.checkTab(client, VarClientInt.INVENTORY_TAB);
                 if (tabState == InventoryTabChecker.TabState.SPELLBOOK) {
                     interfaceOverlay(teleport.getInterfaceGroupId(), teleport.getInterfaceChildId()).render(graphics);
@@ -832,18 +838,22 @@ public class FarmingTeleportOverlay extends Overlay {
 
         //Farming guild herb patch uses Varbits.FARMING_4775
         if (currentRegionId == 4922) {
+            // TODO: Replace deprecated Varbits.FARMING_4775 with direct integer value
             plantState = HerbPatchChecker.checkHerbPatch(client, Varbits.FARMING_4775);
         }
         //Harmony herb patch uses Varbits.FARMING_4772
         else if (currentRegionId == 15148) {
+            // TODO: Replace deprecated Varbits.FARMING_4772 with direct integer value
             plantState = HerbPatchChecker.checkHerbPatch(client, Varbits.FARMING_4772);
         }
         //Troll Stronghold and Weiss herb patch uses Varbits.FARMING_4771
         else if (currentRegionId == 11321 || currentRegionId == 11325) {
+            // TODO: Replace deprecated Varbits.FARMING_4771 with direct integer value
             plantState = HerbPatchChecker.checkHerbPatch(client, Varbits.FARMING_4771);
         }
         //Rest uses Varbits.FARMING_4774
         else {
+            // TODO: Replace deprecated Varbits.FARMING_4774 with direct integer value
             plantState = HerbPatchChecker.checkHerbPatch(client, Varbits.FARMING_4774);
         }
         if (!areaCheck.isPlayerWithinArea(teleport.getPoint(), 15))
@@ -898,8 +908,10 @@ public class FarmingTeleportOverlay extends Overlay {
             int currentRegionId = client.getLocalPlayer().getWorldLocation().getRegionID();
             FlowerPatchChecker.PlantState plantState;
             if (currentRegionId == 4922) {
+                // TODO: Replace deprecated Varbits.FARMING_7906 with direct integer value
                 plantState = FlowerPatchChecker.checkFlowerPatch(client, Varbits.FARMING_7906);
             } else {
+                // TODO: Replace deprecated Varbits.FARMING_4773 with direct integer value
                 plantState = FlowerPatchChecker.checkFlowerPatch(client, Varbits.FARMING_4773);
             }
             switch (plantState) {
@@ -943,8 +955,10 @@ public class FarmingTeleportOverlay extends Overlay {
         //4771 falador, gnome stronghold, lumbridge, Taverly, Varrock
         //7905 farming guild
         if (currentRegionId == 4922) {
+            // TODO: Replace deprecated Varbits.FARMING_7905 with direct integer value
             plantState = TreePatchChecker.checkTreePatch(client, Varbits.FARMING_7905);
         } else {
+            // TODO: Replace deprecated Varbits.FARMING_4771 with direct integer value
             plantState = TreePatchChecker.checkTreePatch(client, Varbits.FARMING_4771);
         }
         if (!areaCheck.isPlayerWithinArea(teleport.getPoint(), 15))
@@ -1017,10 +1031,13 @@ public class FarmingTeleportOverlay extends Overlay {
         //Varbits.FARMING_7909 farming guild
         //Varbits.FARMING_4772 gnome stronghold
         if (currentRegionId == 4922) {
+            // TODO: Replace deprecated Varbits.FARMING_7909 with direct integer value
             plantState = FruitTreePatchChecker.checkFruitTreePatch(client, Varbits.FARMING_7909);
         } else if (currentRegionId == 9782 || currentRegionId == 9781) {
+            // TODO: Replace deprecated Varbits.FARMING_4772 with direct integer value
             plantState = FruitTreePatchChecker.checkFruitTreePatch(client, Varbits.FARMING_4772);
         } else {
+            // TODO: Replace deprecated Varbits.FARMING_4771 with direct integer value
             plantState = FruitTreePatchChecker.checkFruitTreePatch(client, Varbits.FARMING_4771);
         }
         if (!areaCheck.isPlayerWithinArea(teleport.getPoint(), 15)) {
@@ -1084,11 +1101,13 @@ public class FarmingTeleportOverlay extends Overlay {
 
     private List<Integer> getGameObjectIdsByName(String name) {
         List<Integer> foundObjectIds = new ArrayList<>();
+        // TODO: Replace deprecated getScene() with getTopLevelWorldView() API
         Scene scene = client.getScene();
         Tile[][][] tiles = scene.getTiles();
 
         for (int x = 0; x < Constants.SCENE_SIZE; x++) {
             for (int y = 0; y < Constants.SCENE_SIZE; y++) {
+                // TODO: Replace deprecated getPlane() with getTopLevelWorldView() API
                 Tile tile = tiles[client.getPlane()][x][y];
                 if (tile == null) {
                     continue;
@@ -1120,6 +1139,7 @@ public class FarmingTeleportOverlay extends Overlay {
         switch (teleportOption) {
             case Law_air_earth_runes:
                 InventoryTabChecker.TabState tabState;
+                // TODO: Replace deprecated VarClientInt.INVENTORY_TAB with VarClientID.INVENTORY_TAB
                 tabState = InventoryTabChecker.checkTab(client, VarClientInt.INVENTORY_TAB);
                 switch (tabState) {
                             case INVENTORY:
@@ -1372,15 +1392,10 @@ public class FarmingTeleportOverlay extends Overlay {
                         break;
                     case SPELLBOOK:
                         InventoryTabChecker.TabState tabState;
+                        // TODO: Replace deprecated VarClientInt.INVENTORY_TAB with VarClientID.INVENTORY_TAB
                         tabState = InventoryTabChecker.checkTab(client, VarClientInt.INVENTORY_TAB);
                         switch (tabState) {
                             case REST:
-                                if (currentRegionId == teleport.getRegionId()) {
-                                    this.currentTeleportCase = 1;
-                                    isAtDestination = true;
-                                    this.startSubCases = true;
-                                }
-                                break;
                             case INVENTORY:
                                 interfaceOverlay(getSpellbookTabGroupId(), getSpellbookTabChildId()).render(graphics);
                                 if (currentRegionId == teleport.getRegionId()) {
@@ -1512,7 +1527,6 @@ public class FarmingTeleportOverlay extends Overlay {
     @Override
     public Dimension render(Graphics2D graphics) {
         if (plugin.isTeleportOverlayActive()) {
-            Client client = plugin.getClient();
             if (herbRun) {
                 switch (this.currentLocationIndex) {
                     case 0:

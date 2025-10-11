@@ -56,19 +56,6 @@ public class ItemAndLocation
 
                 break;
 
-            // case Law_dust_runes:
-            //     itemRequirements.add(new ItemRequirement(
-            //         ItemID.DUST_RUNE,
-            //         1
-            //     ));
-            //
-            //     itemRequirements.add(new ItemRequirement(
-            //         ItemID.LAWRUNE,
-            //         1
-            //     ));
-            //
-            //     break;
-
             case Teleport_To_House:
                 itemRequirements.add(new ItemRequirement(
                     ItemID.POH_TABLET_TELEPORTTOHOUSE,
